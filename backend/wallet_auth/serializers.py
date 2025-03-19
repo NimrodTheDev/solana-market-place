@@ -47,8 +47,8 @@ class TradeSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'user', 'created_at']
     
-    def get_trade_type_display(self, obj):
-        return "Buy" if obj.trade_type else "Sell"
+    # def get_trade_type_display(self, obj):
+    #     return obj.trade_type
         
     def validate(self, data):
         """

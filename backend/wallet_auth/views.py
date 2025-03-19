@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
-from django.shortcuts import render
 from django.views.generic import TemplateView
 
 from .services import SolanaAuthService
@@ -15,7 +14,6 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
 from .models import Coin, UserCoinHoldings, Trade, SolanaUser
 from .serializers import (
     CoinSerializer, 
@@ -138,10 +136,6 @@ class LoginPageView(TemplateView):
     template_name = 'wallet_auth/login.html'
 
 
-
-
-
-
 class CoinViewSet(viewsets.ModelViewSet):
     """
     API endpoint for Coins
@@ -194,7 +188,7 @@ class TradeViewSet(viewsets.ModelViewSet):
     """
     queryset = Trade.objects.all()
     serializer_class = TradeSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = 'id'
     
     def get_queryset(self):
@@ -203,7 +197,7 @@ class TradeViewSet(viewsets.ModelViewSet):
             return Trade.objects.all()
         return Trade.objects.filter(user=self.request.user)
     
-    def perform_create(self, serializer):
+    def perform_create(self, serializer): # check later
         """Set user to current authenticated user"""
         serializer.save(user=self.request.user)
         
@@ -219,6 +213,7 @@ class TradeViewSet(viewsets.ModelViewSet):
             defaults={'amount_held': 0}
         )
         
+        # use the new trade typing
         # Update holdings based on trade type
         if trade_type:  # Buy
             holdings.amount_held += amount
