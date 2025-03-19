@@ -188,16 +188,10 @@ class TradeViewSet(viewsets.ModelViewSet):
     """
     queryset = Trade.objects.all()
     serializer_class = TradeSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    lookup_field = 'id'
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Will change to ReadOnly later
+    lookup_field = 'id'  # Should eventually be changed to transaction_hash
     
-    def get_queryset(self):
-        """Filter to only show the current user's trades unless staff"""
-        if self.request.user.is_staff:
-            return Trade.objects.all()
-        return Trade.objects.filter(user=self.request.user)
-    
-    def perform_create(self, serializer): # check later
+    def perform_create(self, serializer):
         """Set user to current authenticated user"""
         serializer.save(user=self.request.user)
         
@@ -213,17 +207,15 @@ class TradeViewSet(viewsets.ModelViewSet):
             defaults={'amount_held': 0}
         )
         
-        # use the new trade typing
         # Update holdings based on trade type
-        if trade_type:  # Buy
+        if trade_type in ['BUY', 'COIN_CREATE']:
             holdings.amount_held += amount
-        else:  # Sell
+        elif trade_type == 'SELL':
             if holdings.amount_held < amount:
                 raise serializer.ValidationError("Not enough coins to sell")
             holdings.amount_held -= amount
             
         holdings.save()
-
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -231,14 +223,14 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = SolanaUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]#IsAuthenticated]
     lookup_field = 'wallet_address'
     
-    def get_queryset(self):
-        """Regular users can only view/edit themselves, staff can see all"""
-        if self.request.user.is_staff:
-            return SolanaUser.objects.all()
-        return SolanaUser.objects.filter(wallet_address=self.request.user.wallet_address)
+    # def get_queryset(self):
+    #     """Regular users can only view/edit themselves, staff can see all"""
+    #     if self.request.user.is_staff:
+    #         return SolanaUser.objects.all()
+    #     return SolanaUser.objects.filter(wallet_address=self.request.user.wallet_address)
     
     @action(detail=True, methods=['get'])
     def holdings(self, request, wallet_address=None):

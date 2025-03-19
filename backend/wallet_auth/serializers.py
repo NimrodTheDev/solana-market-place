@@ -38,25 +38,25 @@ class UserCoinHoldingsSerializer(serializers.ModelSerializer):
 class TradeSerializer(serializers.ModelSerializer):
     coin_symbol = serializers.ReadOnlyField(source='coin.symbol')
     trade_type_display = serializers.SerializerMethodField()
-    
+   
     class Meta:
         model = Trade
         fields = [
-            'id', 'user', 'coin', 'coin_symbol', 'trade_type', 
+            'id', 'user', 'coin', 'coin_symbol', 'trade_type',
             'trade_type_display', 'coin_amount', 'sol_amount', 'created_at'
         ]
         read_only_fields = ['id', 'user', 'created_at']
-    
-    # def get_trade_type_display(self, obj):
-    #     return obj.trade_type
-        
+   
+    def get_trade_type_display(self, obj):
+        return obj.get_trade_type_display()
+       
     def validate(self, data):
         """
         Validate the trade
         - For sells: check if user has enough coins
         - For buys: potentially check if there are enough coins available
         """
-        if not data['trade_type']:  # If selling
+        if data['trade_type'] == 'SELL':  # If selling
             try:
                 holdings = UserCoinHoldings.objects.get(
                     user=self.context['request'].user,
@@ -70,5 +70,5 @@ class TradeSerializer(serializers.ModelSerializer):
                     )
             except UserCoinHoldings.DoesNotExist:
                 raise serializers.ValidationError("You don't own any of these coins to sell")
-        
+       
         return data
