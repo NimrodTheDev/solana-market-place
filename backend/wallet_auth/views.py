@@ -223,7 +223,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = SolanaUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]#IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'wallet_address'
     
     # def get_queryset(self):
