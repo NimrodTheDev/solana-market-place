@@ -226,12 +226,6 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'wallet_address'
     
-    # def get_queryset(self):
-    #     """Regular users can only view/edit themselves, staff can see all"""
-    #     if self.request.user.is_staff:
-    #         return SolanaUser.objects.all()
-    #     return SolanaUser.objects.filter(wallet_address=self.request.user.wallet_address)
-    
     @action(detail=True, methods=['get'])
     def holdings(self, request, wallet_address=None):
         """Get all coin holdings for a specific user"""
