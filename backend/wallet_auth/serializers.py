@@ -13,7 +13,7 @@ class CoinSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coin
         fields = [
-            'address', 'symbol', 'name', 'creator', 'creator_display_name',
+            'address', 'ticker', 'name', 'creator', 'creator_display_name',
             'created_at', 'total_supply', 'image_url',
             'description', 'telegram', 'website', 'twitter',
             'current_price', 'total_held', 'market_cap'
@@ -21,14 +21,14 @@ class CoinSerializer(serializers.ModelSerializer):
         read_only_fields = ['address', 'creator', 'creator_display_name', 'created_at']
 
 class UserCoinHoldingsSerializer(serializers.ModelSerializer):
-    coin_symbol = serializers.ReadOnlyField(source='coin.symbol')
+    coin_ticker = serializers.ReadOnlyField(source='coin.ticker')
     coin_name = serializers.ReadOnlyField(source='coin.name')
     current_price = serializers.ReadOnlyField(source='coin.current_price')
     value = serializers.SerializerMethodField()
     
     class Meta:
         model = UserCoinHoldings
-        fields = ['user', 'coin', 'coin_symbol', 'coin_name', 'amount_held', 'current_price', 'value']
+        fields = ['user', 'coin', 'coin_ticker', 'coin_name', 'amount_held', 'current_price', 'value']
         read_only_fields = ['user', 'value']
     
     def get_value(self, obj):

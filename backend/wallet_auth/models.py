@@ -61,13 +61,13 @@ class SolanaUser(AbstractUser):
 class Coin(models.Model):
     """Represents a coin on the platform"""
     address = models.CharField(primary_key=True, max_length=44, unique=True, editable=False)
-    symbol = models.CharField(max_length=50, unique=True)
+    # symbol = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=100, unique=True)
     creator = models.ForeignKey(SolanaUser, on_delete=models.CASCADE, related_name='coins', to_field="wallet_address")
     created_at = models.DateTimeField(auto_now_add=True)
     total_supply = models.DecimalField(max_digits=20, decimal_places=8)
     image_url = models.URLField(max_length=500, blank=True, null=True)
-    # ticker = models.CharField(max_length=50, blank=True, null=True)
+    ticker = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True, null=True)
     telegram = models.CharField(max_length=255, blank=True, null=True)
     website = models.URLField(max_length=255, blank=True, null=True)
@@ -76,15 +76,15 @@ class Coin(models.Model):
     current_price = models.DecimalField(max_digits=20, decimal_places=8, default=0)  # Added price field
 
     def __str__(self):
-        return f"{self.name} ({self.symbol})"
+        return f"{self.name} ({self.ticker})"
     
     # def get_current_price(self): # should we use an external api to get the pricing
     #     # Placeholder: Replace with actual API integration
     #     return 1  # Assuming $1 per coin for now
 
     def save(self, *args, **kwargs):
-        if self.symbol:
-            self.symbol = self.symbol.upper()  # Ensure it's always uppercase
+        if self.ticker:
+            self.ticker = self.ticker.upper()  # Ensure it's always uppercase
         super().save(*args, **kwargs)
 
     @property
@@ -116,11 +116,7 @@ class UserCoinHoldings(models.Model):
         return (self.amount_held / self.coin.total_supply) * 100
 
     def __str__(self):
-        return f"{self.user.wallet_address} holds {self.held_percentage()} of {self.coin.symbol}"
-
-# https://explorer.solana.com/tx/4kZHKKbyw6hzCHSXmHAKsgLHQaCoEJfvwUYGN1sgt26Gaw8JqtyK7BEZqByYMFbgJijsB6iQDKeiy8DHmn33LfvG
-# https://solscan.io/tx/inspector?txhash=4kZHKKbyw6hzCHSXmHAKsgLHQaCoEJfvwUYGN1sgt26Gaw8JqtyK7BEZqByYMFbgJijsB6iQDKeiy8DHmn33LfvG
-
+        return f"{self.user.wallet_address} holds {self.held_percentage()} of {self.coin.ticker}"
 
 class Trade(models.Model):
     TRADE_TYPES = [
@@ -139,7 +135,7 @@ class Trade(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.get_trade_type_display()} Trade by {self.user.get_display_name()} on {self.coin.symbol}"
+        return f"{self.get_trade_type_display()} Trade by {self.user.get_display_name()} on {self.coin.ticker}"
 
     class Meta:
         ordering = ['-created_at']

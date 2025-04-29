@@ -11,8 +11,8 @@ class SolanaUserAdmin(admin.ModelAdmin):
 
 @admin.register(Coin)
 class CoinAdmin(admin.ModelAdmin):
-    list_display = ('symbol', 'name', 'creator', 'created_at', 'current_price')
-    search_fields = ('symbol', 'name', 'address')
+    list_display = ('ticker', 'name', 'creator', 'created_at', 'current_price')
+    search_fields = ('ticker', 'name', 'address')
     list_filter = ('created_at',)
     readonly_fields = ('address',)  # Make address read-only in the admin
     
