@@ -5,5 +5,4 @@ daphne
 solana
 solders
 base58
-djangorestframework-simplejwt
 djangorestframework
