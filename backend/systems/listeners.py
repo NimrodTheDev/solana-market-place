@@ -13,6 +13,11 @@ class SolanaEventListener:
             commitment (str): Commitment level (processed, confirmed, finalized)
         """
         self.rpc_ws_url = rpc_ws_url
+        # print(f"Program ID received: '{program_id}'")
+        # print(f"Length: {len(program_id)}")
+
+        # print("Sanitized:", repr(program_id.strip()))
+
         self.program_id = Pubkey.from_string(program_id)
         self.commitment = commitment
         self.callback = callback

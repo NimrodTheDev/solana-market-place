@@ -15,7 +15,7 @@ class SolanaConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         """Handle WebSocket connection"""
         await self.accept()
-        
+        print(f"Connected to WebSocket: {self.channel_name}")
         # Add to group
         await self.channel_layer.group_add(
             "solana_events",
@@ -61,7 +61,7 @@ class SolanaConsumer(AsyncWebsocketConsumer):
             rpc_ws_url = "wss://api.devnet.solana.com"
             
             # Replace with your actual program ID
-            program_id = "YOUR_PROGRAM_ID_HERE"
+            program_id = "A7sBBSngzEZTsCPCffHDbeXDJ54uJWkwdEsskmn2YBGo"
             
             # Create and initialize listener
             self.solana_listener = SolanaEventListener(

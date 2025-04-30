@@ -1,0 +1,9 @@
+django
+channels
+channels-redis
+daphne
+solana
+solders
+base58
+djangorestframework-simplejwt
+djangorestframework
