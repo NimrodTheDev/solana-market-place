@@ -12,7 +12,6 @@ services:
   name: solana-market-place-backend
   runtime: python
   repo: https://github.com/NimrodTheDev/solana-market-place
-  branch: 4-29-25-bend
   plan: free
   region: oregon
   buildCommand: pip install -r requirements.txt
