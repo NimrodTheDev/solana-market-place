@@ -1,0 +1,21 @@
+# Exported from Render on 2025-05-01T12:29:32Z
+services:
+- type: web
+  name: solana-market-place
+  runtime: static
+  repo: https://github.com/NimrodTheDev/solana-market-place
+  buildCommand: npm run build
+  staticPublishPath: dist
+  rootDir: ./my-react-app
+
+- type: web
+  name: solana-market-place-backend
+  runtime: python
+  repo: https://github.com/NimrodTheDev/solana-market-place
+  branch: 4-29-25-bend
+  plan: free
+  region: oregon
+  buildCommand: pip install -r requirements.txt
+  startCommand: daphne -b 0.0.0.0 -p 8000 core.asgi:application
+  rootDir: backend
+version: "1"
