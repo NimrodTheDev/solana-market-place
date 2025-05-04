@@ -10,6 +10,10 @@ solana-program = "~1.16.0"
 spl-token = "~3.5.0"
 thiserror = "1.0"
 bumpalo = "=3.14.0"
+yoke = "=0.7.4"
+zerofrom = "=0.1.5"
+bincode = "2.0.1"
+borsh = "0.9"
 
 [lib]
 crate-type = ["cdylib", "lib"]
@@ -21,3 +25,4 @@ test-bpf = []
 [dev-dependencies]
 solana-program-test = "~1.16.0"
 solana-sdk = "~1.16.0"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
