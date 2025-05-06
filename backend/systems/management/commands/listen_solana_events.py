@@ -36,5 +36,6 @@ class Command(BaseCommand):
             await listener.close()
     
     async def process_event(self, event_data):
+        print(event_data)
         # Implement logic similar to the consumer
         ...

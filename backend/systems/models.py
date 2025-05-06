@@ -134,3 +134,4 @@ class Trade(models.Model):
             models.Index(fields=['coin']),
             models.Index(fields=['created_at']),
         ]
+
