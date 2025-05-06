@@ -1,3 +1,4 @@
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { ArrowRight, Wallet } from "lucide-react";
 
 export default function OnboardingCard() {
@@ -12,10 +13,11 @@ export default function OnboardingCard() {
 						Whether you're looking to launch a project, find talent or join a
 						community, we have everything you need.
 					</p>
-					<button className='flex items-center gap-2 px-5 py-3 rounded-md bg-indigo-500 text-white font-medium transition-all'>
+					{/* <button className='flex items-center gap-2 px-5 py-3 rounded-md bg-indigo-500 text-white font-medium transition-all'>
 						Connect Wallet
 						<ArrowRight size={18} />
-					</button>
+					</button> */}
+					<WalletMultiButton />
 				</div>
 				<div className='flex items-start'>
 					<div className='bg-indigo-900 bg-opacity-50 p-6 rounded-full'>

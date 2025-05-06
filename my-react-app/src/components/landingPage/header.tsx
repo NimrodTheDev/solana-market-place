@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Bell, MessageSquare, Menu, X } from "lucide-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export default function Header() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -56,7 +57,7 @@ export default function Header() {
 						<span className='absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500' />
 					</div>
 					<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white' />
-					<button className='bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm flex items-center gap-2'>
+					{/* <button className='bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md text-sm flex items-center gap-2'>
 						Connect Wallet
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
@@ -72,7 +73,8 @@ export default function Header() {
 								d='M4 7h16M4 12h8m-8 5h16'
 							/>
 						</svg>
-					</button>
+					</button> */}
+					<WalletMultiButton />
 				</div>
 			</div>
 

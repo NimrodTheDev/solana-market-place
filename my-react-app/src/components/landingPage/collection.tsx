@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 // Define TypeScript interfaces
 interface NFT {
@@ -111,7 +112,7 @@ export default function NFTCollection() {
 	);
 }
 
-function NFTCard({ nft }: NFTCardProps) {
+export function NFTCard({ nft }: NFTCardProps) {
 	return (
 		<div className='bg-gray-900 rounded-lg overflow-hidden border border-gray-800'>
 			<div className='relative pb-[100%]'>
@@ -137,7 +138,10 @@ function NFTCard({ nft }: NFTCardProps) {
 					</div>
 				</div>
 
-				<button className='w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded flex items-center justify-center gap-1 transition-colors'>
+				<Link
+					to={`/coin/${nft.id}`}
+					className='w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded flex items-center justify-center gap-1 transition-colors'
+				>
 					View Details
 					<svg
 						className='w-4 h-4'
@@ -152,7 +156,7 @@ function NFTCard({ nft }: NFTCardProps) {
 							d='M14 5l7 7m0 0l-7 7m7-7H3'
 						/>
 					</svg>
-				</button>
+				</Link>
 			</div>
 		</div>
 	);
