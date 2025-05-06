@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Repeat } from "lucide-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 

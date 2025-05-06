@@ -1,5 +1,5 @@
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { ArrowRight, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
 
 export default function OnboardingCard() {
 	return (

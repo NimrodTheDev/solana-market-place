@@ -1,5 +1,3 @@
-import { ArrowRight } from "lucide-react";
-import { useState } from "react";
 import { NFTCard } from "../landingPage/collection";
 
 export default function SimilarCoins() {
