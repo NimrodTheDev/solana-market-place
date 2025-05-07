@@ -18,6 +18,27 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['wallet_address', 'display_name', 'bio', 'is_staff']
         read_only_fields = ['wallet_address', 'is_staff']
 
+class SolanaUserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SolanaUser
+        fields = ['wallet_address', 'display_name', 'bio']
+
+    def create(self, validated_data):
+        return SolanaUser.objects.create_user(**validated_data)
+
+class SolanaUserLoginSerializer(serializers.Serializer):
+    wallet_address = serializers.CharField()
+
+    def validate(self, data):
+        wallet = data.get("wallet_address", "").lower()
+        try:
+            user = SolanaUser.objects.get(wallet_address=wallet)
+        except SolanaUser.DoesNotExist:
+            raise serializers.ValidationError("Wallet address not registered")
+
+        data['user'] = user
+        return data
+
 class CoinSerializer(serializers.ModelSerializer):
     creator_display_name = serializers.ReadOnlyField(source='creator.display_name')
     

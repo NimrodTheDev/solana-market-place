@@ -5,6 +5,12 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Coin, UserCoinHoldings, Trade, SolanaUser
+from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
+from rest_framework.views import APIView
+
+from rest_framework.authtoken.models import Token
+
+
 from .serializers import (
     CoinSerializer, 
     UserCoinHoldingsSerializer, 
@@ -30,6 +36,13 @@ from .serializers import (
     CoinDRCScoreSerializer,
     CoinRugFlagSerializer,
 )
+
+from .serializers import (
+    SolanaUserCreateSerializer,
+    SolanaUserLoginSerializer,
+    UserSerializer
+)
+
 
 User = get_user_model()
 
@@ -67,7 +80,7 @@ class UserCoinHoldingsViewSet(viewsets.ModelViewSet):
     """
     queryset = UserCoinHoldings.objects.all()
     serializer_class = UserCoinHoldingsSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly] #OrReadOnly added
+    permission_classes = [permissions.IsAuthenticated] #OrReadOnly added
     
     def get_queryset(self):
         """Filter to only show the current user's holdings unless staff"""
@@ -162,7 +175,38 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = CoinSerializer(coins, many=True)
         return Response(serializer.data)
 
+class RegisterView(CreateAPIView):
+    queryset = SolanaUser.objects.all()
+    serializer_class = SolanaUserCreateSerializer
+    permission_classes = [AllowAny]
 
+class LoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = SolanaUserLoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+
+            # Create or get auth token
+            token, _ = Token.objects.get_or_create(user=user)
+
+            return Response({
+                "message": "Login successful",
+                "token": token.key,
+                "wallet_address": user.wallet_address,
+                "display_name": user.display_name,
+                "bio": user.bio
+            }, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class MeView(RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 
 # ViewSets
@@ -170,7 +214,7 @@ class DeveloperScoreViewSet(viewsets.ReadOnlyModelViewSet):
     """API endpoint for viewing developer reputation scores"""
     queryset = DeveloperScore.objects.all().order_by('-score')
     serializer_class = DeveloperScoreSerializer
-    permission_classes = [AllowAny]#permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -222,7 +266,7 @@ class TraderScoreViewSet(viewsets.ReadOnlyModelViewSet):
     """API endpoint for viewing trader reputation scores"""
     queryset = TraderScore.objects.all().order_by('-score')
     serializer_class = TraderScoreSerializer
-    permission_classes = [AllowAny]#permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -397,7 +441,7 @@ class CoinRugFlagViewSet(viewsets.ModelViewSet):
     """API endpoint for viewing and updating coin rug flags"""
     queryset = CoinRugFlag.objects.all()
     serializer_class = CoinRugFlagSerializer
-    permission_classes = [AllowAny]#permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         queryset = super().get_queryset()

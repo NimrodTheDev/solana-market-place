@@ -13,6 +13,13 @@ router.register(r'trader-scores', views.TraderScoreViewSet)
 # router.register(r'coin-scores', views.CoinDRCScoreViewSet)
 router.register(r'rug-flags', views.CoinRugFlagViewSet)
 
+auth_urls = [
+    path("register/", views.RegisterView.as_view(), name="register"),
+    path("login/", views.LoginView.as_view(), name="login"),
+    path("me/", views.MeView.as_view(), name="me"),
+]
+
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path("api/", include(auth_urls)),          # ✅ /api/register/, /api/login/, /api/me/
+    path("api/", include(router.urls)),        # ✅ /api/users/, /api/users/<id>/, etc.
 ]
