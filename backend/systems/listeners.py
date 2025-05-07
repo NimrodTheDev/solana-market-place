@@ -2,6 +2,7 @@ from solana.rpc.websocket_api import connect, RpcTransactionLogsFilterMentions
 from solders.pubkey import Pubkey 
 import asyncio
 import logging
+from solders.rpc import responses
 
 # Configure logging
 logging.basicConfig(
@@ -82,28 +83,36 @@ class SolanaEventListener:
             async for msg in self.ws_connection: 
                 if not self.should_run:
                     break
-                    
-                logger.debug(f"Received message: {msg}") 
-                print(type(msg))
-                 
                 # Handle subscription response 
-                if hasattr(msg, 'result') and not hasattr(msg, 'method'): 
-                    # This is likely the subscription confirmation 
-                    continue 
-                     
-                # Check if it's a notification with logs 
-                if hasattr(msg, 'method') and msg.method == "logsNotification": 
-                    if self.callback: 
-                        await self.callback(msg.params.result.value) 
-                elif isinstance(msg, dict) and msg.get('method') == "logsNotification": 
-                    if self.callback: 
-                        await self.callback(msg.get('params', {}).get('result', {}).get('value', {})) 
-                elif isinstance(msg, list): 
-                    # Process list-type messages that might contain notification data 
-                    for item in msg: 
-                        if isinstance(item, dict) and item.get('method') == "logsNotification": 
-                            if self.callback: 
-                                await self.callback(item.get('params', {}).get('result', {}).get('value', {})) 
+                # Skip subscription confirmation (has `result` but no `method`)
+                if hasattr(msg, 'result') and not hasattr(msg, 'method'):
+                    return
+
+                # Extract notification payload depending on format
+                notifications = []
+
+                if isinstance(msg, list):
+                    # List of messages
+                    notifications.extend(msg)
+                else:
+                    notifications.append(msg)
+
+                for note in notifications:
+                    # Object-style (e.g., from `websockets` or `jsonrpcclient`)
+                    if hasattr(note, 'method') and note.method == "logsNotification":
+                        result = getattr(note.params, 'result', None)
+                        if result and self.callback:
+                            await self.callback(result.value)
+                    
+                    if type(note) == responses.LogsNotification:
+                        await self.callback(note.result.value)
+
+                    # Dict-style message (e.g., raw JSON from some WebSocket clients)
+                    elif isinstance(note, dict) and note.get("method") == "logsNotification":
+                        result = note.get("params", {}).get("result", {})
+                        if self.callback:
+                            await self.callback(result.get("value", {}))
+
             
             return True
         except Exception as e:

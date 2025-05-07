@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-)6p2%38=-$o#g=+*rtf$+bd%4k*yq58e#!khtfnsg6xt8o#r+m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['solana-market-place-backend.onrender.com']
+ALLOWED_HOSTS = ['solana-market-place-backend.onrender.com', '127.0.0.1']
 
 
 # Application definition
