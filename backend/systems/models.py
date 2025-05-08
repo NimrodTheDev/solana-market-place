@@ -148,7 +148,6 @@ class DRCScore(models.Model):
     class Meta:
         abstract = True
 
-
 class DeveloperScore(DRCScore):
     """
     Developer reputation score tracking for Solana users who create coins
@@ -223,7 +222,6 @@ class DeveloperScore(DRCScore):
         
         self.save()
         return self.score
-
 
 class TraderScore(DRCScore):
     """
@@ -322,7 +320,6 @@ class TraderScore(DRCScore):
         
         self.save()
         return self.score
-
 
 class CoinDRCScore(DRCScore):
     """
@@ -440,8 +437,7 @@ class CoinDRCScore(DRCScore):
             'total': self.score
         }
 
-
-class CoinRugFlag(models.Model): # remove
+class CoinRugFlag(models.Model): # remove if they decied for not detailed logs might not be needed
     """
     Tracks whether a coin has been flagged as rugged
     """

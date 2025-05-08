@@ -32,7 +32,15 @@ from .serializers import (
 
 User = get_user_model()
 
-class CoinViewSet(viewsets.ModelViewSet):
+
+class RestrictedViewset(viewsets.ModelViewSet):
+    """
+    API endpoint base class for ressiected views
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get']
+
+class CoinViewSet(RestrictedViewset):
     """
     API endpoint for Coins
     """
@@ -40,9 +48,6 @@ class CoinViewSet(viewsets.ModelViewSet):
     serializer_class = CoinSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = 'address'
-    
-    def perform_create(self, serializer):
-        serializer.save(creator=self.request.user)
     
     @action(detail=True, methods=['get'])
     def holders(self, request, address=None):
@@ -60,23 +65,19 @@ class CoinViewSet(viewsets.ModelViewSet):
         serializer = TradeSerializer(trades, many=True)
         return Response(serializer.data)
 
-class UserCoinHoldingsViewSet(viewsets.ModelViewSet):
+class UserCoinHoldingsViewSet(RestrictedViewset):
     """
     API endpoint for User Coin Holdings
     """
     queryset = UserCoinHoldings.objects.all()
     serializer_class = UserCoinHoldingsSerializer
-    permission_classes = [permissions.IsAuthenticated] #OrReadOnly added
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         """Filter to only show the current user's holdings unless staff"""
         if self.request.user.is_staff:
             return UserCoinHoldings.objects.all()
         return UserCoinHoldings.objects.filter(user=self.request.user)
-    
-    def perform_create(self, serializer):
-        """Set user to current authenticated user"""
-        serializer.save(user=self.request.user)
 
 class TradeViewSet(viewsets.ModelViewSet):
     """
@@ -113,7 +114,7 @@ class TradeViewSet(viewsets.ModelViewSet):
             
         holdings.save()
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(RestrictedViewset): # check later
     """
     API endpoint for Solana Users
     """
@@ -200,8 +201,7 @@ class DeveloperScoreViewSet(viewsets.ReadOnlyModelViewSet):
     """API endpoint for viewing developer reputation scores"""
     queryset = DeveloperScore.objects.all().order_by('-score')
     serializer_class = DeveloperScoreSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    http_method_names = ['get']
+    permission_classes = []#permissions.IsAuthenticated]
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -232,6 +232,7 @@ class DeveloperScoreViewSet(viewsets.ReadOnlyModelViewSet):
     def top_developers(self, request):
         """Returns top 10 developers by score"""
         top_devs = self.get_queryset().filter(coins_created_count__gt=0)[:10]
+        
         serializer = self.get_serializer(top_devs, many=True)
         return Response(serializer.data)
     
@@ -421,7 +422,7 @@ class TraderScoreViewSet(viewsets.ReadOnlyModelViewSet):
 #         serializer = self.get_serializer(coin_drc)
 #         return Response(serializer.data)
 
-class CoinRugFlagViewSet(viewsets.ModelViewSet):
+class CoinRugFlagViewSet(viewsets.ModelViewSet): # fix this
     """API endpoint for viewing and updating coin rug flags"""
     queryset = CoinRugFlag.objects.all()
     serializer_class = CoinRugFlagSerializer
