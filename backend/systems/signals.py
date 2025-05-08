@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from decimal import Decimal
+from django.db import transaction
+from django.db.models import F
 from django.utils import timezone
 
 from .models import (
@@ -32,18 +33,6 @@ def create_coin_score(sender, instance, created, **kwargs):
         
         # Update developer score after creating a coin
         dev_score.recalculate_score()
-
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
-from django.db import transaction
-from django.db.models import F
-from django.utils import timezone
-
-from .models import (
-    Trade, UserCoinHoldings, Coin, SolanaUser, 
-    TraderScore, CoinDRCScore, DeveloperScore
-)
-
 
 @receiver(post_save, sender=Trade)
 def update_holdings_and_scores_on_trade(sender, instance, created, **kwargs):
@@ -155,54 +144,6 @@ def update_on_holdings_delete(sender, instance, **kwargs):
     except TraderScore.DoesNotExist:
         pass
 
-# # Update scores when holdings change
-# @receiver(post_save, sender=UserCoinHoldings)
-# def update_scores_on_holdings_change(sender, instance, created, **kwargs):
-#     """Update scores when user holdings change"""
-#     # Update coin score holders count
-#     coin_score, _ = CoinDRCScore.objects.get_or_create(coin=instance.coin)
-#     coin_score.update_holders_count()
-#     coin_score.recalculate_score()
-    
-#     # Update trader score
-#     trader_score, _ = TraderScore.objects.get_or_create(trader=instance.user)
-#     trader_score.recalculate_score()
-
-
-# # Update scores on trades
-# @receiver(post_save, sender=Trade)
-# def update_scores_on_trade(sender, instance, created, **kwargs):
-#     """Update DRC scores when a trade happens"""
-#     if created:
-#         # Update trader score
-#         trader_score, _ = TraderScore.objects.get_or_create(trader=instance.user)
-#         trader_score.recalculate_score()
-        
-#         # Update coin score - track 24h volume
-#         coin_score, _ = CoinDRCScore.objects.get_or_create(coin=instance.coin)
-        
-#         # Add this trade's volume to 24h volume if it's a buy or sell
-#         if instance.trade_type in ['BUY', 'SELL']:
-#             # Get trades from last 24 hours
-#             one_day_ago = timezone.now() - timezone.timedelta(hours=24)
-#             recent_trades = Trade.objects.filter(
-#                 coin=instance.coin,
-#                 created_at__gte=one_day_ago
-#             )
-            
-#             # Calculate volume
-#             volume = sum(t.sol_amount for t in recent_trades)
-#             coin_score.trade_volume_24h = volume
-#             coin_score.save(update_fields=['trade_volume_24h', 'updated_at'])
-        
-#         # Recalculate coin score
-#         coin_score.recalculate_score()
-        
-#         # If this is a coin creation, update developer score
-#         if instance.trade_type == 'COIN_CREATE':
-#             dev_score, _ = DeveloperScore.objects.get_or_create(developer=instance.coin.creator)
-#             dev_score.recalculate_score()
-
 # Update price stability on price changes
 def update_price_stability(coin, new_price):
     """Update price stability score when price changes"""
@@ -237,7 +178,6 @@ def update_price_stability(coin, new_price):
                 
                 # Recalculate coin score
                 coin_score.recalculate_score()
-
 
 # Update scores when a coin is flagged as rugged
 @receiver(post_save, sender=CoinRugFlag)
