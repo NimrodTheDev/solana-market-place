@@ -3,8 +3,8 @@ from django.utils import timezone
 from django.db.models import Count
 
 from ...models import (
-    SolanaUser, Coin, Trade, UserCoinHoldings,
-    DeveloperScore, TraderScore, CoinDRCScore, CoinRugFlag
+    SolanaUser, Coin, Trade,
+    DeveloperScore, TraderScore, CoinDRCScore
 )
 
 class Command(BaseCommand):

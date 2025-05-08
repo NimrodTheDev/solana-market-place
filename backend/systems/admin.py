@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import SolanaUser, Coin, CoinDRCScore, DeveloperScore, TraderScore, UserCoinHoldings, Trade
+from .models import (
+    SolanaUser, Coin, CoinDRCScore, 
+    DeveloperScore, TraderScore, 
+    UserCoinHoldings, Trade
+)
 
 class SolanaUserAdmin(admin.ModelAdmin):
     """Admin interface for SolanaUser"""
@@ -23,7 +27,6 @@ class SolanaUserAdmin(admin.ModelAdmin):
     # Optionally make certain fields read-only
     readonly_fields = ('last_login',)
 
-# Register the model with the custom admin class
 admin.site.register(SolanaUser, SolanaUserAdmin)
 admin.site.register(Coin)
 admin.site.register(DeveloperScore)

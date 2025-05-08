@@ -1,16 +1,13 @@
 from rest_framework import serializers
-from .models import SolanaUser, Coin, UserCoinHoldings, Trade
-
-# Import the DRC models
 from .models import (
     DeveloperScore, 
     TraderScore, 
     CoinDRCScore, 
     CoinRugFlag,
     SolanaUser,
-    Coin
+    Coin,
+    UserCoinHoldings, Trade,
 )
-
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -105,7 +102,6 @@ class TradeSerializer(serializers.ModelSerializer):
        
         return data
 
-
 # drc
 class DeveloperScoreSerializer(serializers.ModelSerializer):
     developer_address = serializers.CharField(source='developer.wallet_address', read_only=True)
@@ -118,7 +114,6 @@ class DeveloperScoreSerializer(serializers.ModelSerializer):
             'highest_market_cap', 'created_at', 'updated_at'
         ]
 
-
 class TraderScoreSerializer(serializers.ModelSerializer):
     trader_address = serializers.CharField(source='trader.wallet_address', read_only=True)
     
@@ -130,7 +125,6 @@ class TraderScoreSerializer(serializers.ModelSerializer):
             'quick_dumps_count', 'profitable_trades_percent',
             'created_at', 'updated_at'
         ]
-
 
 class CoinDRCScoreSerializer(serializers.ModelSerializer):
     coin_address = serializers.CharField(source='coin.address', read_only=True)
@@ -164,7 +158,6 @@ class CoinDRCScoreSerializer(serializers.ModelSerializer):
             return obj.coin.rug_flag.is_rugged
         except Exception:
             return False
-
 
 class CoinRugFlagSerializer(serializers.ModelSerializer):
     coin_address = serializers.CharField(source='coin.address', read_only=True)

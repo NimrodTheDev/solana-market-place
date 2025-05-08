@@ -6,3 +6,5 @@ solana
 solders
 base58
 djangorestframework
+psycopg2-binary 
+python-dotenv

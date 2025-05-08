@@ -5,6 +5,8 @@ import uuid
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+# integrate the score directly into the models
+
 class SolanaUserManager(BaseUserManager):
     """Manager for users authenticated with Solana wallets"""
 

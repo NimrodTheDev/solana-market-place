@@ -32,7 +32,6 @@ from .serializers import (
 
 User = get_user_model()
 
-
 class RestrictedViewset(viewsets.ModelViewSet):
     """
     API endpoint base class for ressiected views
@@ -300,127 +299,129 @@ class TraderScoreViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-# class CoinDRCScoreViewSet(viewsets.ReadOnlyModelViewSet):
-#     """API endpoint for viewing coin DRC scores"""
-#     queryset = CoinDRCScore.objects.all().order_by('-score')
-#     serializer_class = CoinDRCScoreSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+class CoinDRCScoreViewSet(viewsets.ReadOnlyModelViewSet):
+    """API endpoint for viewing coin DRC scores"""
+    queryset = CoinDRCScore.objects.all().order_by('-score')
+    serializer_class = CoinDRCScoreSerializer
+    permission_classes = [permissions.IsAuthenticated]
     
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
+    def get_queryset(self):
+        queryset = super().get_queryset()
         
-#         # Filter by minimum score
-#         min_score = self.request.query_params.get('min_score')
-#         if min_score and min_score.isdigit():
-#             queryset = queryset.filter(score__gte=int(min_score))
+        # Filter by minimum score
+        min_score = self.request.query_params.get('min_score')
+        if min_score and min_score.isdigit():
+            queryset = queryset.filter(score__gte=int(min_score))
         
-#         # Filter by maximum score
-#         max_score = self.request.query_params.get('max_score')
-#         if max_score and max_score.isdigit():
-#             queryset = queryset.filter(score__lte=int(max_score))
+        # Filter by maximum score
+        max_score = self.request.query_params.get('max_score')
+        if max_score and max_score.isdigit():
+            queryset = queryset.filter(score__lte=int(max_score))
         
-#         # Filter by coin address
-#         coin_address = self.request.query_params.get('coin')
-#         if coin_address:
-#             queryset = queryset.filter(coin__address__iexact=coin_address)
+        # Filter by coin address
+        coin_address = self.request.query_params.get('coin')
+        if coin_address:
+            queryset = queryset.filter(coin__address__iexact=coin_address)
         
-#         # Filter by coin symbol
-#         coin_symbol = self.request.query_params.get('symbol')
-#         if coin_symbol:
-#             queryset = queryset.filter(coin__ticker__iexact=coin_symbol)
+        # Filter by coin symbol
+        coin_symbol = self.request.query_params.get('symbol')
+        if coin_symbol:
+            queryset = queryset.filter(coin__ticker__iexact=coin_symbol)
             
-#         # Filter by developer address
-#         developer = self.request.query_params.get('developer')
-#         if developer:
-#             queryset = queryset.filter(coin__creator__wallet_address__iexact=developer)
+        # Filter by developer address
+        developer = self.request.query_params.get('developer')
+        if developer:
+            queryset = queryset.filter(coin__creator__wallet_address__iexact=developer)
         
-#         # Filter by minimum age
-#         min_age = self.request.query_params.get('min_age_hours')
-#         if min_age and min_age.isdigit():
-#             queryset = queryset.filter(age_in_hours__gte=int(min_age))
+        # Filter by minimum age
+        min_age = self.request.query_params.get('min_age_hours')
+        if min_age and min_age.isdigit():
+            queryset = queryset.filter(age_in_hours__gte=int(min_age))
         
-#         # Filter non-rugged coins only
-#         exclude_rugged = self.request.query_params.get('exclude_rugged')
-#         if exclude_rugged and exclude_rugged.lower() == 'true':
-#             queryset = queryset.filter(
-#                 ~Q(coin__rug_flag__is_rugged=True)
-#             )
+        # Filter non-rugged coins only
+        exclude_rugged = self.request.query_params.get('exclude_rugged')
+        if exclude_rugged and exclude_rugged.lower() == 'true':
+            queryset = queryset.filter(
+                ~Q(coin__rug_flag__is_rugged=True)
+            )
         
-#         return queryset
+        return queryset
     
-#     @action(detail=False, methods=['get'])
-#     def top_coins(self, request):
-#         """Returns top 10 coins by DRC score"""
-#         top_coins = self.get_queryset().filter(
-#             holders_count__gt=0,
-#             ~Q(coin__rug_flag__is_rugged=True)
-#         )[:10]
-#         serializer = self.get_serializer(top_coins, many=True)
-#         return Response(serializer.data)
+    @action(detail=False, methods=['get'])
+    def top_coins(self, request):
+        """Returns top 10 coins by DRC score"""
+        top_coins = self.get_queryset().filter(
+            holders_count__gt=0
+        ).exclude(
+            coin__rug_flag__is_rugged=True
+        )[:10]  # Assuming there's a drc_score field
+
+        serializer = self.get_serializer(top_coins, many=True)
+        return Response(serializer.data)
     
-#     @action(detail=False, methods=['get'])
-#     def my_coins(self, request):
-#         """Returns DRC scores for coins created by the authenticated user"""
-#         user_coins = self.get_queryset().filter(coin__creator=request.user)
-#         serializer = self.get_serializer(user_coins, many=True)
-#         return Response(serializer.data)
+    @action(detail=False, methods=['get'])
+    def my_coins(self, request):
+        """Returns DRC scores for coins created by the authenticated user"""
+        user_coins = self.get_queryset().filter(coin__creator=request.user)
+        serializer = self.get_serializer(user_coins, many=True)
+        return Response(serializer.data)
     
-#     @action(detail=True, methods=['post'])
-#     def verify_contract(self, request, pk=None):
-#         """Mark a coin's contract as verified"""
-#         coin_drc = self.get_object()
+    @action(detail=True, methods=['post'])
+    def verify_contract(self, request, pk=None):
+        """Mark a coin's contract as verified"""
+        coin_drc = self.get_object()
         
-#         # Check if user is the coin creator or an admin
-#         if request.user != coin_drc.coin.creator and not request.user.is_staff:
-#             return Response(
-#                 {"detail": "You don't have permission to verify this contract"},
-#                 status=status.HTTP_403_FORBIDDEN
-#             )
+        # Check if user is the coin creator or an admin
+        if request.user != coin_drc.coin.creator and not request.user.is_staff:
+            return Response(
+                {"detail": "You don't have permission to verify this contract"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
-#         coin_drc.verified_contract = True
-#         coin_drc.save()
-#         coin_drc.recalculate_score()
+        coin_drc.verified_contract = True
+        coin_drc.save()
+        coin_drc.recalculate_score()
         
-#         serializer = self.get_serializer(coin_drc)
-#         return Response(serializer.data)
+        serializer = self.get_serializer(coin_drc)
+        return Response(serializer.data)
     
-#     @action(detail=True, methods=['post'])
-#     def update_audit(self, request, pk=None):
-#         """Update audit status and score for a coin"""
-#         coin_drc = self.get_object()
+    @action(detail=True, methods=['post'])
+    def update_audit(self, request, pk=None):
+        """Update audit status and score for a coin"""
+        coin_drc = self.get_object()
         
-#         # Check if user is an admin (only admins can update audit status)
-#         if not request.user.is_staff:
-#             return Response(
-#                 {"detail": "Only admins can update audit status"},
-#                 status=status.HTTP_403_FORBIDDEN
-#             )
+        # Check if user is an admin (only admins can update audit status)
+        if not request.user.is_staff:
+            return Response(
+                {"detail": "Only admins can update audit status"},
+                status=status.HTTP_403_FORBIDDEN
+            )
         
-#         # Get audit parameters from request
-#         completed = request.data.get('completed', False)
-#         score = request.data.get('score', 0)
+        # Get audit parameters from request
+        completed = request.data.get('completed', False)
+        score = request.data.get('score', 0)
         
-#         try:
-#             score = int(score)
-#             if score < 0 or score > 100:
-#                 return Response(
-#                     {"detail": "Audit score must be between 0 and 100"},
-#                     status=status.HTTP_400_BAD_REQUEST
-#                 )
-#         except ValueError:
-#             return Response(
-#                 {"detail": "Audit score must be an integer"},
-#                 status=status.HTTP_400_BAD_REQUEST
-#             )
+        try:
+            score = int(score)
+            if score < 0 or score > 100:
+                return Response(
+                    {"detail": "Audit score must be between 0 and 100"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except ValueError:
+            return Response(
+                {"detail": "Audit score must be an integer"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
             
-#         # Update audit info
-#         coin_drc.audit_completed = completed
-#         coin_drc.audit_score = score
-#         coin_drc.save()
-#         coin_drc.recalculate_score()
+        # Update audit info
+        coin_drc.audit_completed = completed
+        coin_drc.audit_score = score
+        coin_drc.save()
+        coin_drc.recalculate_score()
         
-#         serializer = self.get_serializer(coin_drc)
-#         return Response(serializer.data)
+        serializer = self.get_serializer(coin_drc)
+        return Response(serializer.data)
 
 class CoinRugFlagViewSet(viewsets.ModelViewSet): # fix this
     """API endpoint for viewing and updating coin rug flags"""

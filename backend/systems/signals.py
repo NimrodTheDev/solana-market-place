@@ -3,7 +3,6 @@ from django.dispatch import receiver
 from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
-
 from .models import (
     SolanaUser, Coin, Trade, UserCoinHoldings,
     DeveloperScore, TraderScore, CoinDRCScore, CoinRugFlag

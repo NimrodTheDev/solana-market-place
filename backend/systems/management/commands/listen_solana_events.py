@@ -1,7 +1,7 @@
 import asyncio
 from django.core.management.base import BaseCommand
 from systems.consumers import SolanaEventListener
-from systems.models import Coin, Trade, UserCoinHoldings, SolanaUser, DeveloperScore
+from systems.models import Coin, Trade, SolanaUser, DeveloperScore
 from asgiref.sync import sync_to_async
 from decimal import Decimal
 from systems.parser import TokenEventDecoder
@@ -27,15 +27,17 @@ class Command(BaseCommand):
             auto_restart=True
         )
         self.decoders = {}
-        self.decoders["CreateToken"] = TokenEventDecoder("TokenCreatedEvent", {
-            "token_name": "string",
-            "token_symbol": "string",
-            "token_uri": "string",
-            "mint_address": "pubkey",
-            "metadata_address": "pubkey",
-            "authority": "pubkey",
-            "decimals": "u8",
-        })
+        self.decoders["CreateToken"] = TokenEventDecoder(
+            "TokenCreatedEvent", {
+                "token_name": "string",
+                "token_symbol": "string",
+                "token_uri": "string",
+                "mint_address": "pubkey",
+                "metadata_address": "pubkey",
+                "authority": "pubkey",
+                "decimals": "u8",
+            }
+        )
         try:
             # Start the listener with auto-restart enabled
             await listener.listen()
