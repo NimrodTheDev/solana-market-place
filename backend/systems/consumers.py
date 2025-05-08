@@ -89,6 +89,7 @@ class SolanaConsumer(AsyncWebsocketConsumer):
             import traceback
             traceback.print_exc()
     
+    # the callback
     async def process_solana_event(self, event_data):
         """Process Solana program events and update database"""
         try:
@@ -153,6 +154,7 @@ class SolanaConsumer(AsyncWebsocketConsumer):
             import traceback
             traceback.print_exc()
     
+    # parsing functions
     def extract_address_from_log(self, log):
         """Extract address from log - customize based on your log format"""
         # Example implementation - adjust based on your log format
@@ -222,6 +224,7 @@ class SolanaConsumer(AsyncWebsocketConsumer):
                 holding.save()
                 print(f"Processed {trade_type} trade: {signature}")
     
+    # broadcast event
     async def broadcast_event(self, event):
         """Broadcast event to WebSocket clients"""
         # Send message to WebSocket
