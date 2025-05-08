@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SolanaUser, Coin, CoinDRCScore, DeveloperScore
+from .models import SolanaUser, Coin, CoinDRCScore, DeveloperScore, TraderScore, UserCoinHoldings, Trade
 
 class SolanaUserAdmin(admin.ModelAdmin):
     """Admin interface for SolanaUser"""
@@ -27,4 +27,7 @@ class SolanaUserAdmin(admin.ModelAdmin):
 admin.site.register(SolanaUser, SolanaUserAdmin)
 admin.site.register(Coin)
 admin.site.register(DeveloperScore)
+admin.site.register(TraderScore)
 admin.site.register(CoinDRCScore)
+admin.site.register(UserCoinHoldings)
+admin.site.register(Trade)

@@ -1,33 +1,20 @@
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import AllowAny
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Coin, UserCoinHoldings, Trade, SolanaUser
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 from rest_framework.views import APIView
+from django.db.models import Q
 
 from rest_framework.authtoken.models import Token
 
-
-from .serializers import (
-    CoinSerializer, 
-    UserCoinHoldingsSerializer, 
-    TradeSerializer, 
-    UserSerializer
-)
-
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.db.models import Q
-
-# Import the DRC models
 from .models import (
     DeveloperScore, 
     TraderScore, 
     CoinDRCScore, 
     CoinRugFlag,
+    Coin, UserCoinHoldings, Trade, SolanaUser,
 )
 
 from .serializers import (
@@ -35,14 +22,13 @@ from .serializers import (
     TraderScoreSerializer, 
     CoinDRCScoreSerializer,
     CoinRugFlagSerializer,
-)
-
-from .serializers import (
     SolanaUserCreateSerializer,
     SolanaUserLoginSerializer,
-    UserSerializer
+    CoinSerializer, 
+    UserCoinHoldingsSerializer, 
+    TradeSerializer, 
+    UserSerializer,
 )
-
 
 User = get_user_model()
 
@@ -133,7 +119,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = SolanaUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]#permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]#permissions.IsAuthenticated]
     lookup_field = 'wallet_address'
     
     @action(detail=True, methods=['get'])
@@ -178,10 +164,10 @@ class UserViewSet(viewsets.ModelViewSet):
 class RegisterView(CreateAPIView):
     queryset = SolanaUser.objects.all()
     serializer_class = SolanaUserCreateSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
 
 class LoginView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = SolanaUserLoginSerializer(data=request.data)
@@ -215,6 +201,7 @@ class DeveloperScoreViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = DeveloperScore.objects.all().order_by('-score')
     serializer_class = DeveloperScoreSerializer
     permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get']
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -260,7 +247,6 @@ class DeveloperScoreViewSet(viewsets.ReadOnlyModelViewSet):
                 {"detail": "No developer score found. Create a coin to establish your developer score."},
                 status=status.HTTP_404_NOT_FOUND
             )
-
 
 class TraderScoreViewSet(viewsets.ReadOnlyModelViewSet):
     """API endpoint for viewing trader reputation scores"""
@@ -312,7 +298,6 @@ class TraderScoreViewSet(viewsets.ReadOnlyModelViewSet):
                 {"detail": "No trader score found. Make trades to establish your trader score."},
                 status=status.HTTP_404_NOT_FOUND
             )
-
 
 # class CoinDRCScoreViewSet(viewsets.ReadOnlyModelViewSet):
 #     """API endpoint for viewing coin DRC scores"""
@@ -435,7 +420,6 @@ class TraderScoreViewSet(viewsets.ReadOnlyModelViewSet):
         
 #         serializer = self.get_serializer(coin_drc)
 #         return Response(serializer.data)
-
 
 class CoinRugFlagViewSet(viewsets.ModelViewSet):
     """API endpoint for viewing and updating coin rug flags"""

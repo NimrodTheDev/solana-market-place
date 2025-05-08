@@ -20,6 +20,6 @@ auth_urls = [
 ]
 
 urlpatterns = [
-    path("api/", include(auth_urls)),          # ✅ /api/register/, /api/login/, /api/me/
-    path("api/", include(router.urls)),        # ✅ /api/users/, /api/users/<id>/, etc.
+    path("api/", include(auth_urls)),
+    path("api/", include(router.urls)),
 ]

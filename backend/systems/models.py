@@ -56,10 +56,10 @@ class SolanaUser(AbstractUser):
     def __str__(self):
         return self.wallet_address
 
-class Coin(models.Model):
+class Coin(models.Model): # add a way to make things more strick
     """Represents a coin on the platform"""
     address = models.CharField(primary_key=True, max_length=44, unique=True, editable=False)
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     creator = models.ForeignKey(SolanaUser, on_delete=models.CASCADE, related_name='coins', to_field="wallet_address")
     created_at = models.DateTimeField(auto_now_add=True)
     total_supply = models.DecimalField(max_digits=20, decimal_places=8)
@@ -488,38 +488,3 @@ class CoinRugFlag(models.Model): # remove
             dev_score = DeveloperScore.objects.create(developer=self.coin.creator)
             dev_score.coins_rugged_count = 1
             dev_score.recalculate_score()
-
-
-# Example function to initialize DRC scores for an existing system
-def initialize_drc_system():
-    """
-    Initialize DRC scores for all existing users and coins
-    """
-    from django.db import transaction
-    
-    with transaction.atomic():
-        # Create DeveloperScore for all users who have created coins
-        from django.db.models import Count
-        creators = SolanaUser.objects.annotate(coin_count=Count('coins')).filter(coin_count__gt=0)
-        
-        for creator in creators:
-            dev_score, created = DeveloperScore.objects.get_or_create(developer=creator)
-            dev_score.recalculate_score()
-        
-        # Create TraderScore for all users who have made trades
-        traders = SolanaUser.objects.annotate(trade_count=Count('trades')).filter(trade_count__gt=0)
-        
-        for trader in traders:
-            trader_score, created = TraderScore.objects.get_or_create(trader=trader)
-            trader_score.recalculate_score()
-        
-        # Create CoinDRCScore for all coins
-        for coin in Coin.objects.all():
-            # Create rug flag if it doesn't exist
-            rug_flag, created = CoinRugFlag.objects.get_or_create(coin=coin)
-            
-            # Create and calculate DRC score
-            coin_score, created = CoinDRCScore.objects.get_or_create(coin=coin)
-            coin_score.recalculate_score()
-    
-    return True
