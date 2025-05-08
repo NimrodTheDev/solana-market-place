@@ -68,7 +68,6 @@ class Command(BaseCommand):
         """Handle coin creation event"""
         creator = None
         try:
-            print(logs["authority"])
             creator = SolanaUser.objects.get(wallet_address=str(logs["authority"]).lower())
         except SolanaUser.DoesNotExist:
             print("Creator not found.")
