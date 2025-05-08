@@ -83,7 +83,7 @@ class Command(BaseCommand):
                 ticker=logs["token_symbol"],
                 creator=creator,
                 total_supply=Decimal("1000000.0"),
-                image_url="https://example.com3/coin.png",
+                image_url=logs["token_uri"],
                 current_price=Decimal("1.0")
             )
             new_coin.save()
