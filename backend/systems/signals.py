@@ -117,7 +117,8 @@ def create_coin_drc_score(sender, instance, created, **kwargs):
     """
     if created:
         # Create coin DRC score
-        CoinDRCScore.objects.create(coin=instance).recalculate_score()
+        score, _ = CoinDRCScore.objects.get_or_create(coin=instance)
+        score.recalculate_score()
         
         # Get or create developer score for the coin creator
         dev_score, _ = DeveloperScore.objects.get_or_create(developer=instance.creator)
