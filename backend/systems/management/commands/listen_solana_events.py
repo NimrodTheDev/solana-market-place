@@ -68,13 +68,11 @@ class Command(BaseCommand):
         """Handle coin creation event"""
         creator = None
         try:
-            print(logs["authority"])
             creator = SolanaUser.objects.get(wallet_address=str(logs["authority"]).lower())
         except SolanaUser.DoesNotExist:
             print("Creator not found.")
 
         if not Coin.objects.filter(address=logs["mint_address"]).exists() and creator != None:
-            ds = DeveloperScore.objects.get_or_create(developer=creator)
             # Create new coin record
             # Note: You'll need more data from the logs for a complete coin record
             new_coin = Coin(
@@ -83,11 +81,10 @@ class Command(BaseCommand):
                 ticker=logs["token_symbol"],
                 creator=creator,
                 total_supply=Decimal("1000000.0"),
-                image_url="https://example.com3/coin.png",
+                image_url=logs["token_uri"],
                 current_price=Decimal("1.0")
             )
             new_coin.save()
-            ds.recalculate_score()
             print(f"Created new coin with address: {logs["mint_address"]}")
             print("Tx Signature:", signature)
 

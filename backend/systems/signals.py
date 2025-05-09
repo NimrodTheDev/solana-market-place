@@ -111,13 +111,14 @@ def update_holdings_and_scores_on_trade(sender, instance, created, **kwargs):
         trader_score.recalculate_score()
 
 @receiver(post_save, sender=Coin)
-def create_coin_drc_score(sender, instance, created, **kwargs):
+def create_coin_drc_score(sender, instance, created, **kwargs): # making the score realtime
     """
     Create a DRC score record when a new coin is created
     """
     if created:
         # Create coin DRC score
-        CoinDRCScore.objects.create(coin=instance).recalculate_score()
+        score, _ = CoinDRCScore.objects.get_or_create(coin=instance)
+        score.recalculate_score()
         
         # Get or create developer score for the coin creator
         dev_score, _ = DeveloperScore.objects.get_or_create(developer=instance.creator)

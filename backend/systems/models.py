@@ -355,17 +355,19 @@ class CoinDRCScore(DRCScore):
     def __str__(self):
         return f"DRC Score for {self.coin.name}: {self.score}"
     
-    def update_age(self):
+    def update_age(self, dont_save: bool = False):
         """Update the age of the coin in hours"""
         if self.coin.created_at:
             self.age_in_hours = int((timezone.now() - self.coin.created_at).total_seconds() / 3600)
-            self.save(update_fields=['age_in_hours', 'updated_at'])
+            if not dont_save:
+                self.save(update_fields=['age_in_hours', 'updated_at'])
         return self.age_in_hours
     
-    def update_holders_count(self):
+    def update_holders_count(self, dont_save: bool = False):
         """Update the count of holders for this coin"""
         self.holders_count = self.coin.holders.count()
-        self.save(update_fields=['holders_count', 'updated_at'])
+        if not dont_save:
+            self.save(update_fields=['holders_count', 'updated_at'])
         return self.holders_count
     
     def recalculate_score(self):
@@ -373,8 +375,8 @@ class CoinDRCScore(DRCScore):
         Calculate DRC score based on coin metrics and developer reputation
         """
         # Make sure age is up to date
-        self.update_age()
-        self.update_holders_count()
+        self.update_age(dont_save=True)
+        self.update_holders_count(dont_save=True)
         
         # Get developer score
         try:
