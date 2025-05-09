@@ -1,9 +1,10 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import init, { create_token_mint } from 'wasm';
+// import init, { create_token_mint } from 'wasm';
 import * as web3 from '@solana/web3.js';
 //import * as token from '@solana/spl-token';
 // import * as anchor from "@coral-xyz/anchor";
-// import { AnchorProvider, Program} from "@project-serum/anchor";
+import {Program} from "@project-serum/anchor";
+
 import { useConnection } from '@solana/wallet-adapter-react';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 // import { Program, Idl } from '@coral-xyz/anchor';
@@ -52,6 +53,7 @@ export const SolanaProvider = ({ children, wallet }: SolanaProviderProps) => {
       TOKEN_METADATA_PROGRAM_ID
     );
     const TOKEN_PROGRAM_ID = new web3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+    //@ts-ignore
     const response = await window.solana.connect();
 
     if (!response) {
