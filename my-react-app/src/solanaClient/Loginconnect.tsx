@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 const loginUrl = "https://solana-market-place-backend.onrender.com/api/login/";
@@ -13,7 +13,7 @@ type UserData = {
   wallet_address: string;
 };
 
-export default function WalletApp() {
+export default function Loginconnect() {
   const { connect, connected, publicKey } = useWallet();
   const [token, setToken] = useState<string>("");
   const [userData, setUserData] = useState<UserData | null>(null);

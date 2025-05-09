@@ -4,8 +4,8 @@ import CoinPage from "./pages/coinPage";
 import LandingPage from "./pages/landingPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CreateCoin from "./pages/CreateCoin";
-
-import {
+import 
+{
 	ConnectionProvider,
 	WalletProvider,
 } from "@solana/wallet-adapter-react";
@@ -13,6 +13,7 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
+import Loginconnect from "./solanaClient/Loginconnect";
 // import { SolanaProvider } from "./solanaClient";
 function App() {
 	const endpoint = clusterApiUrl("devnet");
@@ -36,6 +37,7 @@ function App() {
 							<Route path='/coin/:id' element={<CoinPage />} />
 							<Route path='*' element={<div>Not found</div>} />
 							<Route path='/coin/create' element={< CreateCoin />} />
+							<Loginconnect/>
 						</Routes>
 						<NottyTerminalFooter />
 					</Router>
