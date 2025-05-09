@@ -15,6 +15,7 @@ import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import Loginconnect from "./solanaClient/Loginconnect";
 // import { SolanaProvider } from "./solanaClient";
+//import { SolanaProvider } from "./solanaClient";
 function App() {
 	const endpoint = clusterApiUrl("devnet");
 	const wallets = [new PhantomWalletAdapter()];
