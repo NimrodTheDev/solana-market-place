@@ -303,7 +303,7 @@ class CoinDRCScoreViewSet(viewsets.ReadOnlyModelViewSet):
     """API endpoint for viewing coin DRC scores"""
     queryset = CoinDRCScore.objects.all().order_by('-score')
     serializer_class = CoinDRCScoreSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]#permissions.IsAuthenticated]
     
     def get_queryset(self):
         queryset = super().get_queryset()
