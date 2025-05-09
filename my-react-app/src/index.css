@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+/* .createnewpurple1 {
+    background-color: #c3add4;
+}
+
+.createnewpurple2 {
+    background-color: #dbcee5;
+} */
+
+
+.crtGradient {
+    background: linear-gradient(90deg, #9a83f6, #bcacf9);
+}
+
+.background-container {
+    height: 300px;
+    background-color: lightgreen;
+}
+
+.overlay-container {
+    margin-top: -180px;
+    /* pulls it up over the background */
+    margin-left: 50px;
+    width: 80%;
+    background-color: rgba(255, 255, 255, 1);
+    padding: 20px;
+    position: relative;
+    /* needed for z-index to work */
+    z-index: 1;
+}
+
+.next-container {
+
+    background: rgb(13, 8, 27);
+    padding: 20px;
+
+}
+
+.no-background {
+    background: none;
+
+}

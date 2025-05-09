@@ -1,5 +1,6 @@
 import { Twitter, Globe } from "lucide-react";
 import { useState } from "react";
+import { useSolana } from "../../solanaClient";
 
 export default function CoinProfile() {
 	const [fireCount, setFireCount] = useState(500);
@@ -8,6 +9,7 @@ export default function CoinProfile() {
 		setFireCount((prevCount) => prevCount + 1);
 	};
 
+	const {CreateTokenMint} = useSolana()
 	return (
 		<div className='bg-gray-900 text-white min-h-screen p-4'>
 			<div className='max-w-2xl mx-auto'>
@@ -63,7 +65,9 @@ export default function CoinProfile() {
 						</svg>
 					</button>
 				</div>
-
+				<button onClick={()=>CreateTokenMint && CreateTokenMint("test", "TSB", "nourl")}>
+					Mint test
+				</button>
 				{/* About Section */}
 				<div className='mb-6'>
 					<h2 className='text-2xl font-bold mb-4'>About CyberPunk Cat</h2>
