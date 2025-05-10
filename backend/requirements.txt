@@ -8,3 +8,4 @@ base58
 djangorestframework
 psycopg2-binary 
 python-dotenv
+django-cors-headers
