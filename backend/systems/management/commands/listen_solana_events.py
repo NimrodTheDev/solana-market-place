@@ -1,7 +1,7 @@
 import asyncio
 from django.core.management.base import BaseCommand
 from systems.consumers import SolanaEventListener
-from systems.models import Coin, Trade, SolanaUser, DeveloperScore
+from systems.models import Coin, Trade, SolanaUser
 from asgiref.sync import sync_to_async
 from decimal import Decimal
 from systems.parser import TokenEventDecoder
@@ -16,7 +16,7 @@ class Command(BaseCommand):
     async def run_listener(self):
         # Setup your event listener similar to the consumer code
         rpc_ws_url = "wss://api.devnet.solana.com"
-        program_id = "443aQT61EYaeiqqdqGth95LYgfQkZF1BQbaJLZJ6i29w"#"5ZzjiqegSE2sGSSDpHr4eaYN4gTYdKW6N9JAVPWAyn2s"
+        program_id = "A7sBBSngzEZTsCPCffHDbeXDJ54uJWkwdEsskmn2YBGo"
         
         listener = SolanaEventListener(
             rpc_ws_url=rpc_ws_url,
@@ -38,6 +38,18 @@ class Command(BaseCommand):
                 "decimals": "u8",
             }
         )
+        trade_decoder = TokenEventDecoder(
+            "TokenTransferEvent", {
+                "transfer_type": "u8",
+                "mint_address": "Pubkey",
+                "user": "Pubkey",
+                "sol_amount": "u64",
+                "coin_amount": "u64",
+            }
+        )
+        self.decoders["BuyToken"] = trade_decoder
+        self.decoders["SellToken"] = trade_decoder
+        
         try:
             # Start the listener with auto-restart enabled
             await listener.listen()
@@ -62,13 +74,20 @@ class Command(BaseCommand):
                         if event:
                             await self.handle_coin_creation(signature, event)
                             break
+            if event_type in ["SellToken", "BuyToken"]:
+                if event_type in self.decoders:
+                    for log in logs[currect_log:]:
+                        event = self.decoders[event_type].decode(log)
+                        if event:
+                            await self.handle_trade(signature, event)
+                            break
     
     @sync_to_async
     def handle_coin_creation(self, signature, logs):
         """Handle coin creation event"""
         creator = None
         try:
-            creator = SolanaUser.objects.get(wallet_address=str(logs["authority"]).lower())
+            creator = SolanaUser.objects.get(wallet_address=logs["creator"])
         except SolanaUser.DoesNotExist:
             print("Creator not found.")
 
@@ -87,6 +106,43 @@ class Command(BaseCommand):
             new_coin.save()
             print(f"Created new coin with address: {logs["mint_address"]}")
             print("Tx Signature:", signature)
+    
+    @sync_to_async
+    def handle_trade(self, signature, logs):
+        """Handle coin creation event"""
+        tradeuser = None
+        try:
+            tradeuser = SolanaUser.objects.get(wallet_address=logs["user"])
+        except SolanaUser.DoesNotExist:
+            print("Creator not found.")
+        
+        coin = None
+        try:
+            coin = Coin.objects.get(address=logs["mint_address"])
+        except Coin.DoesNotExist:
+            print("Coins not found.")
+
+        if not Trade.objects.filter(transaction_hash=signature).exists() and tradeuser != None and coin != None:
+            new_trade = Trade(
+                transaction_hash=signature,
+                user= tradeuser,
+                coin=coin,
+                trade_type=self.get_transaction_type(logs["transfer_type"]),
+                coin_amount=logs["coin_amount"],
+                sol_amount=logs["sol_amount"],
+            )
+            new_trade.save()
+            print(f"Created new trade with transaction_hash: {signature}")
+
+    def get_transaction_type(self, ttype):
+        ttype = str(ttype)
+        if ttype == "1":
+            return "SELL"
+        if ttype == "2":
+            return "COIN_CREATE"
+        if ttype == "0":
+            return "BUY"
+        raise(ValueError("Type not Registered"))
 
     def get_function_id(self, logs:list) -> tuple:
         for num, log in enumerate(logs): # get the function id

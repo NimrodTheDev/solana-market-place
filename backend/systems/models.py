@@ -14,7 +14,6 @@ class SolanaUserManager(BaseUserManager):
         if not wallet_address:
             raise ValueError("Users must have a wallet address")
 
-        wallet_address = wallet_address.lower()
         user = self.model(wallet_address=wallet_address, **extra_fields)
 
         if user.is_staff or user.is_superuser:
@@ -119,8 +118,7 @@ class Trade(models.Model): # change to transaction hash
         ('COIN_CREATE', 'Coin Creation'),
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # transaction_hash = models.CharField(max_length=88)#, primary_key=True)
+    transaction_hash = models.CharField(max_length=88, primary_key=True, unique= True, editable= False)
     user = models.ForeignKey(SolanaUser, on_delete=models.CASCADE, related_name='trades', to_field="wallet_address")
     coin = models.ForeignKey(Coin, on_delete=models.CASCADE, related_name='trades', to_field="address")
     trade_type = models.CharField(max_length=14, choices=TRADE_TYPES)

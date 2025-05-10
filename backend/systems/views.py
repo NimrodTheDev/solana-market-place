@@ -222,7 +222,7 @@ class DeveloperScoreViewSet(viewsets.ReadOnlyModelViewSet):
         
         # Filter to exclude rugged coins creators
         exclude_ruggers = self.request.query_params.get('exclude_ruggers')
-        if exclude_ruggers and exclude_ruggers.lower() == 'true':
+        if exclude_ruggers and exclude_ruggers == 'true':
             queryset = queryset.filter(coins_rugged_count=0)
         
         return queryset
@@ -340,7 +340,7 @@ class CoinDRCScoreViewSet(viewsets.ReadOnlyModelViewSet):
         
         # Filter non-rugged coins only
         exclude_rugged = self.request.query_params.get('exclude_rugged')
-        if exclude_rugged and exclude_rugged.lower() == 'true':
+        if exclude_rugged and exclude_rugged == 'true':
             queryset = queryset.filter(
                 ~Q(coin__rug_flag__is_rugged=True)
             )
@@ -435,7 +435,7 @@ class CoinRugFlagViewSet(viewsets.ModelViewSet): # fix this
         # Filter by rugged status
         is_rugged = self.request.query_params.get('is_rugged')
         if is_rugged is not None:
-            is_rugged_bool = is_rugged.lower() == 'true'
+            is_rugged_bool = is_rugged.lower() == 'true' # possible error
             queryset = queryset.filter(is_rugged=is_rugged_bool)
         
         # Filter by coin address

@@ -1,7 +1,7 @@
 import hashlib
 import base64
 import base58
-from construct import Struct, Bytes, Int8ul, Int32ul, PaddedString
+from construct import Struct, Bytes, Int8ul, Int32ul, PaddedString,Int64ul
 
 class TokenEventDecoder:
     def __init__(self, event_name: str, parse_dict: dict):
@@ -38,6 +38,8 @@ class TokenEventDecoder:
                 fields[key] = Bytes(32)
             elif value_type == "u8":
                 fields[key] = Int8ul
+            elif value_type == "u64":
+                fields[key] = Int64ul
             else:
                 raise ValueError(f"Unsupported type: {value_type}")
 
