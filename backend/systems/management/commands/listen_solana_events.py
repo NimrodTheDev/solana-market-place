@@ -16,7 +16,7 @@ class Command(BaseCommand):
     async def run_listener(self):
         # Setup your event listener similar to the consumer code
         rpc_ws_url = "wss://api.devnet.solana.com"
-        program_id = "5ZzjiqegSE2sGSSDpHr4eaYN4gTYdKW6N9JAVPWAyn2s"
+        program_id = "443aQT61EYaeiqqdqGth95LYgfQkZF1BQbaJLZJ6i29w"#"5ZzjiqegSE2sGSSDpHr4eaYN4gTYdKW6N9JAVPWAyn2s"
         
         listener = SolanaEventListener(
             rpc_ws_url=rpc_ws_url,
