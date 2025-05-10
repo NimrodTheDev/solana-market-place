@@ -37,7 +37,7 @@ class RestrictedViewset(viewsets.ModelViewSet):
     API endpoint base class for ressiected views
     """
     permission_classes = [permissions.IsAuthenticated]
-    http_method_names = ['get', 'option']
+    http_method_names = ['get', 'options']
 
 class CoinViewSet(RestrictedViewset):
     """
