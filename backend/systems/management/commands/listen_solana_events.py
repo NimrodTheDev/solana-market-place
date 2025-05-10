@@ -33,8 +33,7 @@ class Command(BaseCommand):
                 "token_symbol": "string",
                 "token_uri": "string",
                 "mint_address": "pubkey",
-                "metadata_address": "pubkey",
-                "authority": "pubkey",
+                "creator": "pubkey",
                 "decimals": "u8",
             }
         )
