@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv('SECERT_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['solana-market-place-backend.onrender.com', '127.0.0.1']
+ALLOWED_HOSTS = ["*"]#'solana-market-place-backend.onrender.com', '127.0.0.1']
 
 
 # Application definition
