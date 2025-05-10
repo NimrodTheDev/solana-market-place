@@ -20,19 +20,6 @@ def create_user_scores(sender, instance, created, **kwargs):
         if instance.coins.exists():
             DeveloperScore.objects.get_or_create(developer=instance)
 
-@receiver(post_save, sender=Coin)
-def create_coin_score(sender, instance, created, **kwargs):
-    """Create DRC score when a new coin is created"""
-    if created:
-        # Create or get coin score
-        coin_score, _ = CoinDRCScore.objects.get_or_create(coin=instance)
-        
-        # Create developer score if not exists
-        dev_score, _ = DeveloperScore.objects.get_or_create(developer=instance.creator)
-        
-        # Update developer score after creating a coin
-        dev_score.recalculate_score()
-
 @receiver(post_save, sender=Trade)
 def update_holdings_and_scores_on_trade(sender, instance, created, **kwargs):
     """

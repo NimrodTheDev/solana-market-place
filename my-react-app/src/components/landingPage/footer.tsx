@@ -2,9 +2,11 @@ export default function NottyTerminalFooter() {
 	return (
 		<div className='bg-gray-900 text-white py-8 px-4'>
 			<div className='container mx-auto'>
-				<div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-16'>
+				<div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-16 pl-24 pr-24'>
 					<div className='mb-4 md:mb-0'>
-						<h2 className='text-xl font-bold text-blue-400'>Notty Terminal</h2>
+						<h2 className='text-2xl font-bold bg-gradient-to-r from-[#a4b9fa] to-[#1ce8fd] bg-clip-text text-transparent'>
+							Notty Terminal
+						</h2>
 						<p className='text-gray-300 mt-1'>The future of Web3 is here.</p>
 					</div>
 
