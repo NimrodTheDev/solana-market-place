@@ -14,8 +14,7 @@ router.register(r'coin-scores', views.CoinDRCScoreViewSet)
 router.register(r'rug-flags', views.CoinRugFlagViewSet)
 
 auth_urls = [
-    path("register/", views.RegisterView.as_view(), name="register"),
-    path("login/", views.LoginView.as_view(), name="login"),
+    path("connect_wallet/", views.ConnectWalletView.as_view(), name="connect_wallet"),
     path("me/", views.MeView.as_view(), name="me"),
 ]
 
