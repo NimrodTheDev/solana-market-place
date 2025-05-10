@@ -28,8 +28,10 @@ SECRET_KEY = os.getenv('SECERT_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]#'solana-market-place-backend.onrender.com', '127.0.0.1']
-
+ALLOWED_HOSTS = [
+    'solana-market-place-backend.onrender.com', 
+    '127.0.0.1',
+]
 
 # Application definition
 
@@ -48,7 +50,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # MUST be first
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,6 +64,7 @@ ROOT_URLCONF = 'core.urls'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://solana-market-place.onrender.com",
 ]
 
 TEMPLATES = [
