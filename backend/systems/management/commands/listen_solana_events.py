@@ -41,8 +41,8 @@ class Command(BaseCommand):
         trade_decoder = TokenEventDecoder(
             "TokenTransferEvent", {
                 "transfer_type": "u8",
-                "mint_address": "Pubkey",
-                "user": "Pubkey",
+                "mint_address": "pubkey",
+                "user": "pubkey",
                 "sol_amount": "u64",
                 "coin_amount": "u64",
             }
