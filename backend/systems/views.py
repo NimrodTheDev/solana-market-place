@@ -22,8 +22,7 @@ from .serializers import (
     TraderScoreSerializer, 
     CoinDRCScoreSerializer,
     CoinRugFlagSerializer,
-    SolanaUserCreateSerializer,
-    SolanaUserLoginSerializer,
+    SolanaUserConnectSerializer,
     CoinSerializer, 
     UserCoinHoldingsSerializer, 
     TradeSerializer, 
@@ -161,24 +160,20 @@ class UserViewSet(RestrictedViewset): # check later
         serializer = CoinSerializer(coins, many=True)
         return Response(serializer.data)
 
-class RegisterView(CreateAPIView):
-    queryset = SolanaUser.objects.all()
-    serializer_class = SolanaUserCreateSerializer
-    permission_classes = [permissions.AllowAny]
-
-class LoginView(APIView):
+class ConnectWalletView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = SolanaUserLoginSerializer(data=request.data)
+        serializer = SolanaUserConnectSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data['user']
-
+            # validation
+            # send message
             # Create or get auth token
             token, _ = Token.objects.get_or_create(user=user)
 
             return Response({
-                "message": "Login successful",
+                "message": "Connected successfully",
                 "token": token.key,
                 "wallet_address": user.wallet_address,
                 "display_name": user.display_name,
