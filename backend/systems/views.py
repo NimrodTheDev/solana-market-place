@@ -22,11 +22,11 @@ from .serializers import (
     TraderScoreSerializer, 
     CoinDRCScoreSerializer,
     CoinRugFlagSerializer,
-    SolanaUserConnectSerializer,
+    ConnectWalletSerializer,
     CoinSerializer, 
     UserCoinHoldingsSerializer, 
     TradeSerializer, 
-    UserSerializer,
+    SolanaUserSerializer,
 )
 
 User = get_user_model()
@@ -117,7 +117,7 @@ class UserViewSet(RestrictedViewset): # check later
     API endpoint for Solana Users
     """
     queryset = SolanaUser.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = SolanaUserSerializer
     permission_classes = [permissions.AllowAny]#permissions.IsAuthenticated]
     lookup_field = 'wallet_address'
     
@@ -164,7 +164,7 @@ class ConnectWalletView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = SolanaUserConnectSerializer(data=request.data)
+        serializer = ConnectWalletSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data['user']
             # validation
@@ -183,7 +183,7 @@ class ConnectWalletView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MeView(RetrieveUpdateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = SolanaUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):

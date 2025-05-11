@@ -1,10 +1,12 @@
 import asyncio
 from django.core.management.base import BaseCommand
-from systems.consumers import SolanaEventListener
+from systems.listeners import SolanaEventListener
 from systems.models import Coin, Trade, SolanaUser
-from asgiref.sync import sync_to_async
 from decimal import Decimal
 from systems.parser import TokenEventDecoder
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync, sync_to_async
+import requests
 
 class Command(BaseCommand):
     help = 'Listen for Solana program events'
@@ -16,7 +18,7 @@ class Command(BaseCommand):
     async def run_listener(self):
         # Setup your event listener similar to the consumer code
         rpc_ws_url = "wss://api.devnet.solana.com"
-        program_id = "A7sBBSngzEZTsCPCffHDbeXDJ54uJWkwdEsskmn2YBGo"
+        program_id = "443aQT61EYaeiqqdqGth95LYgfQkZF1BQbaJLZJ6i29w"
         
         listener = SolanaEventListener(
             rpc_ws_url=rpc_ws_url,
@@ -71,6 +73,7 @@ class Command(BaseCommand):
                     for log in logs[currect_log:]:
                         event = self.decoders[event_type].decode(log)
                         if event:
+                            event = await self.get_metadata(event)
                             await self.handle_coin_creation(signature, event)
                             break
             if event_type in ["SellToken", "BuyToken"]:
@@ -80,31 +83,76 @@ class Command(BaseCommand):
                         if event:
                             await self.handle_trade(signature, event)
                             break
-    
+
     @sync_to_async
-    def handle_coin_creation(self, signature, logs):
+    def handle_coin_creation(self, signature: str, logs: dict):
         """Handle coin creation event"""
         creator = None
         try:
             creator = SolanaUser.objects.get(wallet_address=logs["creator"])
         except SolanaUser.DoesNotExist:
             print("Creator not found.")
-
-        if not Coin.objects.filter(address=logs["mint_address"]).exists() and creator != None:
-            # Create new coin record
-            # Note: You'll need more data from the logs for a complete coin record
+        
+        if not Coin.objects.filter(address=logs["mint_address"]).exists() and creator is not None:
+            attributes = logs.get('attributes')
+            coin_info = {
+                "address":logs["mint_address"],
+                "name":logs["token_name"],
+                "ticker":logs["token_symbol"],
+                "creator":logs["creator"],
+                "total_supply":"1000000.0",
+                "image_url":logs.get('image', ''),
+                "current_price":"1.0",
+                "description":logs.get('description', None),
+                "discord":attributes.get('discord') if isinstance(attributes, dict) else None,
+                "website":attributes.get('website') if isinstance(attributes, dict) else None,
+                "twitter":attributes.get('twitter') if isinstance(attributes, dict) else None,
+            }
             new_coin = Coin(
-                address=logs["mint_address"],
-                name= logs["token_name"],
-                ticker=logs["token_symbol"],
+                address=coin_info["address"],
+                name=coin_info["name"],
+                ticker=coin_info["ticker"],
                 creator=creator,
-                total_supply=Decimal("1000000.0"),
-                image_url=logs["token_uri"],
-                current_price=Decimal("1.0")
+                total_supply=Decimal(coin_info["total_supply"]),
+                image_url=coin_info["image_url"],
+                current_price=Decimal(coin_info["current_price"]),
+                description=coin_info["description"],
+                discord=coin_info["discord"],
+                website=coin_info["website"],
+                twitter=coin_info["twitter"],
             )
             new_coin.save()
-            print(f"Created new coin with address: {logs["mint_address"]}")
-            print("Tx Signature:", signature)
+            
+            print(f"Created new coin with address: {logs['mint_address']}")
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "events",  # Group name
+                {
+                    "type": "solana_event",
+                    'data': coin_info,
+                }
+            )
+
+    async def get_metadata(self, log:dict):
+        try:
+            ipfuri:str = log["token_uri"]
+            ipfs_hash = ipfuri.split("/")
+            for i in range(2):
+                if ipfs_hash[-(i+1)] != "":
+                    ipfs_hash = ipfs_hash[-(i+1)]
+                    break
+            url = f"https://ipfs.io/ipfs/{ipfs_hash}"
+
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                content:dict = response.json()  # raw bytes
+                log.update(content)
+            else:
+                print(f"Failed to fetch: {response.status_code}")
+        except Exception as e:
+            print(e)
+        return log
     
     @sync_to_async
     def handle_trade(self, signature, logs):
@@ -122,15 +170,31 @@ class Command(BaseCommand):
             print("Coins not found.")
 
         if not Trade.objects.filter(transaction_hash=signature).exists() and tradeuser != None and coin != None:
+            trade_info = {
+                "transaction_hash":signature,
+                "user":logs["user"],
+                "coin_address":logs["mint_address"],
+                "trade_type":self.get_transaction_type(logs["transfer_type"]),
+                "coin_amount":logs["coin_amount"],
+                "sol_amount":logs["sol_amount"],
+            }
             new_trade = Trade(
-                transaction_hash=signature,
+                transaction_hash=trade_info["transaction_hash"],
                 user= tradeuser,
                 coin=coin,
-                trade_type=self.get_transaction_type(logs["transfer_type"]),
-                coin_amount=logs["coin_amount"],
-                sol_amount=logs["sol_amount"],
+                trade_type=trade_info["trade_type"],
+                coin_amount=trade_info["coin_amount"],
+                sol_amount=trade_info["sol_amount"],
             )
             new_trade.save()
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "events",  # Group name
+                {
+                    "type": "solana_event",
+                    'data': trade_info,
+                }
+            )
             print(f"Created new trade with transaction_hash: {signature}")
 
     def get_transaction_type(self, ttype):
@@ -147,4 +211,3 @@ class Command(BaseCommand):
         for num, log in enumerate(logs): # get the function id
             if "Program log: Instruction:" in log:
                 return log.split(": ")[-1], num
-        
