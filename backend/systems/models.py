@@ -55,6 +55,20 @@ class SolanaUser(AbstractUser):
 
     def __str__(self):
         return self.wallet_address
+    
+    @property
+    def devscore(self):
+        """Dynamically retrieve and recalculate the developer score."""
+        if hasattr(self, 'developer_score'):
+            return self.developer_score.recalculate_score()
+        return 0  # Default base score if no score record exists
+    
+    @property
+    def tradescore(self):
+        """Dynamically retrieve and recalculate the trade score."""
+        if hasattr(self, 'trader_score'):
+            return self.trader_score.recalculate_score()
+        return 200  # Default base score if no score record exists
 
 class Coin(models.Model): # add a way to make things more strick
     """Represents a coin on the platform"""
@@ -63,10 +77,10 @@ class Coin(models.Model): # add a way to make things more strick
     creator = models.ForeignKey(SolanaUser, on_delete=models.CASCADE, related_name='coins', to_field="wallet_address")
     created_at = models.DateTimeField(auto_now_add=True)
     total_supply = models.DecimalField(max_digits=20, decimal_places=8)
-    image_url = models.URLField(max_length=500, unique=True)
+    image_url = models.URLField(max_length=500)
     ticker = models.CharField(max_length=50, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    telegram = models.CharField(max_length=255, blank=True, null=True)
+    discord = models.CharField(max_length=255, blank=True, null=True)
     website = models.URLField(max_length=255, blank=True, null=True)
     twitter = models.CharField(max_length=255, blank=True, null=True)
 
@@ -91,6 +105,13 @@ class Coin(models.Model): # add a way to make things more strick
     def market_cap(self):
         """Calculates market cap: (Total Supply - Total Held) * Current Price"""
         return (self.total_supply - self.total_held) * self.current_price
+    
+    @property
+    def score(self):
+        """Dynamically retrieve and recalculate the trade score."""
+        if hasattr(self, 'drc_score'):
+            return self.drc_score.recalculate_score()
+        return 200  # Default base score if no score record exists
 
     class Meta:
         ordering = ['-created_at']
@@ -151,9 +172,15 @@ class DeveloperScore(DRCScore):
     """
     Developer reputation score tracking for Solana users who create coins
     """
-    developer = models.OneToOneField('SolanaUser', on_delete=models.CASCADE, 
-                                    related_name='developer_score', 
-                                    to_field="wallet_address")
+    # developer = models.OneToOneField('SolanaUser', on_delete=models.CASCADE, 
+    #                                 related_name='developer_score', 
+    #                                 to_field="wallet_address")
+    developer = models.OneToOneField(
+        SolanaUser,
+        on_delete=models.CASCADE,
+        related_name='developer_score',
+        to_field="wallet_address"
+    )
     
     # Historical performance metrics
     coins_created_count = models.IntegerField(default=0)
@@ -226,7 +253,7 @@ class TraderScore(DRCScore):
     """
     Trader reputation score tracking for Solana users who trade coins
     """
-    trader = models.OneToOneField('SolanaUser', on_delete=models.CASCADE, 
+    trader = models.OneToOneField(SolanaUser, on_delete=models.CASCADE, 
                                  related_name='trader_score',
                                  to_field="wallet_address")
     
@@ -325,7 +352,7 @@ class CoinDRCScore(DRCScore):
     DRC score for individual coins, combining developer reputation, 
     market metrics and contract security
     """
-    coin = models.OneToOneField('Coin', on_delete=models.CASCADE, 
+    coin = models.OneToOneField(Coin, on_delete=models.CASCADE, 
                                related_name='drc_score',
                                to_field="address")
     

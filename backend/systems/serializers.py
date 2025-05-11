@@ -6,16 +6,26 @@ from .models import (
     CoinRugFlag,
     SolanaUser,
     Coin,
-    UserCoinHoldings, Trade,
+    UserCoinHoldings, 
+    Trade,
 )
 
-class UserSerializer(serializers.ModelSerializer):
+class SolanaUserSerializer(serializers.ModelSerializer):
+    devscore = serializers.SerializerMethodField()
+    tradescore = serializers.SerializerMethodField()
+
     class Meta:
         model = SolanaUser
-        fields = ['wallet_address', 'display_name', 'bio']#, 'is_staff']
-        read_only_fields = ['wallet_address']#, 'is_staff']
+        fields = ['wallet_address', 'display_name', 'bio', 'devscore', 'tradescore']
+        read_only_fields = ['wallet_address']
 
-class SolanaUserConnectSerializer(serializers.Serializer):
+    def get_devscore(self, obj):
+        return obj.devscore
+    
+    def get_tradescore(self, obj):
+        return obj.tradescore
+
+class ConnectWalletSerializer(serializers.Serializer):
     wallet_address = serializers.CharField()
     display_name = serializers.CharField(required=False, allow_blank=True)
     bio = serializers.CharField(required=False, allow_blank=True)
@@ -33,17 +43,24 @@ class SolanaUserConnectSerializer(serializers.Serializer):
         return data
 
 class CoinSerializer(serializers.ModelSerializer):
-    creator_display_name = serializers.ReadOnlyField(source='creator.display_name')
+    creator_display_name = serializers.SerializerMethodField()
+    score = serializers.SerializerMethodField()
     
     class Meta:
         model = Coin
         fields = [
             'address', 'ticker', 'name', 'creator', 'creator_display_name',
             'created_at', 'total_supply', 'image_url',
-            'description', 'telegram', 'website', 'twitter',
-            'current_price', 'total_held', 'market_cap'
+            'description', 'discord', 'website', 'twitter',
+            'current_price', 'total_held', 'market_cap', 'score'
         ]
         read_only_fields = ['address', 'creator', 'creator_display_name', 'created_at']
+    
+    def get_creator_display_name(self, obj):
+        return obj.creator.get_display_name()
+
+    def get_score(self, obj):
+        return obj.score
 
 class UserCoinHoldingsSerializer(serializers.ModelSerializer):
     coin_ticker = serializers.ReadOnlyField(source='coin.ticker')
