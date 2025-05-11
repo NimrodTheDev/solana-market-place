@@ -1,6 +1,6 @@
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
-import { AnchorProvider, Program, web3 } from "@project-serum/anchor";
-const programId = new PublicKey("A7sBBSngzEZTsCPCffHDbeXDJ54uJWkwdEsskmn2YBGo");
+import { Connection, clusterApiUrl } from "@solana/web3.js";
+import { AnchorProvider } from "@project-serum/anchor";
+// const programId = new PublicKey("A7sBBSngzEZTsCPCffHDbeXDJ54uJWkwdEsskmn2YBGo");
 
 const network = clusterApiUrl("devnet");
 const connection = new Connection(network, "processed");
