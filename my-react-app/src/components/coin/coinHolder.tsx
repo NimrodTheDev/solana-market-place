@@ -1,4 +1,4 @@
-export default function HoldersAnalytics() {
+export default function HoldersAnalytics({}:{coinData: any}) {
 	// Top holders data
 	const topHolders = [
 		{ name: "Specialdev", percentage: "50%" },

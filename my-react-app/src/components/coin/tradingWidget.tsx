@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Repeat } from "lucide-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
-export default function CryptoTradingWidget() {
+export default function CryptoTradingWidget({}: {coinData: any}) {
 	const [amount, setAmount] = useState("0.00");
 	const [activeTab, setActiveTab] = useState("buy");
 

@@ -1,7 +1,31 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
 
-export default function CoinComments() {
+
+interface CoinData {
+	address: string;
+	created_at: string;
+	creator: string;
+	creator_display_name: string;
+	current_price: string;
+	description: string | null;
+	image_url: string;
+	market_cap: number;
+	name: string;
+	telegram: string | null;
+	ticker: string;
+	total_held: number;
+	total_supply: string;
+	twitter: string | null;
+	website: string | null;
+}
+
+
+interface CoinCommentsProps {
+	coinData: CoinData;
+}
+
+export default function CoinComments({ coinData }: CoinCommentsProps) {
 	const [newComment, setNewComment] = useState("");
 
 	const comments = [
@@ -21,63 +45,47 @@ export default function CoinComments() {
 	};
 
 	return (
-		<div className='bg-gray-900 text-white p-4 w-full max-w-3xl mx-auto'>
-			{/* Header Section */}
-			<div className='flex items-center mb-6'>
-				<div className='w-16 h-16 rounded-lg overflow-hidden mr-4'>
-					<img
-						src='/api/placeholder/80/80'
-						alt='CyberPunkCat'
-						className='w-full h-full object-cover'
-					/>
-				</div>
+		<div className='bg-gray-800 p-4 rounded-lg'>
+			<h2 className='text-xl font-bold mb-4'>Comments</h2>
+			<div className='space-y-4'>
+				<p className='text-gray-400'>Comments for {coinData.name}</p>
+				{/* Comments section */}
 				<div>
-					<h2 className='text-2xl font-bold'>CyberPunkCat</h2>
-					<div className='flex items-center text-gray-400'>
-						<span>{comments.length} comments</span>
-					</div>
-				</div>
-			</div>
-
-			{/* Leave a comment prompt */}
-			<div className='mb-4 text-lg'>Leave a comment below</div>
-
-			{/* Comments section */}
-			<div>
-				{comments.map((comment) => (
-					<div key={comment.id} className='border-t border-gray-700 py-4'>
-						<div className='flex items-center mb-2'>
-							<span className='text-yellow-400 mr-2'>👋</span>
-							<a className='text-gray-300 underline cursor-pointer'>
-								{comment.username}
-							</a>
+					{comments.map((comment) => (
+						<div key={comment.id} className='border-t border-gray-700 py-4'>
+							<div className='flex items-center mb-2'>
+								<span className='text-yellow-400 mr-2'>👋</span>
+								<a className='text-gray-300 underline cursor-pointer'>
+									{comment.username}
+								</a>
+							</div>
+							<p>{comment.text}</p>
 						</div>
-						<p>{comment.text}</p>
-					</div>
-				))}
-			</div>
+					))}
+				</div>
 
-			{/* Comment input */}
-			<div className='mt-4'>
-				<div className='flex items-center border border-gray-700 rounded-lg overflow-hidden'>
-					<input
-						type='text'
-						value={newComment}
-						onChange={(e) => setNewComment(e.target.value)}
-						placeholder='Add a comment...'
-						className='flex-1 bg-gray-800 p-3 outline-none'
-						onKeyPress={(e) => {
-							if (e.key === "Enter") {
-								handleSubmitComment();
-							}
-						}}
-					/>
-					<button
-						onClick={handleSubmitComment}
-						className='bg-blue-600 hover:bg-blue-700 p-3 text-white'
-					>
-						<Send className='w-5 h-5' />
-					</button>
+				{/* Comment input */}
+				<div className='mt-4'>
+					<div className='flex items-center border border-gray-700 rounded-lg overflow-hidden'>
+						<input
+							type='text'
+							value={newComment}
+							onChange={(e) => setNewComment(e.target.value)}
+							placeholder='Add a comment...'
+							className='flex-1 bg-gray-800 p-3 outline-none'
+							onKeyPress={(e) => {
+								if (e.key === "Enter") {
+									handleSubmitComment();
+								}
+							}}
+						/>
+						<button
+							onClick={handleSubmitComment}
+							className='bg-blue-600 hover:bg-blue-700 p-3 text-white'
+						>
+							<Send className='w-5 h-5' />
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

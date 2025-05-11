@@ -73,7 +73,7 @@ export default function Header() {
 						</div>
 						<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white' />
 					</div>
-					<WalletMultiButton />
+					<WalletMultiButton  />
 				</div>
 			)}
 		</header>
