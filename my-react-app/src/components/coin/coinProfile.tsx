@@ -1,8 +1,8 @@
 import { Twitter, Globe } from "lucide-react";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 // import img from "../../assets/images/istockphoto-1409329028-612x612.jpg"
 // import { useParams } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
 import img from "../../assets/images/istockphoto-1409329028-612x612.jpg"
 
 // Define the type for the coin data
@@ -32,8 +32,8 @@ interface CoinProfileProps {
 
 export default function CoinProfile({ coinData }: CoinProfileProps) {
 	const [fireCount] = useState(coinData.score);
-	const [url, setUrl] = useState(img);
-	const [data, setData] = useState<any>({});
+	// const [url, setUrl] = useState(img);
+	// const [data, setData] = useState<any>({});
 	const handleFireClick = () => {
 		// setFireCount((prevCount) => prevCount + 1);
 	};

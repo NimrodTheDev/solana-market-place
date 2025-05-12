@@ -1,4 +1,4 @@
-import { Copy, Info } from "lucide-react";
+import { Copy} from "lucide-react";
 import { useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -44,7 +44,7 @@ export default function CryptoTokenDetails({ coinData }: CryptoTokenDetailsProps
 	// Placeholder for DRS (not in CoinData)
 	const drs = 500;
 	// Bonding curve progress (hardcoded to 60% for now)
-	const bondingProgress = 60;
+	// const bondingProgress = 60;
 
 	return (
 		<div className="bg-gray-900 text-white p-8 rounded-lg flex flex-col gap-6 w-full">
