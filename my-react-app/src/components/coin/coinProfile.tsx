@@ -1,14 +1,15 @@
 import { Twitter, Globe } from "lucide-react";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 // import img from "../../assets/images/istockphoto-1409329028-612x612.jpg"
 // import { useParams } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
 import img from "../../assets/images/istockphoto-1409329028-612x612.jpg"
 
 // Define the type for the coin data
 interface CoinData {
 	address: string;
 	created_at: string;
+	score: number;
 	creator: string;
 	creator_display_name: string;
 	current_price: string;
@@ -19,6 +20,7 @@ interface CoinData {
 	telegram: string | null;
 	ticker: string;
 	total_held: number;
+	discord?: string;
 	total_supply: string;
 	twitter: string | null;
 	website: string | null;
@@ -29,20 +31,20 @@ interface CoinProfileProps {
 }
 
 export default function CoinProfile({ coinData }: CoinProfileProps) {
-	const [fireCount, setFireCount] = useState(200);
-	const [url, setUrl] = useState(img);
-	const [data, setData] = useState<any>({});
+	const [fireCount] = useState(coinData.score);
+	// const [url, setUrl] = useState(img);
+	// const [data, setData] = useState<any>({});
 	const handleFireClick = () => {
-		setFireCount((prevCount) => prevCount + 1);
+		// setFireCount((prevCount) => prevCount + 1);
 	};
-	useEffect(()=>{
-		axios.get(coinData.image_url).then((res)=>{
-			console.log(res)
-			// return res.data
-			res.status === 200 && setUrl(res?.data?.image || img)
-			res.status === 200 && setData(res?.data)
-		})
-	}, [])
+	// useEffect(()=>{
+	// 	axios.get(coinData.image_url).then((res)=>{
+	// 		console.log(res)
+	// 		// return res.data
+	// 		res.status === 200 && setUrl(res?.data?.image || img)
+	// 		res.status === 200 && setData(res?.data)
+	// 	})
+	// }, [])
 	return (
 		<div className='bg-gray-900 text-white  p-4'>
 			<div className='max-w-2xl mx-auto'>
@@ -64,7 +66,7 @@ export default function CoinProfile({ coinData }: CoinProfileProps) {
 				<div className='mb-8'>
 					<div className='rounded-lg overflow-hidden border-2 border-gray-700 mx-auto max-w-md'>
 						<img
-							src={url}
+							src={coinData.image_url || img}
 							alt={`${coinData.name} image`}
 							className='w-full h-full object-cover'
 						/>
@@ -73,18 +75,18 @@ export default function CoinProfile({ coinData }: CoinProfileProps) {
 
 				{/* Social Links */}
 				<div className='flex justify-center gap-4 mb-8'>
-					{data?.attributes?.twitter && (
-						<a href={data?.attributes?.twitter} target="_blank" rel="noopener noreferrer" className='p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors'>
+					{coinData?.twitter && (
+						<a href={"https://x.com/"+ coinData?.twitter || ''} target="_blank" rel="noopener noreferrer" className='p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors'>
 							<Twitter size={20} />
 						</a>
 					)}
-					{data?.attributes?.website && (
-						<a href={data?.attributes?.website} target="_blank" rel="noopener noreferrer" className='p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors'>
+					{coinData?.website && (
+						<a href={coinData?.website} target="_blank" rel="noopener noreferrer" className='p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors'>
 							<Globe size={20} />
 						</a>
 					)}
-					{data.attributes?.discord && (
-						<a href={data?.attributes?.discord} target="_blank" rel="noopener noreferrer" className='p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors'>
+					{coinData?.discord && (
+						<a href={coinData?.discord} target="_blank" rel="noopener noreferrer" className='p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors'>
 							<svg
 								width='20'
 								height='20'
@@ -108,7 +110,7 @@ export default function CoinProfile({ coinData }: CoinProfileProps) {
 				<div className='mb-6'>
 					<h2 className='text-2xl font-bold mb-4'>About {coinData.name}</h2>
 					<p className='text-gray-300 leading-relaxed'>
-						{data?.description || "No description available"}
+						{coinData?.description || "No description available"}
 					</p>
 				</div>
 			</div>

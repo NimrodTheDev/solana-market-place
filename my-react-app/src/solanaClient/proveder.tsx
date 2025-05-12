@@ -8,7 +8,10 @@ const connection = new Connection(network, "processed");
 // Use Phantom or any wallet adapter
 export const getProvider = () => {
   // @ts-ignore
-  if (!window.solana) throw new Error("Wallet not found");
+  if (!window.solana) {
+    return
+    // throw new Error("Wallet not found");
+  }
 
   const provider = new AnchorProvider(
     connection,
