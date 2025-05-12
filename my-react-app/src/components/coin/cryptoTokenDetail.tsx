@@ -52,7 +52,7 @@ export default function CryptoTokenDetails({ coinData }: CryptoTokenDetailsProps
 				<div className="text-purple-200">Creator</div>
 				<div className="flex items-center gap-2 justify-end">
 					<span className="text-yellow-400">👋</span>
-					<Link to={`https://explorer.solana.com/tx/${coinData.creator}?cluster=devnet`} className="font-medium underline">{coinData.creator_display_name || "Smart Contract Owner"}</Link>
+					<Link to={`https://explorer.solana.com/address/${coinData.creator}?cluster=devnet`} className="font-medium underline">{coinData.creator_display_name || "Smart Contract Owner"}</Link>
 				</div>
 
 				<div className="text-purple-200">Time Launched:</div>
@@ -79,9 +79,9 @@ export default function CryptoTokenDetails({ coinData }: CryptoTokenDetailsProps
 
 			{/* Bonding curve progress */}
 			<div className="flex items-center gap-4 mt-4">
-				<span className="text-purple-200">Bonding curve progress</span>
+				{/* <span className="text-purple-200">Bonding curve progress</span> */}
 				<div className="flex-1 flex flex-col">
-					<div className="flex items-center gap-2">
+					{/* <div className="flex items-center gap-2">
 						<div className="w-48 h-4 bg-gray-700 rounded-full overflow-hidden relative">
 							<div
 								className="bg-green-500 h-full rounded-full"
@@ -90,11 +90,11 @@ export default function CryptoTokenDetails({ coinData }: CryptoTokenDetailsProps
 						</div>
 						<span className="text-white font-semibold">{bondingProgress}%</span>
 						<Info size={16} className="text-gray-400 ml-1" aria-label="Bonding curve info" tabIndex={0} />
-					</div>
-					<div className="flex justify-between text-xs text-gray-400 mt-1">
+					</div> */}
+					{/* <div className="flex justify-between text-xs text-gray-400 mt-1">
 						<span>short note below</span>
 						<a href="#" className="text-blue-400 hover:underline">link text</a>
-					</div>
+					</div> */}
 				</div>
 			</div>
 

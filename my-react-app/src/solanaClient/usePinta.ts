@@ -66,7 +66,8 @@ export async function uploadFile(
     return metadataUrl;
   } catch (error) {
     console.error("Error uploading to IPFS:", error);
-    throw error;
+    // throw error;
+    return ''
   }
 }
 

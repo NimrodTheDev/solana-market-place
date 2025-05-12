@@ -15,6 +15,7 @@ interface NFT {
 	image_url: string;
 	description: string | null;
 	telegram: string | null;
+	score: number;
 	website: string | null;
 	twitter: string | null;
 	current_price: string;
@@ -69,18 +70,18 @@ export default function NFTCollection() {
 export function NFTCard({ nft }: NFTCardProps) {
 	// console.log(nft)
 	
-	const [url, setUrl] = useState(img);
-	let data: any = axios.get(nft.image_url).then((res)=>{
-		console.log(res)
-		// return res.data
-		res.status === 200 && setUrl(res?.data?.image || img)
-	})
-	console.log(data)
+	// const [url, setUrl] = useState(img);
+	// let data: any = axios.get(nft.image_url).then((res)=>{
+	// 	console.log(res)
+	// 	// return res.data
+	// 	res.status === 200 && setUrl(res?.data?.image || img)
+	// })
+	// console.log(data)
 	return (
 		<div className='bg-gray-900 rounded-lg overflow-hidden border border-gray-800'>
 			<div className='relative pb-[100%]'>
 				<img
-					src={url}
+					src={nft.image_url || img}
 					alt='NFT Cat'
 					className='absolute inset-0 w-full h-full object-cover'
 				/>
@@ -97,7 +98,7 @@ export function NFTCard({ nft }: NFTCardProps) {
 					</div>
 					<div className='text-right'>
 						<p className='text-gray-500 text-xs'>DRS:</p>
-						<p className='text-gray-400'>{200}</p>
+						<p className='text-gray-400'>{nft.score}</p>
 					</div>
 				</div>
 

@@ -14,7 +14,7 @@ import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
 import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import Loginconnect from "./solanaClient/Loginconnect";
-// import { SolanaProvider } from "./solanaClient";
+import { SolanaProvider } from "./solanaClient";
 //import { SolanaProvider } from "./solanaClient";
 // import { SolanaProvider } from "./solanaClient";
 import { useEffect } from "react";
@@ -30,7 +30,8 @@ function App() {
 			const response = await window.solana.connect();
 
 		if (!response) {
-		  throw Error("No public key found")
+		//   throw Error("No public key found")
+		return
 		}
 		console.log(response.publicKey?.toBase58())
 		axios.post(`https://solana-market-place-backend.onrender.com/api/connect_wallet/`, {
@@ -52,7 +53,7 @@ function App() {
 	return (
 		<ConnectionProvider endpoint={endpoint}>
 			<WalletProvider wallets={wallets} autoConnect={false}>
-				{/* <SolanaProvider wallet={wallets[0]}> */}
+				<SolanaProvider wallet={wallets[0]}>
 				<WalletModalProvider>
 					<Router>
 						<Header />
@@ -73,7 +74,7 @@ function App() {
 						<NottyTerminalFooter />
 					</Router>
 				</WalletModalProvider>
-				{/* </SolanaProvider> */}
+				</SolanaProvider>
 			</WalletProvider>
 		</ConnectionProvider>
 	);

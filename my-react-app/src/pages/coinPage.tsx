@@ -11,6 +11,7 @@ import axios from "axios";
 interface CoinData {
 	address: string;
 	created_at: string;
+	score: number;
 	creator: string;
 	creator_display_name: string;
 	current_price: string;

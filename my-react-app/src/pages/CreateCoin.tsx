@@ -6,6 +6,16 @@ import DragAndDropFileInput from '../components/general/dragNdrop';
 import { Link } from 'react-router-dom';
 // import Hero from '../components/landingPage/hero'
 
+interface ValidationErrors {
+    tokenName?: string;
+    tokenSymbol?: string;
+    tokenDescription?: string;
+    tokenWebsite?: string;
+    tokenTwitter?: string;
+    tokenDiscord?: string;
+    tokenImage?: string;
+}
+
 function CreateCoin() {
     // const [preview, setPreview] = useState<string | null>(null);
     const [tokenName, settTokenName] = useState("");
@@ -22,6 +32,7 @@ function CreateCoin() {
     const [tokenDiscord, setTokenDiscord] = useState("");
     const {CreateTokenMint} = useSolana()
     const [error, setError] = useState<string | null>(null);
+    const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
     // const handleImageChange = (e: any) => {
     //     const file = e.target.files[0];
     //     if (file && file.type.startsWith('image/')) {
@@ -29,6 +40,61 @@ function CreateCoin() {
     //     }
     // };
     const [result, setResult] = useState<string | null>(null);
+
+    const validateForm = (): boolean => {
+        const errors: ValidationErrors = {};
+        
+        // Token Name validation
+        if (!tokenName.trim()) {
+            errors.tokenName = "Token name is required";
+        } else if (tokenName.length > 50) {
+            errors.tokenName = "Token name must be less than 50 characters";
+        }
+
+        // Token Symbol validation
+        if (!tokenSymbol.trim()) {
+            errors.tokenSymbol = "Token symbol is required";
+        } else if (!/^[A-Z0-9]{2,10}$/.test(tokenSymbol)) {
+            errors.tokenSymbol = "Token symbol must be 2-10 uppercase letters or numbers";
+        }
+
+        // Description validation
+        if (!tokenDescription.trim()) {
+            errors.tokenDescription = "Description is required";
+        } else if (tokenDescription.length > 1000) {
+            errors.tokenDescription = "Description must be less than 1000 characters";
+        }
+
+        // Website validation
+        if (!tokenWebsite.trim()) {
+            errors.tokenWebsite = "Website is required";
+        } else if (!/^https?:\/\/.+/.test(tokenWebsite)) {
+            errors.tokenWebsite = "Please enter a valid URL starting with http:// or https://";
+        }
+
+        // Twitter validation
+        if (!tokenTwitter.trim()) {
+            errors.tokenTwitter = "Twitter handle is required";
+        } else if (!/^@?[A-Za-z0-9_]{1,15}$/.test(tokenTwitter)) {
+            errors.tokenTwitter = "Please enter a valid Twitter handle";
+        }
+
+        // Discord validation
+        if (!tokenDiscord.trim()) {
+            errors.tokenDiscord = "Discord channel is required";
+        } else if (!/^https?:\/\/discord\/+/.test(tokenDiscord)) {
+            errors.tokenDiscord = "Please enter a valid Discord invite link";
+        }
+
+        // Image validation
+        if (!tokenImage) {
+            errors.tokenImage = "Project image is required";
+        }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     return (
         <div className='relative'>
             <div className="h-64 z-10 crtGradient background-container  top-10 left-10  ...">
@@ -53,35 +119,87 @@ function CreateCoin() {
                     <div className="space-y-6">
                         <div>
                             <label htmlFor="projectName" className='block text-sm font-medium mb-2'>Project name</label>
-                            <input type="text" name="" id="projectName" className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white no-background" placeholder="Enter your project name" onChange={(e)=>settTokenName(e.target.value)} />
+                            <input 
+                                type="text" 
+                                name="" 
+                                id="projectName" 
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenName ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
+                                placeholder="Enter your project name" 
+                                onChange={(e)=>settTokenName(e.target.value)} 
+                            />
+                            {validationErrors.tokenName && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenName}</p>}
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium mb-2" htmlFor="projectDesc">Project description</label>
-                            <textarea name="" id="projectDesc" className="w-full h-[200px] bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white no-background bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white no-background resize-none" placeholder="Describe your projects" onChange={(e)=>setTokenDescription(e.target.value)} />
+                            <textarea 
+                                name="" 
+                                id="projectDesc" 
+                                className={`w-full h-[200px] bg-gray-800 border ${validationErrors.tokenDescription ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background resize-none`} 
+                                placeholder="Describe your projects" 
+                                onChange={(e)=>setTokenDescription(e.target.value)} 
+                            />
+                            {validationErrors.tokenDescription && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenDescription}</p>}
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium mb-2" htmlFor="projectSymb">Project symbol</label>
-                            <input type="text" name="" id="projectSymb" className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white no-background" placeholder="Set token symbol" onChange={(e)=>settTokenSymbol(e.target.value)} />
+                            <input 
+                                type="text" 
+                                name="" 
+                                id="projectSymb" 
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenSymbol ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
+                                placeholder="Set token symbol" 
+                                onChange={(e)=>settTokenSymbol(e.target.value.toUpperCase())} 
+                            />
+                            {validationErrors.tokenSymbol && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenSymbol}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-2" htmlFor="projectImage">Project Image</label>
-                            <DragAndDropFileInput singleFile={true}  onFileSelect={function (files: File[]): void {
-                                setTokenImage(files[0]);
-                            } } id={'file'}  />
+                            <DragAndDropFileInput 
+                                singleFile={true}  
+                                onFileSelect={function (files: File[]): void {
+                                    setTokenImage(files[0]);
+                                }} 
+                                id={'file'}  
+                            />
+                            {validationErrors.tokenImage && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenImage}</p>}
                         </div>
                         <div>
                             <label htmlFor="webAddress" className="block text-sm font-medium mb-2">Website Address</label>
-                            <input type="text" name="" id="webAddress" className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white no-background" placeholder="Add website Address" onChange={(e)=>setTokenWebsite(e.target.value)} />
+                            <input 
+                                type="url" 
+                                name="" 
+                                id="webAddress" 
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenWebsite ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
+                                placeholder="https://your-website.com" 
+                                onChange={(e)=>setTokenWebsite(e.target.value)} 
+                            />
+                            {validationErrors.tokenWebsite && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenWebsite}</p>}
                         </div>
                         <div>
                             <label htmlFor="twithand" className="block text-sm font-medium mb-2">Twitter Handle</label>
-                            <input type="text" name="" id="twithand" className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white no-background" placeholder="Add your twitter handle" onChange={(e)=>setTokenTwitter(e.target.value)} />
+                            <input 
+                                type="text" 
+                                name="" 
+                                id="twithand" 
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenTwitter ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
+                                placeholder="@yourhandle" 
+                                onChange={(e)=>setTokenTwitter(e.target.value)} 
+                            />
+                            {validationErrors.tokenTwitter && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenTwitter}</p>}
                         </div>
                         <div>
                             <label htmlFor="discord" className="block text-sm font-medium mb-2">Discord Channel</label>
-                            <input type="text" name="" id="discord" className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white no-background" placeholder="Add your discord address" onChange={(e)=>setTokenDiscord(e.target.value)} />
+                            <input 
+                                type="url" 
+                                name="" 
+                                id="discord" 
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenDiscord ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
+                                placeholder="https://discord.gg/your-channel" 
+                                onChange={(e)=>setTokenDiscord(e.target.value)} 
+                            />
+                            {validationErrors.tokenDiscord && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenDiscord}</p>}
                         </div>
                     </div>
                     <div className="flex justify-start mt-8">
@@ -92,33 +210,45 @@ function CreateCoin() {
                             onClick={async ()=>{
                                 setError("")
                                 setResult("")
-                                setLoading({bool: true, msg: ""})
-                                if(!tokenName || !tokenSymbol || !tokenImage || !tokenWebsite || !tokenTwitter || !tokenDiscord){
-                                    setError("Please fill all the fields")
-                                } else {
-                                    try {
-                                        // First upload the image and metadata to IPFS
-                                        const metadataUrl = await uploadFile(tokenImage, {
-                                            name: tokenName,
-                                            symbol: tokenSymbol,
-                                            description: tokenDescription,
-                                            website: tokenWebsite,
-                                            twitter: tokenTwitter,
-                                            discord: tokenDiscord
-                                        });
-                                        
-                                        setLoading({bool: true, msg: "uploading MetaData"})
-                                        // Then create the token with the metadata URL
-                                        if (CreateTokenMint) {
-                                            const txHash = await CreateTokenMint(tokenName, tokenSymbol, metadataUrl);
-                                            setResult(txHash);
-                                        }
-                                    } catch (e: any) {
-                                        setError(e.message);
-                                    }
-                                    finally{
+                                setLoading({bool: true, msg: "loading"})
+                                
+                                if (!validateForm()) {
+                                    setLoading({bool: false, msg: ""})
+                                    return;
+                                }
+
+                                try {
+                                    // First upload the image and metadata to IPFS
+                                    if (!tokenImage) {
                                         setLoading({bool: false, msg:''})
+                                        return
+                                        // throw new Error("Token image is required");
                                     }
+                                    const metadataUrl = await uploadFile(tokenImage, {
+                                        name: tokenName,
+                                        symbol: tokenSymbol,
+                                        description: tokenDescription,
+                                        website: tokenWebsite,
+                                        twitter: tokenTwitter,
+                                        discord: tokenDiscord
+                                    });
+                                    console.log('called')
+                                    if (metadataUrl.length < 0) {
+                                        setLoading({bool: false, msg:''})
+                                        return
+                                    }
+                                    setLoading({bool: true, msg: "uploading MetaData"})
+                                    // Then create the token with the metadata URL
+                                    if (CreateTokenMint) {
+                                        console.log('called')
+                                        const txHash = await CreateTokenMint(tokenName, tokenSymbol, metadataUrl);
+                                        setResult(txHash);
+                                    }
+                                } catch (e: any) {
+                                    setError(e.message);
+                                }
+                                finally{
+                                    setLoading({bool: false, msg:''})
                                 }
                             }}
                         >
