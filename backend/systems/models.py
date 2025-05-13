@@ -465,7 +465,7 @@ class CoinDRCScore(DRCScore):
             'total': self.score
         }
 
-class CoinRugFlag(models.Model): # remove if they decied for not detailed logs might not be needed
+class CoinRugFlag(models.Model): # remove if they decide a detailed logs might not be needed
     """
     Tracks whether a coin has been flagged as rugged
     """
