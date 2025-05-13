@@ -67,7 +67,7 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
     if (!response) {
       throw Error("No public key found")
     }
-
+    console.log('working')
     const transaction = await program.methods.createToken(tokenName = tokenName, tokenSymbol = tokenSymbol, tokenUri = tokenUri).accounts({
       payer: response.publicKey,
       mintAccount: mintAccount.publicKey,

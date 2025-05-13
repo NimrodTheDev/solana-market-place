@@ -11,6 +11,7 @@ interface CoinData {
 	market_cap: number;
 	name: string;
 	telegram: string | null;
+	score: number;
 	ticker: string;
 	total_held: number;
 	total_supply: string;
