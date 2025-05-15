@@ -22,5 +22,5 @@ auth_urls = [
 urlpatterns = [
     path("api/", include(auth_urls)),
     path("api/", include(router.urls)),
-    path('alive-api', lambda request: HttpResponse("OK")),
+    path('alive-api/', lambda request: HttpResponse("OK")),
 ]
