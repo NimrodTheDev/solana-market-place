@@ -46,7 +46,7 @@ export const SolanaProvider = ({ children}: SolanaProviderProps) => {
   const isInstalled = window.solana && window.solana.isPhantom;
 
   const program = isInstalled ? new Program(drc_token_json as any, 
-    programId, getProvider()
+    programId, getProvider(wallet.wallet)
     // {connection}
   ) : null
   

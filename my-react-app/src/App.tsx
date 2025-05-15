@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CreateCoin from "./pages/CreateCoin";
 import { 
 	ConnectionProvider,
+	// useWallet,
 	WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
@@ -19,8 +20,8 @@ import Loginconnect from "./solanaClient/Loginconnect";
 import { SolanaProvider } from "./solanaClient";
 //import { SolanaProvider } from "./solanaClient";
 // import { SolanaProvider } from "./solanaClient";
-import { useEffect } from "react";
-import axios from "axios";
+// import { useEffect } from "react";
+// import axios from "axios";
 import PhantomError from "./components/PhantomError";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 // import { uploadFile } from "./solanaClient/usePinta";
@@ -44,33 +45,7 @@ function App() {
 			}
 		})
 	];
-	// uploadFile()
-	useEffect(()=>{
-		const connectWallet = async () => {
-			//@ts-ignore
-			const response = await window.solana.connect();
-
-		if (!response) {
-		//   throw Error("No public key found")
-		return
-		}
-		console.log(response.publicKey?.toBase58())
-		axios.post(`https://solana-market-place-backend.onrender.com/api/connect_wallet/`, {
-			wallet_address: response.publicKey?.toBase58() || ""
-		},{
-			headers: {
-				"Content-Type": "application/json",
-			}
-		})
-		.then((res)=>{
-			console.log(res.data)
-		})
-		.catch((err)=>{
-			console.log(err)
-		})
-		}
-		connectWallet()
-	}, [])
+	
 	return (
 		<ConnectionProvider endpoint={endpoint}>
 			<WalletProvider wallets={wallets} autoConnect={false}>
