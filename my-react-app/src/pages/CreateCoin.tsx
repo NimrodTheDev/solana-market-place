@@ -242,7 +242,12 @@ function CreateCoin() {
                                     if (CreateTokenMint) {
                                         console.log('called')
                                         const txHash = await CreateTokenMint(tokenName, tokenSymbol, metadataUrl);
-                                        setResult(txHash);
+
+                                        if (txHash) {
+                                            setResult(txHash);   
+                                        }else{
+                                            setError('Please ensure you have Phanthon extension installed');
+                                        }
                                     }
                                 } catch (e: any) {
                                     setError(e.message);
