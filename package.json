@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "@solana/wallet-adapter-backpack": "^0.1.14"
-  }
-}
