@@ -51,6 +51,25 @@ Notty Terminal solves this through:
 
 ![Scoring Example](public/dbschema.png)
 
+## 🎯 MVP Focus: Show, Don’t Just Tell
+
+Our MVP demonstrates the value of on-chain reputation with a lean feature set:
+
+1. **Token Reputation Mechanism**
+   - Dynamic DRS score at launch (2–3 core metrics).
+   - **Metric Examples**:
+     - Age since deployment
+     - Holder count
+     - Developer transaction history
+
+2. **Permissionless Fair Launchpad**
+   - One-click token launch—no presales or taxes.
+   - Reinforces unbiased reputation narrative.
+
+3. **Visual Reputation Display**
+   - Score badges on token listings.
+   - Tooltips or pie charts for metric breakdown.
+
 ## Market Traction & Roadmap
 
 ### Current Status (Q2 2025)
@@ -99,6 +118,15 @@ Our Dynamic Reputation System creates multiple competitive moats:
   <img src="https://raw.githubusercontent.com/NimrodTheDev/Notty-Terminal/main/public/dbtable.png" width="45%" />
   <img src="https://raw.githubusercontent.com/NimrodTheDev/Notty-Terminal/main/public/dbtable2.png" width="45%" />
 </p>
+
+## 🛠️ Technology Stack
+
+Built for reliability, security, and scale:
+
+- **Smart Contract**: Rust + Anchor Framework (Solana)
+- **Backend**: Django + Channels (WebSocket) + PostgreSQL
+- **Event Processor**: Real-time on-chain data parser and scoring engine
+- **Frontend**: React + TailwindCSS with intuitive UX
 
 ## Team
 
