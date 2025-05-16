@@ -118,8 +118,8 @@ Our team combines deep expertise in both crypto and reputation systems:
 - Previously [achievement]
 
 **Matin** - CTO & Smartcontract Developer
--  years Solana development experience
-- Led engineering at [previous company]
+- 3months Solana Development experience
+- Led frontend engineer at I38
 
 **Peterben** - Backend Engineer
 - Software Engineer at Novena
