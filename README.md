@@ -34,10 +34,10 @@ Notty Terminal solves this through:
 
 > "Crypto adoption starts with trust. Notty Terminal builds it one wallet at a time."
 
-<p>
+<div style="display: flex; align-items: center; justify-content: center;">
   <img src="https://raw.githubusercontent.com/NimrodTheDev/Notty-Terminal/main/public/drc-score-eg.jpg" width="30%" />
   <img src="https://raw.githubusercontent.com/NimrodTheDev/Notty-Terminal/main/public/drc-score-eg2.png" width="30%" />
-</p>
+</div>
 
 ## Technology Architecture
 
@@ -58,24 +58,6 @@ Notty Terminal solves this through:
 - Django-based API services with Channels for WebSocket broadcasting
 
 ![Scoring Example](public/dbschema.png)
-
-## Market Traction & Roadmap
-
-### Current Status (Q2 2025)
-- ✓ MVP developed with core reputation scoring
-- ✓ Smart contract audit completed by Kudelski Security
-- ✓ 500+ early access signups
-- ✓ Partnership with 3 leading Solana projects
-
-### Q3 2025
-- Public beta launch on Solana mainnet
-- Integration with major wallets and explorers
-- Advanced reputation algorithms with ML components
-
-### Q4 2025
-- Full production release
-- Developer SDK and API access
-- Cross-chain expansion
 
 ## The DRS Advantage
 
