@@ -1,6 +1,6 @@
 # Notty Terminal
 
-![Notty Terminal Logo](public/banner.png)
+<img src="https://raw.githubusercontent.com/NimrodTheDev/Notty-Terminal/main/public/logo2.png" width="100%" />
 
 ## The Permissionless Launchpad with Built-in Trust
 
@@ -34,7 +34,10 @@ Notty Terminal solves this through:
 
 > "Crypto adoption starts with trust. Notty Terminal builds it one wallet at a time."
 
-![DRS Score Example](placeholder-for-drs-score.png)
+<p>
+  <img src="https://raw.githubusercontent.com/NimrodTheDev/Notty-Terminal/main/public/drc-score-eg.jpg" width="30%" />
+  <img src="https://raw.githubusercontent.com/NimrodTheDev/Notty-Terminal/main/public/drc-score-eg2.png" width="30%" />
+</p>
 
 ## Technology Architecture
 
@@ -54,7 +57,7 @@ Notty Terminal solves this through:
 - Specialized parser for structured data transformation
 - Django-based API services with Channels for WebSocket broadcasting
 
-![Technical Architecture](placeholder-for-architecture-diagram.png)
+![Scoring Example](public/dbschema.png)
 
 ## Market Traction & Roadmap
 
@@ -73,8 +76,6 @@ Notty Terminal solves this through:
 - Full production release
 - Developer SDK and API access
 - Cross-chain expansion
-
-![Roadmap Timeline](placeholder-for-roadmap.png)
 
 ## The DRS Advantage
 
@@ -102,7 +103,10 @@ Our Dynamic Reputation System creates multiple competitive moats:
 | Price stability | Medium |
 | Creator reputation | High |
 
-![Scoring Example](placeholder-for-scoring-example.png)
+<p>
+  <img src="https://raw.githubusercontent.com/NimrodTheDev/Notty-Terminal/main/public/dbtable.png" width="45%" />
+  <img src="https://raw.githubusercontent.com/NimrodTheDev/Notty-Terminal/main/public/dbtable2.png" width="45%" />
+</p>
 
 ## Team
 
@@ -138,10 +142,8 @@ We're seeking strategic investors who understand the value of trust in decentral
 
 For investor inquiries:
 - Email: investors@notty.io
-- Telegram: @NottyFounder
-- Twitter: @NottyTerminal
-
-![Contact Banner](placeholder-for-contact-banner.png)
+- Telegram: @NottyTerminal
+- Twitter: [@NottyTerminal](https://x.com/Nottytmn)
 
 ---
 
