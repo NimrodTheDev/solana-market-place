@@ -39,6 +39,7 @@ Notty Terminal is a revolutionary platform that brings transparency and trust to
 ## 🚀 Getting Started
 
 1. Clone the repository
+2. cd into my-react-app
 2. Install dependencies:
 ```bash
 npm install
