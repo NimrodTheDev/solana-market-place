@@ -74,9 +74,6 @@ Our MVP demonstrates the value of on-chain reputation with a lean feature set:
 
 ### Current Status (Q2 2025)
 - ✓ MVP developed with core reputation scoring
-- ✓ Smart contract audit completed by Kudelski Security
-- ✓ 500+ early access signups
-- ✓ Partnership with 3 leading Solana projects
 
 ### Q3 2025
 - Public beta launch on Solana mainnet
