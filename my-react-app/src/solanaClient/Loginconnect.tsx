@@ -42,7 +42,7 @@ export default function Loginconnect() {
 
     try {
       if (!account) {
-        throw new Error("Please connect your wallet first");
+        // throw new Error("Please connect your wallet first");
       }
 
       const response = await fetch(loginUrl, {
@@ -61,7 +61,7 @@ export default function Loginconnect() {
           setIsRegistering(true);
           return;
         } else {
-          throw new Error(`Login failed: ${response.status}`);
+          // throw new Error(`Login failed: ${response.status}`);
         }
       }
 
@@ -75,7 +75,7 @@ export default function Loginconnect() {
       });
 
       if (!userDataResponse.ok) {
-        throw new Error(`Failed to fetch user data: ${userDataResponse.status}`);
+        // throw new Error(`Failed to fetch user data: ${userDataResponse.status}`);
       }
 
       const userData: UserData = await userDataResponse.json();
@@ -108,7 +108,7 @@ export default function Loginconnect() {
       });
 
       if (!registerResponse.ok) {
-        throw new Error(`Registration failed: ${registerResponse.status}`);
+        // throw new Error(`Registration failed: ${registerResponse.status}`);
       }
 
       await handleLogin();

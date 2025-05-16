@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from django.http import HttpResponse
 
 router = DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -14,12 +15,12 @@ router.register(r'coin-scores', views.CoinDRCScoreViewSet)
 router.register(r'rug-flags', views.CoinRugFlagViewSet)
 
 auth_urls = [
-    path("register/", views.RegisterView.as_view(), name="register"),
-    path("login/", views.LoginView.as_view(), name="login"),
+    path("connect_wallet/", views.ConnectWalletView.as_view(), name="connect_wallet"),
     path("me/", views.MeView.as_view(), name="me"),
 ]
 
 urlpatterns = [
     path("api/", include(auth_urls)),
     path("api/", include(router.urls)),
+    path('alive-api/', lambda request: HttpResponse("OK")),
 ]

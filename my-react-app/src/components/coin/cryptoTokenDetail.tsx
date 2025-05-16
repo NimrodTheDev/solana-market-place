@@ -1,110 +1,117 @@
-import { Copy, Info } from "lucide-react";
+import { Copy} from "lucide-react";
 import { useState } from "react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { Link } from "react-router-dom";
+dayjs.extend(relativeTime);
 
-export default function CryptoTokenDetails() {
+interface CoinData {
+	address: string;
+	created_at: string;
+	creator: string;
+	creator_display_name: string;
+	current_price: string;
+	description: string | null;
+	image_url: string;
+	market_cap: number;
+	name: string;
+	telegram: string | null;
+	ticker: string;
+	total_held: number;
+	total_supply: string;
+	twitter: string | null;
+	website: string | null;
+}
+
+interface CryptoTokenDetailsProps {
+	coinData: CoinData;
+}
+
+export default function CryptoTokenDetails({ coinData }: CryptoTokenDetailsProps) {
 	const [copySuccess, setCopySuccess] = useState(false);
 
 	const handleCopyClick = () => {
 		navigator.clipboard
-			.writeText("9XhQz4yMFBQn2RjkzPt9XbFHEtqT5UvDwpm3LFQZf4rY")
+			.writeText(coinData.address)
 			.then(() => {
 				setCopySuccess(true);
 				setTimeout(() => setCopySuccess(false), 2000);
 			});
 	};
 
+	// Calculate relative time
+	const timeLaunched = dayjs(coinData.created_at).fromNow();
+	// Placeholder for DRS (not in CoinData)
+	const drs = 500;
+	// Bonding curve progress (hardcoded to 60% for now)
+	// const bondingProgress = 60;
+
 	return (
-		<div className='bg-gray-900 text-white min-h-screen p-6'>
-			<div className='max-w-4xl mx-auto'>
-				{/* Creator row */}
-				<div className='flex justify-between items-center mb-6'>
-					<div className='text-gray-300 text-lg'>Creator</div>
-					<div className='flex items-center'>
-						<span className='text-yellow-400 mr-2'>👑</span>
-						<a href='#' className='text-blue-400 underline text-lg'>
-							Specialdev
-						</a>
-					</div>
+		<div className="bg-gray-900 text-white p-8 rounded-lg flex flex-col gap-6 w-full">
+			<div className="grid grid-cols-2 gap-x-8 gap-y-4 items-start">
+				<div className="text-purple-200">Creator</div>
+				<div className="flex items-center gap-2 justify-end">
+					<span className="text-yellow-400">👋</span>
+					<Link to={`https://explorer.solana.com/address/${coinData.creator}?cluster=devnet`} className="font-medium underline">{coinData.creator_display_name || "Smart Contract Owner"}</Link>
 				</div>
 
-				{/* Time Launched row */}
-				<div className='flex justify-between items-center mb-6'>
-					<div className='text-gray-300 text-lg'>Time Launched:</div>
-					<div className='text-white text-lg'>3 hours ago</div>
+				<div className="text-purple-200">Time Launched:</div>
+				<div className="text-right">{timeLaunched}</div>
+
+				<div className="text-purple-200">Marketcap:</div>
+				<div className="text-right">${coinData.market_cap.toLocaleString()}</div>
+
+				<div className="text-purple-200">DRS:</div>
+				<div className="text-right">{drs}</div>
+
+				<div className="text-purple-200">Contract Address</div>
+				<div className="flex items-center gap-2 justify-end">
+					<span className="break-all">{coinData.address}</span>
+					<button onClick={handleCopyClick} className="hover:text-purple-400 transition-colors">
+						<Copy size={16} />
+					</button>
+					{copySuccess && <span className="text-green-400 text-xs ml-1">Copied!</span>}
 				</div>
 
-				{/* Marketcap row */}
-				<div className='flex justify-between items-center mb-6'>
-					<div className='text-gray-300 text-lg'>Marketcap:</div>
-					<div className='text-white text-lg'>$5,700</div>
-				</div>
+				<div className="text-purple-200">Total Supply</div>
+				<div className="text-right">{coinData.total_supply}</div>
+			</div>
 
-				{/* DRS row */}
-				<div className='flex justify-between items-center mb-6'>
-					<div className='text-gray-300 text-lg'>DRS:</div>
-					<div className='text-white text-lg'>500</div>
-				</div>
-
-				{/* Contract Address row */}
-				<div className='flex justify-between items-center mb-6'>
-					<div className='text-gray-300 text-lg'>Contract Address</div>
-					<div className='flex items-center'>
-						<span className='text-white text-lg mr-2 font-mono'>
-							9XhQz4yMFBQn2RjkzPt9XbFHEtqT5UvDwpm3LFQZf4rY
-						</span>
-						<button
-							onClick={handleCopyClick}
-							className='text-gray-400 hover:text-white transition-colors'
-							title='Copy to clipboard'
-						>
-							<Copy size={20} />
-						</button>
-						{copySuccess && (
-							<span className='text-green-500 ml-2 text-sm'>Copied!</span>
-						)}
-					</div>
-				</div>
-
-				{/* Bonding curve progress */}
-				<div className='mb-6'>
-					<div className='flex justify-between items-center mb-2'>
-						<div className='text-gray-300 text-lg'>Bonding curve progress</div>
-						<div className='flex items-center'>
-							<span className='text-white text-lg mr-2'>60%</span>
-							<Info size={16} className='text-gray-400' />
+			{/* Bonding curve progress */}
+			<div className="flex items-center gap-4 mt-4">
+				{/* <span className="text-purple-200">Bonding curve progress</span> */}
+				<div className="flex-1 flex flex-col">
+					{/* <div className="flex items-center gap-2">
+						<div className="w-48 h-4 bg-gray-700 rounded-full overflow-hidden relative">
+							<div
+								className="bg-green-500 h-full rounded-full"
+								style={{ width: `${bondingProgress}%` }}
+							></div>
 						</div>
-					</div>
-					<div className='relative h-4 bg-gray-800 rounded-full'>
-						<div
-							className='absolute h-full bg-gradient-to-r from-purple-500 to-blue-400 rounded-full'
-							style={{ width: "60%" }}
-						></div>
-					</div>
-					<div className='flex justify-between mt-1'>
-						<span className='text-gray-400 text-sm'>short note below</span>
-						<span className='text-gray-400 text-sm'>link text</span>
-					</div>
-				</div>
-
-				{/* Total Supply row */}
-				<div className='flex justify-between items-center mb-6'>
-					<div className='text-gray-300 text-lg'>Total Supply</div>
-					<div className='text-white text-lg'>1,000,000 $CC</div>
-				</div>
-
-				{/* Website row */}
-				<div className='flex justify-between items-center mb-6'>
-					<div className='text-gray-300 text-lg'>Website</div>
-					<div className='text-lg'>
-						<a
-							href='https://cybercatcoin.com'
-							className='text-blue-400 underline'
-						>
-							cybercatcoin.com
-						</a>
-					</div>
+						<span className="text-white font-semibold">{bondingProgress}%</span>
+						<Info size={16} className="text-gray-400 ml-1" aria-label="Bonding curve info" tabIndex={0} />
+					</div> */}
+					{/* <div className="flex justify-between text-xs text-gray-400 mt-1">
+						<span>short note below</span>
+						<a href="#" className="text-blue-400 hover:underline">link text</a>
+					</div> */}
 				</div>
 			</div>
+
+			{/* Website */}
+			{coinData.website && (
+				<div className="mt-6">
+					<div className="text-purple-200 mb-1">Website</div>
+					<a
+						href={coinData.website.startsWith('http') ? coinData.website : `https://${coinData.website}`}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-blue-400 hover:underline text-lg"
+					>
+						{coinData.website.replace(/^https?:\/\//, '')}
+					</a>
+				</div>
+			)}
 		</div>
 	);
 }

@@ -1,13 +1,26 @@
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import img from "../../assets/images/istockphoto-1409329028-612x612.jpg"
 
 // Define TypeScript interfaces
 interface NFT {
-	id: number;
-	title: string;
-	description: string;
-	marketCap: string;
-	drs: number;
+	address: string;
+	ticker: string;
+	name: string;
+	creator: string;
+	creator_display_name: string;
+	created_at: string;
+	total_supply: string;
+	image_url: string;
+	description: string | null;
+	telegram: string | null;
+	score: number;
+	website: string | null;
+	twitter: string | null;
+	current_price: string;
+	total_held: number;
+	market_cap: number;
 }
 
 interface NFTCardProps {
@@ -15,79 +28,21 @@ interface NFTCardProps {
 }
 
 export default function NFTCollection() {
-	const [nfts] = useState<NFT[]>([
-		{
-			id: 1,
-			title: "Cyber Punk Cat",
-			description:
-				"A digital masterpiece featuring a cybernetic feline in a neon-lit future.",
-			marketCap: "$5K",
-			drs: 500,
-		},
-		{
-			id: 2,
-			title: "Cyber Punk Cat",
-			description:
-				"A digital masterpiece featuring a cybernetic feline in a neon-lit future.",
-			marketCap: "$5K",
-			drs: 500,
-		},
-		{
-			id: 3,
-			title: "Cyber Punk Cat",
-			description:
-				"A digital masterpiece featuring a cybernetic feline in a neon-lit future.",
-			marketCap: "$5K",
-			drs: 500,
-		},
-		{
-			id: 4,
-			title: "Cyber Punk Cat",
-			description:
-				"A digital masterpiece featuring a cybernetic feline in a neon-lit future.",
-			marketCap: "$5K",
-			drs: 500,
-		},
-		{
-			id: 5,
-			title: "Cyber Punk Cat",
-			description:
-				"A digital masterpiece featuring a cybernetic feline in a neon-lit future.",
-			marketCap: "$5K",
-			drs: 500,
-		},
-		{
-			id: 6,
-			title: "Cyber Punk Cat",
-			description:
-				"A digital masterpiece featuring a cybernetic feline in a neon-lit future.",
-			marketCap: "$5K",
-			drs: 500,
-		},
-		{
-			id: 7,
-			title: "Cyber Punk Cat",
-			description:
-				"A digital masterpiece featuring a cybernetic feline in a neon-lit future.",
-			marketCap: "$5K",
-			drs: 500,
-		},
-		{
-			id: 8,
-			title: "Cyber Punk Cat",
-			description:
-				"A digital masterpiece featuring a cybernetic feline in a neon-lit future.",
-			marketCap: "$5K",
-			drs: 500,
-		},
-	]);
-
+	const [nfts, setNft] = useState<NFT[]>([]);
+	useEffect(()=>{
+		(async()=>{
+			const arg = await axios.get('https://solana-market-place-backend.onrender.com/api/coins/')
+			if(arg.status === 200){
+				setNft(arg.data)
+			}
+		})()
+	}, [])
 	return (
 		<div className='bg-black min-h-screen p-4 sm:p-8'>
 			<div className='max-w-7xl mx-auto'>
 				<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6'>
 					{nfts.map((nft) => (
-						<NFTCard key={nft.id} nft={nft} />
+						<NFTCard key={nft.address} nft={nft} />
 					))}
 				</div>
 				<div className='flex justify-center mt-6'>
@@ -113,33 +68,42 @@ export default function NFTCollection() {
 }
 
 export function NFTCard({ nft }: NFTCardProps) {
+	// console.log(nft)
+	
+	// const [url, setUrl] = useState(img);
+	// let data: any = axios.get(nft.image_url).then((res)=>{
+	// 	console.log(res)
+	// 	// return res.data
+	// 	res.status === 200 && setUrl(res?.data?.image || img)
+	// })
+	// console.log(data)
 	return (
 		<div className='bg-gray-900 rounded-lg overflow-hidden border border-gray-800'>
 			<div className='relative pb-[100%]'>
 				<img
-					src='/api/placeholder/400/320'
+					src={nft.image_url || img}
 					alt='NFT Cat'
 					className='absolute inset-0 w-full h-full object-cover'
 				/>
 			</div>
 
 			<div className='p-4'>
-				<h3 className='text-white text-xl font-bold mb-2'>{nft.title}</h3>
+				<h3 className='text-white text-xl font-bold mb-2'>{nft.name}</h3>
 				<p className='text-gray-400 text-sm mb-4'>{nft.description}</p>
 
 				<div className='flex justify-between items-center mb-4'>
 					<div>
 						<p className='text-purple-400 text-xs font-medium'>MARKET CAP:</p>
-						<p className='text-purple-400 font-medium'>{nft.marketCap}</p>
+						<p className='text-purple-400 font-medium'>{nft.market_cap}</p>
 					</div>
 					<div className='text-right'>
 						<p className='text-gray-500 text-xs'>DRS:</p>
-						<p className='text-gray-400'>{nft.drs}</p>
+						<p className='text-gray-400'>{nft.score}</p>
 					</div>
 				</div>
 
 				<Link
-					to={`/coin/${nft.id}`}
+					to={`/coin/${nft.address}`}
 					className='w-full bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded flex items-center justify-center gap-1 transition-colors'
 				>
 					View Details

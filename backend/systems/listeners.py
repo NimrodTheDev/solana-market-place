@@ -112,7 +112,6 @@ class SolanaEventListener:
                         result = note.get("params", {}).get("result", {})
                         if self.callback:
                             await self.callback(result.get("value", {}))
-
             
             return True
         except Exception as e:

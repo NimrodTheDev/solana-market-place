@@ -28,8 +28,10 @@ SECRET_KEY = os.getenv('SECERT_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['solana-market-place-backend.onrender.com', '127.0.0.1']
-
+ALLOWED_HOSTS = [
+    'solana-market-place-backend.onrender.com', 
+    '127.0.0.1',
+]
 
 # Application definition
 
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'channels',
@@ -47,6 +50,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -57,6 +61,12 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'core.urls'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "https://solana-market-place.onrender.com",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
     {
@@ -91,10 +101,11 @@ ASGI_APPLICATION = 'core.asgi.application'
 # Channel layers configuration for Redis
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',#'channels_redis.core.RedisChannelLayer',
-        # 'CONFIG': {
-        #     'hosts': [('127.0.0.1', 6379)],
-        # },
+        # redis
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [os.getenv('REDIS_URL')],
+        },
     },
 }
 
@@ -113,12 +124,23 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
+        'CONN_MAX_AGE': 60,  # persistent connections (in seconds)
         'OPTIONS': {
-            'options': '-c inet_family=4',
+            'sslmode': 'require',
         }
     }
 }
 
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv('REDIS_URL')+"/1",  # Use appropriate host/port
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -139,14 +161,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = 'systems.SolanaUser'
-
-# Solana RPC endpoints
-SOLANA_RPC_URL = 'https://api.mainnet-beta.solana.com'  # Or your preferred RPC endpoint
-SOLANA_WS_URL = 'wss://api.mainnet-beta.solana.com'     # WebSocket endpoint
-
-SOLANA_PROGRAM_ID = None  # Replace with your program ID
-SOLANA_EVENT_TYPES = ['all']  # Or specific event types you're interested in
-
 
 # Add to settings.py
 LOGGING = {
@@ -187,7 +201,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

@@ -6,48 +6,61 @@ from .models import (
     CoinRugFlag,
     SolanaUser,
     Coin,
-    UserCoinHoldings, Trade,
+    UserCoinHoldings, 
+    Trade,
 )
 
-class UserSerializer(serializers.ModelSerializer):
+class SolanaUserSerializer(serializers.ModelSerializer):
+    devscore = serializers.SerializerMethodField()
+    tradescore = serializers.SerializerMethodField()
+
     class Meta:
         model = SolanaUser
-        fields = ['wallet_address', 'display_name', 'bio', 'is_staff']
-        read_only_fields = ['wallet_address', 'is_staff']
+        fields = ['wallet_address', 'display_name', 'bio', 'devscore', 'tradescore']
+        read_only_fields = ['wallet_address']
 
-class SolanaUserCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SolanaUser
-        fields = ['wallet_address', 'display_name', 'bio']
+    def get_devscore(self, obj):
+        return obj.devscore
+    
+    def get_tradescore(self, obj):
+        return obj.tradescore
 
-    def create(self, validated_data):
-        return SolanaUser.objects.create_user(**validated_data)
-
-class SolanaUserLoginSerializer(serializers.Serializer):
+class ConnectWalletSerializer(serializers.Serializer):
     wallet_address = serializers.CharField()
+    display_name = serializers.CharField(required=False, allow_blank=True)
+    bio = serializers.CharField(required=False, allow_blank=True)
 
     def validate(self, data):
-        wallet = data.get("wallet_address", "").lower()
-        try:
-            user = SolanaUser.objects.get(wallet_address=wallet)
-        except SolanaUser.DoesNotExist:
-            raise serializers.ValidationError("Wallet address not registered")
-
+        wallet = data.get("wallet_address")
+        user, _ = SolanaUser.objects.get_or_create(
+            wallet_address=wallet,
+            defaults={
+                "display_name": data.get("display_name", ""),
+                "bio": data.get("bio", ""),
+            }
+        )
         data['user'] = user
         return data
 
 class CoinSerializer(serializers.ModelSerializer):
-    creator_display_name = serializers.ReadOnlyField(source='creator.display_name')
+    creator_display_name = serializers.SerializerMethodField()
+    score = serializers.SerializerMethodField()
     
     class Meta:
         model = Coin
         fields = [
             'address', 'ticker', 'name', 'creator', 'creator_display_name',
             'created_at', 'total_supply', 'image_url',
-            'description', 'telegram', 'website', 'twitter',
-            'current_price', 'total_held', 'market_cap'
+            'description', 'discord', 'website', 'twitter',
+            'current_price', 'total_held', 'market_cap', 'score'
         ]
         read_only_fields = ['address', 'creator', 'creator_display_name', 'created_at']
+    
+    def get_creator_display_name(self, obj):
+        return obj.creator.get_display_name()
+
+    def get_score(self, obj):
+        return obj.score
 
 class UserCoinHoldingsSerializer(serializers.ModelSerializer):
     coin_ticker = serializers.ReadOnlyField(source='coin.ticker')
@@ -65,16 +78,16 @@ class UserCoinHoldingsSerializer(serializers.ModelSerializer):
         return obj.amount_held * obj.coin.current_price
 
 class TradeSerializer(serializers.ModelSerializer):
-    coin_symbol = serializers.ReadOnlyField(source='coin.symbol')
+    coin_symbol = serializers.ReadOnlyField(source='coin.ticker')
     trade_type_display = serializers.SerializerMethodField()
    
     class Meta:
         model = Trade
         fields = [
-            'id', 'user', 'coin', 'coin_symbol', 'trade_type',
+            'transaction_hash', 'user', 'coin', 'coin_symbol', 'trade_type',
             'trade_type_display', 'coin_amount', 'sol_amount', 'created_at'
         ]
-        read_only_fields = ['id', 'user', 'created_at']
+        read_only_fields = ['transaction_hash', 'user', 'created_at']
    
     def get_trade_type_display(self, obj):
         return obj.get_trade_type_display()

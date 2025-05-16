@@ -98,7 +98,7 @@ export default function Header() {
 						>
 							Talent Pool
 						</a>
-						
+
 						</nav>
 					{/* Icons and wallet button */}
 					<div className='flex items-center gap-4 pt-2 border-t border-gray-700 w-full'>
@@ -109,6 +109,7 @@ export default function Header() {
 						<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' />
 						<WalletMultiButton />
 					</div>
+					<WalletMultiButton  />
 				</div>
 			)}
 		</header>

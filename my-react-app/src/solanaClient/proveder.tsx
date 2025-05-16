@@ -1,19 +1,23 @@
-import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
-import { AnchorProvider, Program, web3 } from "@project-serum/anchor";
-const programId = new PublicKey("A7sBBSngzEZTsCPCffHDbeXDJ54uJWkwdEsskmn2YBGo");
+import { Connection, clusterApiUrl } from "@solana/web3.js";
+import { AnchorProvider } from "@project-serum/anchor";
+import { Wallet } from "@solana/wallet-adapter-react";
+// const programId = new PublicKey("A7sBBSngzEZTsCPCffHDbeXDJ54uJWkwdEsskmn2YBGo");
 
 const network = clusterApiUrl("devnet");
 const connection = new Connection(network, "processed");
 
 // Use Phantom or any wallet adapter
-export const getProvider = () => {
+export const getProvider = (arg: Wallet | null) => {
   // @ts-ignore
-  if (!window.solana) throw new Error("Wallet not found");
+  if (!window.solana) {
+    return
+    // throw new Error("Wallet not found");
+  }
 
   const provider = new AnchorProvider(
     connection,
     // @ts-ignore
-    window.solana, // this is injected by Phantom
+    arg, // this is injected by Phantom
     {
       preflightCommitment: "processed",
     }
