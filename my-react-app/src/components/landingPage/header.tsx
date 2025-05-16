@@ -62,16 +62,52 @@ export default function Header() {
 					<WalletMultiButton />
 				</div>
 			</div>
-
-			{/* Right icons + button (mobile view) */}
+   
+   {/* Right icons + button and Dropdown nav (mobile view) */}
 			{mobileMenuOpen && (
-				<div className='md:hidden mt-4 flex flex-col gap-3 items-start'>
-					<div className='flex items-center gap-4'>
+				<div className='md:hidden mt-4 flex flex-col items-start w-full max-w-xs bg-custom-dark-blue rounded-lg shadow-lg px-4 py-3 space-y-3'>
+					{/* Navigation links dropdown */}
+					<nav className='flex flex-col w-full'>
+						<a
+							href='#'
+							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
+						>
+							Wallet
+						</a>
+						<a
+						href='#'
+							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
+						>
+							AI Tools
+						</a>
+						<a
+							href='#'
+							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
+						>
+							On Chain News
+						</a>
+						<a
+						href='#'
+							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
+						>
+							DRS System
+						</a>
+						<a
+							href='#'
+							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
+						>
+							Talent Pool
+						</a>
+
+						</nav>
+					{/* Icons and wallet button */}
+					<div className='flex items-center gap-4 pt-2 border-t border-gray-700 w-full'>
 						<div className='relative'>
-							<Bell className='w-5 h-5 text-gray-300 hover:text-white' />
+							<Bell className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' />
 							<span className='absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500' />
 						</div>
-						<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white' />
+						<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' />
+						<WalletMultiButton />
 					</div>
 					<WalletMultiButton  />
 				</div>
