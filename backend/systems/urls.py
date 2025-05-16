@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from django.http import HttpResponse
 
 router = DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -21,4 +22,5 @@ auth_urls = [
 urlpatterns = [
     path("api/", include(auth_urls)),
     path("api/", include(router.urls)),
+    path('alive-api/', lambda request: HttpResponse("OK")),
 ]
