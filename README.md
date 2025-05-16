@@ -8,14 +8,6 @@ Notty Terminal is a revolutionary permissionless launchpad powered by a Dynamic 
 
 ![Platform Interface](public/hero.png)
 
-## Investment Highlights
-
-- **$2.7B TAM**: Targeting the fragmented token launchpad market currently dominated by centralized gatekeepers
-- **Novel Trust Layer**: First-to-market reputation system tracking both developers and traders on-chain
-- **Network Effects**: Value increases exponentially with each new user and project added
-- **Scalable Architecture**: Built on Solana for high throughput and minimal transaction costs
-- **Revenue Model**: 1% platform fee on all transactions with additional premium features
-
 ## Why Notty Terminal?
 
 ### The Problem
@@ -59,6 +51,33 @@ Notty Terminal solves this through:
 
 ![Scoring Example](public/dbschema.png)
 
+## Market Traction & Roadmap
+
+### Current Status (Q2 2025)
+- ✓ MVP developed with core reputation scoring
+- ✓ Smart contract audit completed by Kudelski Security
+- ✓ 500+ early access signups
+- ✓ Partnership with 3 leading Solana projects
+
+### Q3 2025
+- Public beta launch on Solana mainnet
+- Integration with major wallets and explorers
+- Advanced reputation algorithms with ML components
+
+### Q4 2025
+- Full production release
+- Developer SDK and API access
+- Cross-chain expansion
+
+## 🏆 Competitive Edge
+
+| Feature               | Notty Terminal | Traditional Launchpads |
+|-----------------------|----------------|------------------------|
+| Permissionless Access | ✅             | ❌ (Whitelist/VC gatekept) |
+| Real-time Reputation  | ✅ AI-powered DRS | ❌ Manual reviews      |
+| Fraud Detection       | ✅ Predictive risk scoring | ❌ Post-mortem analysis |
+| Incentive Alignment   | ✅ Earned reputation | ❌ Pay-to-play listing fees |
+
 ## The DRS Advantage
 
 Our Dynamic Reputation System creates multiple competitive moats:
@@ -94,38 +113,30 @@ Our Dynamic Reputation System creates multiple competitive moats:
 
 Our team combines deep expertise in both crypto and reputation systems:
 
-**[Name]** - CEO & Co-founder
+**Tess** - CEO & founder
 - Background in [relevant experience]
 - Previously [achievement]
 
-**[Name]** - CTO & Co-founder
-- [X] years Solana development experience
+**Matin** - CTO & Smartcontract Developer
+-  years Solana development experience
 - Led engineering at [previous company]
 
-**[Name]** - Head of Product
-- Product leadership at [relevant company]
+**Peterben** - Backend Engineer
+- Software Engineer at Novena
+- Deep expertise in Backend and app devlopment
+
+**Peter** - Frontend Engineer
+- [relevant area]
 - Deep expertise in [relevant area]
 
-![Team Photo](placeholder-for-team-photo.png)
+## 📞 Contact
 
-## Investment Opportunity
-
-- **Raising**: $[X] million Seed Round
-- **Valuation**: $[Y] million
-- **Use of Funds**:
-  - 40% Engineering & Product Development
-  - 30% Marketing & User Acquisition
-  - 20% Operations & Security
-  - 10% Legal & Compliance
-
-We're seeking strategic investors who understand the value of trust in decentralized markets and can provide more than capital.
-
-## Contact
-
-For investor inquiries:
-- Email: investors@notty.io
-- Telegram: @NottyTerminal
+Ready to build the trust layer of web3 with us?  
+- Email: nottyterminal@gmail.com
 - Twitter: [@NottyTerminal](https://x.com/Nottytmn)
+
+**Notty Terminal Inc.**  
+All rights reserved. Confidential information.
 
 ---
 
