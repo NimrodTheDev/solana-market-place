@@ -1,6 +1,6 @@
 # Notty Terminal
 
-![Notty Terminal Logo](placeholder-for-logo.png)
+![Notty Terminal Logo](public/banner.png)
 
 ## The Permissionless Launchpad with Built-in Trust
 
