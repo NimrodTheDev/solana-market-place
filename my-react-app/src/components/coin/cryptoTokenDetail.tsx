@@ -18,6 +18,7 @@ interface CoinData {
 	telegram: string | null;
 	ticker: string;
 	total_held: number;
+	score: number
 	total_supply: string;
 	twitter: string | null;
 	website: string | null;
@@ -42,7 +43,7 @@ export default function CryptoTokenDetails({ coinData }: CryptoTokenDetailsProps
 	// Calculate relative time
 	const timeLaunched = dayjs(coinData.created_at).fromNow();
 	// Placeholder for DRS (not in CoinData)
-	const drs = 500;
+	const drs = coinData.score;
 	// Bonding curve progress (hardcoded to 60% for now)
 	// const bondingProgress = 60;
 
