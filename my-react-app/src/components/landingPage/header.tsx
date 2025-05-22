@@ -1,4 +1,4 @@
-import { useState } from "react";
+ import { useState } from "react";
 import { Bell, MessageSquare, Menu, X } from "lucide-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Link } from "react-router-dom";
@@ -29,12 +29,8 @@ export default function Header() {
 					</button>
 				</div>
 
-				{/* Navigation links */}
-				<nav
-					className={`${
-						mobileMenuOpen ? "block" : "hidden"
-					} md:flex md:items-center gap-6 text-sm text-gray-300 mt-4 md:mt-0`}
-				>
+				{/* Desktop Navigation links */}
+				<nav className='hidden md:flex md:items-center gap-6 text-sm text-gray-300'>
 					<a href='#' className='block md:inline hover:text-white'>
 						Wallet
 					</a>
@@ -62,8 +58,8 @@ export default function Header() {
 					<WalletMultiButton />
 				</div>
 			</div>
-   
-   {/* Right icons + button and Dropdown nav (mobile view) */}
+
+			{/* Mobile view dropdown nav */}
 			{mobileMenuOpen && (
 				<div className='md:hidden mt-4 flex flex-col items-start w-full max-w-xs bg-custom-dark-blue rounded-lg shadow-lg px-4 py-3 space-y-3'>
 					{/* Navigation links dropdown */}
@@ -75,7 +71,7 @@ export default function Header() {
 							Wallet
 						</a>
 						<a
-						href='#'
+							href='#'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							AI Tools
@@ -87,7 +83,7 @@ export default function Header() {
 							On Chain News
 						</a>
 						<a
-						href='#'
+							href='#'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							DRS System
@@ -98,8 +94,7 @@ export default function Header() {
 						>
 							Talent Pool
 						</a>
-
-						</nav>
+					</nav>
 					{/* Icons and wallet button */}
 					<div className='flex items-center gap-4 pt-2 border-t border-gray-700 w-full'>
 						<div className='relative'>
@@ -109,7 +104,7 @@ export default function Header() {
 						<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' />
 						<WalletMultiButton />
 					</div>
-					<WalletMultiButton  />
+			
 				</div>
 			)}
 		</header>

@@ -250,6 +250,7 @@ function CreateCoin() {
                                         }
                                     }
                                 } catch (e: any) {
+                                    console.error(e)
                                     setError(e.message);
                                 }
                                 finally{
