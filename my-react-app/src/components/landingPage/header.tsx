@@ -102,8 +102,9 @@ export default function Header() {
 							<span className='absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500' />
 						</div>
 						<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' />
+						<WalletMultiButton />
 					</div>
-					<WalletMultiButton />
+			
 				</div>
 			)}
 		</header>

@@ -45,10 +45,10 @@ export const SolanaProvider = ({ children}: SolanaProviderProps) => {
   //@ts-ignore
   const isInstalled = window.solana && window.solana.isPhantom;
 
-  const program = isInstalled ? new Program(drc_token_json as any, 
-    programId, getProvider(wallet.wallet)
+  const program = new Program(drc_token_json as any, 
+    programId, getProvider(wallet)
     // {connection}
-  ) : null
+  )
   
 
 
@@ -67,12 +67,9 @@ export const SolanaProvider = ({ children}: SolanaProviderProps) => {
     const TOKEN_PROGRAM_ID = new web3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
     //@ts-ignore
     // const response = await window.solana.connect();
-
-    if (!wallet.publicKey) {
-      await wallet.connect()
-    }
-    console.log('working')
-    if(program){
+    await wallet.connect()
+    const ret = await wallet.connect().then(async ()=>{
+      if(program ){
       const transaction = await program.methods.createToken(tokenName = tokenName, tokenSymbol = tokenSymbol, tokenUri = tokenUri).accounts({
         payer: wallet.publicKey,
         mintAccount: mintAccount.publicKey,
@@ -82,11 +79,14 @@ export const SolanaProvider = ({ children}: SolanaProviderProps) => {
         systemProgram: web3.SystemProgram.programId,
         rent: web3.SYSVAR_RENT_PUBKEY
       })
+      //@ts-ignore
         .signers([mintAccount])
         .rpc();
   
         return transaction
     }
+    })
+    return ret
   }
 
 
