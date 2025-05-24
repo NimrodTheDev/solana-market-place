@@ -29,10 +29,32 @@ interface NFTCardProps {
 
 export default function NFTCollection() {
 	const [nfts, setNft] = useState<NFT[]>([]);
-	useEffect(()=>{
-		(async()=>{
+	useEffect(() => {
+		(async () => {
 			const arg = await axios.get('https://solana-market-place-backend.onrender.com/api/coins/')
-			if(arg.status === 200){
+			if (arg.status === 200) {
+				for (let i = 0; i < 4; i++) {
+					arg.data.push(
+						{
+							address: "GmKAfu4FA5dqfY4wJP4cmTK8y8Fz5zMoBftQVaBAoAfx",
+							ticker: "Name",
+							name: "NFT Name",
+							creator: "Gg6adJKhWcF6rdU91D6iZLKN95nyudjnSMRqNJgxRJfx",
+							creator_display_name: "love",
+							created_at: "76338739",
+							total_supply: "10000000",
+							image_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRZJiXLt7EVfO9PL9VYmbgW86UX1jDbPsKeA&s",
+							description: null,
+							telegram: null,
+							score: 3,
+							website: null,
+							twitter: null,
+							current_price: "1.00",
+							total_held: 0,
+							market_cap: 1000000,
+						}
+					)
+				}
 				setNft(arg.data)
 			}
 		})()
@@ -69,7 +91,7 @@ export default function NFTCollection() {
 
 export function NFTCard({ nft }: NFTCardProps) {
 	// console.log(nft)
-	
+
 	// const [url, setUrl] = useState(img);
 	// let data: any = axios.get(nft.image_url).then((res)=>{
 	// 	console.log(res)
@@ -78,7 +100,7 @@ export function NFTCard({ nft }: NFTCardProps) {
 	// })
 	// console.log(data)
 	return (
-		<div className='bg-gray-900 rounded-lg overflow-hidden border border-gray-800'>
+		<div className=' bg-transparent rounded-lg overflow-hidden border border-gray-800'>
 			<div className='relative pb-[100%]'>
 				<img
 					src={nft.image_url || img}

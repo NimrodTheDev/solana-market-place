@@ -1,7 +1,8 @@
- import { useState } from "react";
+import { useState } from "react";
 import { Bell, MessageSquare, Menu, X } from "lucide-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Link } from "react-router-dom";
+
 
 export default function Header() {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,9 +13,17 @@ export default function Header() {
 				{/* Logo and Toggle */}
 				<div className='flex items-center justify-between w-full md:w-auto'>
 					<Link to={'/'}>
-						<span className='text-2xl font-bold bg-gradient-to-r from-[#a4b9fa] to-[#4a0a80] bg-clip-text text-transparent'>
+						<div className='flex items-center space-x-2'>
+							<img
+								src='/logo.png'
+								alt='Logo'
+							// className='w-8 h-8 '
+							/>
+							{/* <span className='text-xl font-bold'>Notty Terminal</span> */}
+						</div>
+						{/* <span className='text-2xl font-bold bg-gradient-to-r from-[#a4b9fa] to-[#4a0a80] bg-clip-text text-transparent'>
 							Notty Terminal
-						</span>
+						</span> */}
 					</Link>
 					{/* Mobile toggle */}
 					<button
@@ -104,7 +113,7 @@ export default function Header() {
 						<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' />
 						<WalletMultiButton />
 					</div>
-			
+
 				</div>
 			)}
 		</header>
