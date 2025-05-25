@@ -78,6 +78,7 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
           systemProgram: web3.SystemProgram.programId,
           rent: web3.SYSVAR_RENT_PUBKEY
         })
+          //@ts-ignore
           .signers([mintAccount])
           .rpc();
 
