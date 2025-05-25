@@ -63,13 +63,14 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
       TOKEN_METADATA_PROGRAM_ID
     );
     const TOKEN_PROGRAM_ID = new web3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+
     //@ts-ignore
-    // const response = await window.solana.connect();
-    await wallet.connect()
-    const ret = await wallet.connect().then(async () => {
+    let resp = window.solana.connect().then(async(resp)=>{
+      console.log(resp);
       if (program) {
         const transaction = await program.methods.createToken(tokenName = tokenName, tokenSymbol = tokenSymbol, tokenUri = tokenUri).accounts({
-          payer: wallet.publicKey,
+          //@ts-ignore
+          payer: window.solana.publicKey,
           mintAccount: mintAccount.publicKey,
           metadataAccount: metadataAddress,
           tokenProgram: TOKEN_PROGRAM_ID,
@@ -77,14 +78,13 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
           systemProgram: web3.SystemProgram.programId,
           rent: web3.SYSVAR_RENT_PUBKEY
         })
-          //@ts-ignore
           .signers([mintAccount])
           .rpc();
 
         return transaction
       }
-    })
-    return ret
+    });
+    return resp;
   }
 
 
