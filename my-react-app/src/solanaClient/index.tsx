@@ -55,8 +55,7 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
     const mintAccount = web3.Keypair.generate();
     const [metadataAddress] = await web3.PublicKey.findProgramAddressSync(
       [
-        // new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97]),
-        global.Buffer.from("metadata"),
+        new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97]),
         TOKEN_METADATA_PROGRAM_ID.toBuffer(),
         mintAccount.publicKey.toBuffer(),
       ],
