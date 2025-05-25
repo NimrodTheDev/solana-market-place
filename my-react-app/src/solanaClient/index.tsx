@@ -3,7 +3,7 @@ import { createContext, useContext, ReactNode } from 'react';
 import * as web3 from '@solana/web3.js';
 //import * as token from '@solana/spl-token';
 // import * as anchor from "@coral-xyz/anchor";
-import {Program} from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
 
 // import { useConnection } from '@solana/wallet-adapter-react';
 // import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
@@ -35,7 +35,7 @@ interface SolanaProviderProps {
   children: ReactNode;
 }
 
-export const SolanaProvider = ({ children}: SolanaProviderProps) => {
+export const SolanaProvider = ({ children }: SolanaProviderProps) => {
 
 
   const wallet = useWallet()
@@ -45,11 +45,9 @@ export const SolanaProvider = ({ children}: SolanaProviderProps) => {
   //@ts-ignore
   const isInstalled = window.solana && window.solana.isPhantom;
 
-  const program = new Program(drc_token_json as any, 
-    programId, getProvider(wallet)
-    // {connection}
-  )
-  
+  const program = isInstalled ? new Program(drc_token_json as any,
+    programId, getProvider(wallet)) : null
+  // {connection}
 
 
 
@@ -68,23 +66,23 @@ export const SolanaProvider = ({ children}: SolanaProviderProps) => {
     //@ts-ignore
     // const response = await window.solana.connect();
     await wallet.connect()
-    const ret = await wallet.connect().then(async ()=>{
-      if(program ){
-      const transaction = await program.methods.createToken(tokenName = tokenName, tokenSymbol = tokenSymbol, tokenUri = tokenUri).accounts({
-        payer: wallet.publicKey,
-        mintAccount: mintAccount.publicKey,
-        metadataAccount: metadataAddress,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
-        systemProgram: web3.SystemProgram.programId,
-        rent: web3.SYSVAR_RENT_PUBKEY
-      })
-      //@ts-ignore
-        .signers([mintAccount])
-        .rpc();
-  
+    const ret = await wallet.connect().then(async () => {
+      if (program) {
+        const transaction = await program.methods.createToken(tokenName = tokenName, tokenSymbol = tokenSymbol, tokenUri = tokenUri).accounts({
+          payer: wallet.publicKey,
+          mintAccount: mintAccount.publicKey,
+          metadataAccount: metadataAddress,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+          systemProgram: web3.SystemProgram.programId,
+          rent: web3.SYSVAR_RENT_PUBKEY
+        })
+          //@ts-ignore
+          .signers([mintAccount])
+          .rpc();
+
         return transaction
-    }
+      }
     })
     return ret
   }

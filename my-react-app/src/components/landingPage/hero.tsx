@@ -1,4 +1,9 @@
 import { Link } from "react-router-dom";
+
+import { WalletMinimal } from "lucide-react";
+
+
+
 export default function Hero() {
 	return (
 		<div className='bg-black min-h-screen flex items-center justify-center relative overflow-hidden'>
@@ -28,7 +33,7 @@ export default function Hero() {
 			{/* Main content */}
 			<div className='relative z-10 text-center px-6 py-12 max-w-4xl'>
 				{/* Label */}
-				<div className='inline-block mb-6 px-4 py-1 rounded-full bg-gray-800 text-purple-300 text-sm font-medium'>
+				<div className='inline-block mb-6 px-4 py-1 rounded-full bg-gray-900 text-gray-400 text-sm font-medium border border-gray-800'>
 					Web3 Launchpad
 				</div>
 
@@ -41,8 +46,9 @@ export default function Hero() {
 
 				{/* Subheading */}
 				<p className='text-gray-300 text-lg mb-10 max-w-2xl mx-auto'>
-					Connect with top Web3 talent, launch your projects, and build the
-					future of decentralized applications in one seamless ecosystem.
+					Notty Terminal is the launchpad where every action contributes to a
+					visible reputation score, helping the community launch, hire and collaborate
+					with confidence.
 				</p>
 
 				{/* CTA Buttons */}
@@ -50,10 +56,10 @@ export default function Hero() {
 
 					<Link to="coin/create">
 						<button className='px-6 py-3 bg-custom-light-purple hover:bg-purple-600 rounded-md text-white font-medium flex items-center justify-center gap-2 transition-colors'>
-							Launch Coin <span className='ml-1'>↗</span>
+							Create Coin <span className='ml-1'><WalletMinimal size={20} color="#ffffff" /></span>
 						</button>
 					</Link>
-					
+
 					<button className='px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-md text-white font-medium transition-colors'>
 						Join Talent Pool
 					</button>
