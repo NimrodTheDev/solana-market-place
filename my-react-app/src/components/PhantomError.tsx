@@ -50,11 +50,11 @@ class PhantomError extends Component<Props, State> {
               </div>
               
               <h2 className="text-2xl font-bold text-white mb-4">
-                Wallet extensions that injects solana is required
+                Phantom Wallet Required
               </h2>
               
               <p className="text-gray-400 mb-6">
-                To use this application, you need to install the Phantom wallet browser extension.
+                To use this application, you need to install the Phantom wallet browser extension or any solana browser extension.
                 Phantom is a secure wallet for Solana that allows you to manage your digital assets.
               </p>
 
