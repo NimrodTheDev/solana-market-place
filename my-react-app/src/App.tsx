@@ -4,6 +4,11 @@ import CoinPage from "./pages/coinPage";
 import LandingPage from "./pages/landingPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CreateCoin from "./pages/CreateCoin";
+import Talentpool from "./pages/Talentpool";
+import AITools from "./pages/AI Tools";
+import DrsSystem from "./pages/DrsSystem";
+import Wallet from "./pages/Wallet";
+import OnChainNews from "./pages/OnChainNews";
 import { 
 	ConnectionProvider,
 	// useWallet,
@@ -67,6 +72,11 @@ function App() {
 								<Route path='*' element={<div>Not found</div>} />
 								<Route path='/coin/create' element={< CreateCoin />} />
 								<Route path="/login" element={<Loginconnect/>} />
+								<Route path='/Wallet' element={<Wallet />} />
+								<Route path='/AITools' element={<AITools />} />
+								<Route path='/DrsSystem' element={<DrsSystem />} />
+								<Route path='/Talentpool' element={<Talentpool />} />
+								<Route path='/OnChainNews' element={<OnChainNews />} />
 							</Routes>
 							<NottyTerminalFooter />
 						</Router>
