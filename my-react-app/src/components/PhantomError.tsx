@@ -1,3 +1,4 @@
+import { Wallet } from 'lucide-react';
 import { Component, ErrorInfo, ReactNode } from 'react';
 
 
@@ -39,58 +40,58 @@ class PhantomError extends Component<Props, State> {
   }
 
   render() {
-    // if (!this.state.isPhantomInstalled) {
-    //   return (
-    //     <div className="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-50">
-    //       <div className="bg-gray-800 p-8 rounded-lg max-w-md w-full mx-4">
-    //         <div className="flex flex-col items-center text-center">
-    //           <div className="bg-indigo-900 bg-opacity-50 p-4 rounded-full mb-6">
-    //             <Wallet size={48} className="text-indigo-300" />
-    //           </div>
+    if (!this.state.isPhantomInstalled) {
+      return (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-8 rounded-lg max-w-md w-full mx-4">
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-indigo-900 bg-opacity-50 p-4 rounded-full mb-6">
+                <Wallet size={48} className="text-indigo-300" />
+              </div>
               
-    //           <h2 className="text-2xl font-bold text-white mb-4">
-    //             Phantom Wallet Required
-    //           </h2>
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Wallet extensions that injects solana is required
+              </h2>
               
-    //           <p className="text-gray-400 mb-6">
-    //             To use this application, you need to install the Phantom wallet browser extension.
-    //             Phantom is a secure wallet for Solana that allows you to manage your digital assets.
-    //           </p>
+              <p className="text-gray-400 mb-6">
+                To use this application, you need to install the Phantom wallet browser extension.
+                Phantom is a secure wallet for Solana that allows you to manage your digital assets.
+              </p>
 
-    //           <div className="space-y-4 w-full">
-    //             <a
-    //               href="https://phantom.app/download"
-    //               target="_blank"
-    //               rel="noopener noreferrer"
-    //               className="block w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-    //             >
-    //               Download Phantom Wallet
-    //             </a>
+              <div className="space-y-4 w-full">
+                <a
+                  href="https://phantom.app/download"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                >
+                  Download Phantom Wallet
+                </a>
                 
-    //             <button
-    //               onClick={() => window.location.reload()}
-    //               className="block w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-    //             >
-    //               Reload Page After Installation
-    //             </button>
-    //           </div>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="block w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+                >
+                  Reload Page After Installation
+                </button>
+              </div>
 
-    //           <div className="mt-6 text-sm text-gray-500">
-    //             <p>Don't have a Solana wallet yet?</p>
-    //             <a
-    //               href="https://phantom.app/help/getting-started/creating-a-new-wallet"
-    //               target="_blank"
-    //               rel="noopener noreferrer"
-    //               className="text-indigo-400 hover:text-indigo-300"
-    //             >
-    //               Learn how to create one →
-    //             </a>
-    //           </div>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   );
-    // }
+              <div className="mt-6 text-sm text-gray-500">
+                <p>Don't have a Solana wallet yet?</p>
+                <a
+                  href="https://phantom.app/help/getting-started/creating-a-new-wallet"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-400 hover:text-indigo-300"
+                >
+                  Learn how to create one →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     if (this.state.hasError) {
       return (

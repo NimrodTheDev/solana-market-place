@@ -40,21 +40,24 @@ export default function Header() {
 
 				{/* Desktop Navigation links */}
 				<nav className='hidden md:flex md:items-center gap-6 text-sm text-gray-300'>
-					<a href='#' className='block md:inline hover:text-white'>
+					<Link to='/Wallet' className='block md:inline hover:text-white'>
 						Wallet
-					</a>
-					<a href='#' className='block md:inline hover:text-white'>
+					</Link>
+					<Link to='/AITools' className='block md:inline hover:text-white'>
 						AI Tools
-					</a>
-					<a href='#' className='block md:inline hover:text-white'>
+					</Link>
+					<Link to='/OnChainNews' className='block md:inline hover:text-white'>
 						On Chain News
-					</a>
-					<a href='#' className='block md:inline hover:text-white'>
+					</Link>
+					<Link to='/DrsSystem' className='block md:inline hover:text-white'>
 						DRS System
-					</a>
-					<a href='#' className='block md:inline hover:text-white'>
+					</Link>
+					<Link to='/Talentpool' className='block md:inline hover:text-white'>
 						Talent Pool
-					</a>
+					</Link>
+					<Link to='/coin/create' className='block md:inline hover:text-white'>
+						Create Coin
+					</Link>
 				</nav>
 
 				{/* Right icons + button */}
@@ -73,36 +76,42 @@ export default function Header() {
 				<div className='md:hidden mt-4 flex flex-col items-start w-full max-w-xs bg-custom-dark-blue rounded-lg shadow-lg px-4 py-3 space-y-3'>
 					{/* Navigation links dropdown */}
 					<nav className='flex flex-col w-full'>
-						<a
-							href='#'
+						<Link
+							to='/Wallet'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							Wallet
-						</a>
-						<a
-							href='#'
+						</Link>
+						<Link
+							to='/AITools'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							AI Tools
-						</a>
-						<a
-							href='#'
+						</Link>
+						<Link
+							to='/OnChainNews'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							On Chain News
-						</a>
-						<a
-							href='#'
+						</Link>
+						<Link
+							to='/DrsSystem'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							DRS System
-						</a>
-						<a
-							href='#'
+						</Link>
+						<Link
+							to='/Talentpool'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							Talent Pool
-						</a>
+						</Link>
+						<Link
+							to='/coin/create'
+							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
+						>
+							Create Coin
+						</Link>
 					</nav>
 					{/* Icons and wallet button */}
 					<div className='flex items-center gap-4 pt-2 border-t border-gray-700 w-full'>
@@ -113,7 +122,6 @@ export default function Header() {
 						<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' />
 						<WalletMultiButton />
 					</div>
-
 				</div>
 			)}
 		</header>
