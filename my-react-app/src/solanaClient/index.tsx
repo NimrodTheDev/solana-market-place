@@ -16,9 +16,10 @@ import { useWallet } from '@solana/wallet-adapter-react';
 
 //@ts-ignore
 global.Buffer = buffer;
-
+console.log("i hate him: Buffer: ", global.Buffer)
 Buffer = buffer;
 console.log(Buffer)
+console.log("i love her: Buffer: ", buffer)
 
 const TOKEN_METADATA_PROGRAM_ID = new web3.PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
 
