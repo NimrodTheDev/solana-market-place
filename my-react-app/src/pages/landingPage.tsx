@@ -38,7 +38,7 @@ const LandingPage = () => {
 	return (
 		<div>
 			<Hero />
-			{/* <NFTCollection /> */}
+			<NFTCollection />
 			<FeaturesSection />
 			<HowItWorks />
 			<OnboardingCard />
