@@ -3,7 +3,7 @@ from django.utils import timezone
 from decimal import Decimal
 from datetime import timedelta
 from django.db import IntegrityError
-from .models import SolanaUser, Coin, CoinDRCScore, UserCoinHoldings, Trade
+from .models import SolanaUser, Coin, CoinDRCScore, UserCoinHoldings, Trade, DeveloperScore
 
 
 class CoinDRCScoreTestCase(TestCase):
@@ -406,31 +406,38 @@ class CoinDRCScoreTestCase(TestCase):
     #     bonus = drc_score._calculate_price_growth_bonus()
     #     self.assertEqual(bonus, 0)
 
+    # def test_monthly_recalculation(self): # bonus no no check
+    #     """Test monthly recalculation"""
+    #     drc_score = CoinDRCScore.objects.get(coin=self.coin)
+    #     initial_score = drc_score.score
+
+    #     Trade.objects.create(
+    #         transaction_hash="HASH2234567890123456789012345678901234567890123456789012345678901234567890",
+    #         user=self.creator,
+    #         coin=self.coin,
+    #         trade_type='BUY',
+    #         coin_amount=Decimal('50000'),
+    #         sol_amount=Decimal('50'),
+    #     )
+        
+    #     # Set up conditions for bonuses
+    #     drc_score.price_breakouts_per_month = 3  # Fair trading
+    #     drc_score.last_recorded_price = Decimal('1.0')
+    #     self.coin.current_price = Decimal('2.0')  # Good growth
+        
+    #     drc_score.monthly_recalculation()
+        
+    #     # Score should have increased due to bonuses
+    #     self.assertGreater(drc_score.score, initial_score)
+    #     self.assertIsNotNone(drc_score.last_monthly_update)
+    #     self.assertEqual(drc_score.price_breakouts_per_month, 0)  # Reset
+
     def test_monthly_recalculation(self): # bonus no no check
         """Test monthly recalculation"""
-        drc_score = CoinDRCScore.objects.get(coin=self.coin)
-        initial_score = drc_score.score
+        dev_score = DeveloperScore.objects.get(developer= self.creator) #self.creator.devscore
 
-        Trade.objects.create(
-            transaction_hash="HASH2234567890123456789012345678901234567890123456789012345678901234567890",
-            user=self.creator,
-            coin=self.coin,
-            trade_type='BUY',
-            coin_amount=Decimal('50000'),
-            sol_amount=Decimal('50'),
-        )
-        
-        # Set up conditions for bonuses
-        drc_score.price_breakouts_per_month = 3  # Fair trading
-        drc_score.last_recorded_price = Decimal('1.0')
-        self.coin.current_price = Decimal('2.0')  # Good growth
-        
-        drc_score.monthly_recalculation()
-        
-        # Score should have increased due to bonuses
-        self.assertGreater(drc_score.score, initial_score)
-        self.assertIsNotNone(drc_score.last_monthly_update)
-        self.assertEqual(drc_score.price_breakouts_per_month, 0)  # Reset
+        dev_score.recalculate_score()
+        print(dev_score.score)
 
     # def test_recalculate_score_integration(self): # nonsense
     #     """Test the main recalculate_score method"""

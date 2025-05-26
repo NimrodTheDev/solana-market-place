@@ -71,7 +71,7 @@ class SolanaUser(AbstractUser):
             return self.trader_score.recalculate_score()
         return 200  # Default base score if no score record exists
 
-class Coin(models.Model): # add a way to make things more strick
+class Coin(models.Model): # we have to store the ath
     """Represents a coin on the platform"""
     address = models.CharField(primary_key=True, max_length=44, unique=True, editable=False)
     name = models.CharField(max_length=100)
@@ -86,6 +86,7 @@ class Coin(models.Model): # add a way to make things more strick
     twitter = models.CharField(max_length=255, blank=True, null=True)
 
     current_price = models.DecimalField(max_digits=20, decimal_places=8, default=0)  # Added price field # start calculating
+    ath = models.DecimalField(max_digits=20, decimal_places=8, default=0) # will work like coin to store the highest
 
     def __str__(self):
         return f"{self.name} ({self.ticker})"
@@ -217,6 +218,7 @@ class CoinDRCScore(DRCScore):
     team_abandonment = models.BooleanField(default=False)
     token_abandonment = models.BooleanField(default=False)
     pump_and_dump_activity = models.BooleanField(default=False)
+    successful_token = models.BooleanField(default=False)
     
     # Tracking for periodic calculations
     last_monthly_update = models.DateTimeField(auto_now_add=True)
@@ -317,6 +319,7 @@ class CoinDRCScore(DRCScore):
         fair_trading_bonus = self._calculate_fair_trading_bonus()
         price_growth_bonus = self._calculate_price_growth_bonus()
         retention_bonus = self._calculate_retention_bonus()
+        self.check_for_success()
         
         # Apply bonuses
         total_bonus = (
@@ -397,7 +400,7 @@ class CoinDRCScore(DRCScore):
         if self.last_recorded_price <= 0:
             return 0
             
-        growth_ratio = float(self.coin.current_price / self.last_recorded_price)
+        growth_ratio = float(self.coin.liquidity / self.last_recorded_price)
         # Reward gradual growth (50-300% growth)
         if 1.5 <= growth_ratio <= 4.0: # wrong + 1.5 and above
             return 50
@@ -476,6 +479,14 @@ class CoinDRCScore(DRCScore):
             return 20
         return 0
 
+    def check_for_success(self):
+        if not self.successful_token:
+            # Not less than 80% from ath
+            # self.age_in_hours >= (30 * 24)) and  self.coin.market_cap >= 100000: # award +100
+            if self.coin.holders.all().count() >= 500 and self.coin.market_cap >= 500000:
+                if not self.token_abandonment and not self.team_abandonment:
+                    self.successful_token = True  
+
     def _check_dev_dumping(self, save=True):
         """Check if developer has dumped their tokens early"""
         if (self.team_abandonment or 
@@ -551,7 +562,7 @@ class CoinDRCScore(DRCScore):
     def _reset_monthly_counters(self):
         """Reset counters for the new month"""
         self.price_breakouts_per_month = 0
-        self.last_recorded_price = self.coin.current_price
+        self.last_recorded_price = self.coin.liquidity # change to current price later
         self.last_recorded_holders = self.holders_count
 
     def recalculate_score(self):
@@ -591,7 +602,7 @@ class DeveloperScore(DRCScore):
     )
     
     # new meteric
-    successful_launch = models.IntegerField(default=0) # +100 
+    successful_launch = models.IntegerField(default=0) # +100 # tricky
     abandoned_projects = models.IntegerField(default=0) # -150 # check in drs score if the token is adandoned
     rug_pull_or_sell_off = models.IntegerField(default=0) # -100 no rug pull + 100 how to check rug pull - coin count
 
@@ -604,22 +615,22 @@ class DeveloperScore(DRCScore):
     def __str__(self):
         return f"Dev Score for {self.developer.wallet_address}: {self.score}"
     
-    def recalculate_score(self):
+    def recalculate_score(self): # determining succes
         """
         Calculate developer reputation based on their coin creation history
         """
         # Base score starts at 200
-        base_score = 200
+        base_score = 150
         
         # Get all coins created by this developer
-        developer_coins = self.developer.coins.all()
-        
-        # Update coin counts
-        self.coins_created_count = developer_coins.count()
-        
+        abandoned_count = self.developer.coins.filter(drc_score__token_abandonment=True).count() * 150
+        rug_pull_or_sell_off_count = self.developer.coins.filter(drc_score__team_abandonment=True).count() *100
+        no_rugs_count = self.developer.coins.filter(drc_score__team_abandonment=False).count() *100 # add when discussed
+        successful_launch_count = self.successful_launch * 100
+
         # Calculate final score with clamping
-        total_score = base_score
-        self.score = max(total_score, 200)  # Clamp between 200-1000
+        total_score = base_score + successful_launch_count -(abandoned_count+rug_pull_or_sell_off_count)
+        self.score = max(total_score, 0)
         
         self.save()
         return self.score
@@ -633,6 +644,7 @@ class TraderScore(DRCScore): # work on it tommorow
                                  to_field="wallet_address")
     
     # Trading behavior metrics
+    # a meteric for checking if the acount is active else don't update
     coins_held_count = models.IntegerField(default=0)
     avg_holding_time_hours = models.IntegerField(default=0)
     trades_count = models.IntegerField(default=0)
@@ -660,7 +672,7 @@ class TraderScore(DRCScore): # work on it tommorow
         Calculate trader reputation based on their trading history
         """
         # Base score starts at 200
-        base_score = 200
+        base_score = 150
         
         # Get all trades by this trader
         user_trades = self.trader.trades.all()
@@ -723,55 +735,7 @@ class TraderScore(DRCScore): # work on it tommorow
         
         # Calculate final score with clamping
         total_score = base_score + diversity_bonus + holding_time_bonus + activity_bonus - dump_penalty
-        self.score = max(min(total_score, 1000), 0)  # Prevent negative scores, cap at 1000
+        self.score = max(total_score, 0)  # Prevent negative scores, cap at 1000
         
         self.save()
         return self.score
-
-class CoinRugFlag(models.Model): # remove if they decide a detailed logs might not be needed
-    """
-    Tracks whether a coin has been flagged as rugged
-    """
-    coin = models.OneToOneField('Coin', on_delete=models.CASCADE, 
-                               related_name='rug_flag',
-                               to_field="address")
-    is_rugged = models.BooleanField(default=False)
-    rugged_at = models.DateTimeField(null=True, blank=True)
-    rug_transaction = models.UUIDField(null=True, blank=True)  # Optional reference to the transaction
-    rug_description = models.TextField(blank=True)
-    
-    def __str__(self):
-        status = "RUGGED" if self.is_rugged else "Not rugged"
-        return f"{self.coin.name}: {status}"
-    
-    def mark_as_rugged(self, transaction_id=None, description=""):
-        """Mark a coin as rugged with optional transaction ID and description"""
-        self.is_rugged = True
-        self.rugged_at = timezone.now()
-        
-        if transaction_id:
-            self.rug_transaction = transaction_id
-        
-        if description:
-            self.rug_description = description
-            
-        self.save()
-        
-        # Also update the DRC score for this coin
-        try:
-            drc_score = self.coin.drc_score
-            drc_score.recalculate_score()
-        except CoinDRCScore.DoesNotExist:
-            # Create one if it doesn't exist
-            CoinDRCScore.objects.create(coin=self.coin).recalculate_score()
-        
-        # Update developer score
-        try:
-            dev_score = self.coin.creator.developer_score
-            dev_score.coins_rugged_count += 1
-            dev_score.recalculate_score()
-        except DeveloperScore.DoesNotExist:
-            # Create one if it doesn't exist
-            dev_score = DeveloperScore.objects.create(developer=self.coin.creator)
-            dev_score.coins_rugged_count = 1
-            dev_score.recalculate_score()
