@@ -1,3 +1,4 @@
+
 // tailwind.config.js
 module.exports = {
 	content: ["./src/**/*.{js,jsx,ts,tsx}"],
@@ -5,7 +6,11 @@ module.exports = {
 		extend: {
 			colors: {
 				'custom-dark-blue': '#11141F',
-				'custom-light-purple': '#7E6DC8'
+				'custom-light-purple': '#7E6DC8',
+				"custom-hero-back": '#080a0f',
+			},
+			gridTemplateColumns: {
+				'custom-2-1': '2fr 1fr',
 			},
 		},
 	},

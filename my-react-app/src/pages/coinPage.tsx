@@ -32,7 +32,7 @@ export default function CoinPage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const { id } = useParams();
-	
+
 
 	useEffect(() => {
 		const fetchCoinData = async () => {
@@ -40,7 +40,7 @@ export default function CoinPage() {
 				setLoading(true);
 				const response = await axios.get<CoinData>(`https://solana-market-place-backend.onrender.com/api/coins/${id}`);
 				setCoinData(response.data);
-				
+
 				setError(null);
 			} catch (e) {
 				setError("Failed to fetch coin data");
@@ -62,19 +62,23 @@ export default function CoinPage() {
 	}
 
 	return (
-		<div className='bg-gray-900 flex flex-col gap-2'>
-			<div className='flex gap-2'>
-				<div className='flex flex-col gap-2 w-full'>
-					<CoinProfile coinData={coinData} />
-					<CryptoTokenDetails coinData={coinData} />
-					{/* <CoinComments coinData={coinData} /> */}
+
+		<div className=" bg-custom-dark-blue items-center ">
+			<div className='bg-custom-dark-blue flex flex-col gap-2 w-4/5 mx-auto p-4 text-white'>
+				<div className='grid lg:grid-cols-custom-2-1 gap-2'>
+					<div className='flex flex-col gap-2 w-full'>
+						<CoinProfile coinData={coinData} />
+						<CryptoTokenDetails coinData={coinData} />
+						{/* <CoinComments coinData={coinData} /> */}
+					</div>
+					<div className='flex flex-col gap-2'>
+						{/* <CryptoTradingWidget coinData={coinData} /> */}
+						{/* <HoldersAnalytics coinData={coinData} /> */}
+					</div>
 				</div>
-				<div className='flex flex-col gap-2'>
-					{/* <CryptoTradingWidget coinData={coinData} /> */}
-					{/* <HoldersAnalytics coinData={coinData} /> */}
-				</div>
+				{/* <SimilarCoins coinData={coinData} /> */}
 			</div>
-			{/* <SimilarCoins coinData={coinData} /> */}
 		</div>
+
 	);
 }
