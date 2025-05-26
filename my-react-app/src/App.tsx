@@ -23,13 +23,8 @@ import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 import Loginconnect from "./solanaClient/Loginconnect";
 import { SolanaProvider } from "./solanaClient";
-//import { SolanaProvider } from "./solanaClient";
-// import { SolanaProvider } from "./solanaClient";
-// import { useEffect } from "react";
-// import axios from "axios";
 import PhantomError from "./components/PhantomError";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-// import { uploadFile } from "./solanaClient/usePinta";
 function App() {
 	const endpoint = clusterApiUrl("devnet");
 	const wallets = [
@@ -53,7 +48,7 @@ function App() {
 	
 	return (
 		<ConnectionProvider endpoint={endpoint}>
-			<WalletProvider wallets={wallets} autoConnect={false}>
+			<WalletProvider wallets={wallets} localStorageKey="key" autoConnect={false}>
 				<SolanaProvider>
 				<WalletModalProvider>
 					<PhantomError>
