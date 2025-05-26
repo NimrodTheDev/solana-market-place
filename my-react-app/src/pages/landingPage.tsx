@@ -12,30 +12,29 @@ const LandingPage = () => {
 	// uploadFile()
 	useEffect(()=>{
 		const connectWallet = async () => {
-			//@ts-ignore
-			// const response = await window?.solana?.connect();
-
-		// if (!response) {
-		// //   throw Error("No public key found")
-		// return
-		// }
-		console.log(wallet.publicKey?.toBase58())
-		axios.post(`https://solana-market-place-backend.onrender.com/api/connect_wallet/`, {
-			wallet_address: wallet.publicKey?.toBase58() || ""
-		},{
-			headers: {
-				"Content-Type": "application/json",
+			if (wallet.connected) {
+				await wallet.connect().then(()=>{
+					console.log(wallet.publicKey)
+					axios.post(`https://solana-market-place-backend.onrender.com/api/connect_wallet/`, {
+						wallet_address: wallet.publicKey?.toBase58()
+					},{
+						headers: {
+							"Content-Type": "application/json",
+						}
+					})
+					.then((res)=>{
+						console.log(res.data)
+					})
+					.catch((err)=>{
+						console.log(err)
+					})
+				})
+			}else{
+				wallet.connect()
 			}
-		})
-		.then((res)=>{
-			console.log(res.data)
-		})
-		.catch((err)=>{
-			console.log(err)
-		})
 		}
 		connectWallet()
-	}, [])
+	}, [wallet.connected])
 	return (
 		<div>
 			<Hero />

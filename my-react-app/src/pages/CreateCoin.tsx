@@ -1,10 +1,28 @@
-import { useState } from 'react'
-import {  ArrowRight } from 'lucide-react';
+import { useState, ReactNode, isValidElement } from 'react'
+import {  ArrowRight, X, Copy, Check } from 'lucide-react';
 import { useSolana } from '../solanaClient/index';
 import { uploadFile } from '../solanaClient/usePinta';
 import DragAndDropFileInput from '../components/general/dragNdrop';
 import { Link } from 'react-router-dom';
 // import Hero from '../components/landingPage/hero'
+
+// Add animation keyframes
+const styles = `
+@keyframes slide-up {
+    from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-up {
+    animation: slide-up 0.3s ease-out forwards;
+}
+`;
 
 interface ValidationErrors {
     tokenName?: string;
@@ -14,6 +32,58 @@ interface ValidationErrors {
     tokenTwitter?: string;
     tokenDiscord?: string;
     tokenImage?: string;
+}
+
+interface ToastProps {
+    message: ReactNode;
+    type: 'success' | 'error';
+    onClose: () => void;
+}
+
+function Toast({ message, type, onClose }: ToastProps) {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        // If message is a React element (Link), extract the href
+        let textToCopy = '';
+        if (isValidElement(message) && typeof message.props === 'object' && message.props !== null && 'to' in message.props) {
+            const to = message.props.to as string;
+            textToCopy = to.split('/tx/')[1].split('?')[0];
+        } else if (message) {
+            textToCopy = message.toString();
+        }
+
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+        }
+    };
+
+    return (
+        <div className={`fixed top-4 z-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300 animate-slide-up ${
+            type === 'success' ? 'bg-green-500' : 'bg-red-500'
+        } text-white`}>
+            <span>{message}</span>
+            <div className="flex items-center gap-1">
+                <button 
+                    onClick={handleCopy}
+                    className="hover:bg-white/10 rounded-full p-1 transition-colors"
+                    title="Copy to clipboard"
+                >
+                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                </button>
+                <button 
+                    onClick={onClose}
+                    className="hover:bg-white/10 rounded-full p-1 transition-colors"
+                >
+                    <X size={16} />
+                </button>
+            </div>
+        </div>
+    );
 }
 
 function CreateCoin() {
@@ -40,6 +110,9 @@ function CreateCoin() {
     //     }
     // };
     const [result, setResult] = useState<string | null>(null);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState<ReactNode>('');
+    const [toastType, setToastType] = useState<'success' | 'error'>('success');
 
     const validateForm = (): boolean => {
         const errors: ValidationErrors = {};
@@ -95,8 +168,17 @@ function CreateCoin() {
         return Object.keys(errors).length === 0;
     };
 
+    const showToastMessage = (message: ReactNode, type: 'success' | 'error') => {
+        setToastMessage(message);
+        setToastType(type);
+        setShowToast(true);
+        // Auto-hide after 5 seconds
+        setTimeout(() => setShowToast(false), 5000);
+    };
+
     return (
         <div className='relative'>
+            <style>{styles}</style>
             <div className="h-64 z-10 crtGradient background-container  top-10 left-10  ...">
                 <div className="h-40  justify-center...">
                     <div className="flex flex-col items-center justify-center h-full">
@@ -222,7 +304,6 @@ function CreateCoin() {
                                     if (!tokenImage) {
                                         setLoading({bool: false, msg:''})
                                         return
-                                        // throw new Error("Token image is required");
                                     }
                                     const metadataUrl = await uploadFile(tokenImage, {
                                         name: tokenName,
@@ -233,8 +314,9 @@ function CreateCoin() {
                                         discord: tokenDiscord
                                     });
                                     console.log('called')
-                                    if (metadataUrl.length < 0) {
+                                    if (metadataUrl.length === 0) {
                                         setLoading({bool: false, msg:''})
+                                        showToastMessage("Failed to upload token", "error");
                                         return
                                     }
                                     setLoading({bool: true, msg: "uploading MetaData"})
@@ -244,13 +326,20 @@ function CreateCoin() {
                                         const txHash = await CreateTokenMint(tokenName, tokenSymbol, metadataUrl);
 
                                         if (txHash) {
-                                            setResult(txHash);   
-                                        }else{
-                                            setError('Please ensure you have Phanthon extension installed');
+                                            setResult(txHash);
+                                            showToastMessage(
+                                                <Link to={`https://explorer.solana.com/tx/${txHash}?cluster=devnet`} className='underline'>
+                                                    Transaction successful! View on Explorer
+                                                </Link>,
+                                                "success"
+                                            );
+                                        } else {
+                                            showToastMessage("Please ensure you have Phantom extension installed", "error");
                                         }
                                     }
                                 } catch (e: any) {
-                                    setError(e.message);
+                                    console.error(e)
+                                    showToastMessage(e.message, "error");
                                 }
                                 finally{
                                     setLoading({bool: false, msg:''})
@@ -268,6 +357,13 @@ function CreateCoin() {
                     {error && <p className='text-red-500'>{error}</p>}
                 </div>
             </div>
+            {showToast && (
+                <Toast 
+                    message={toastMessage} 
+                    type={toastType} 
+                    onClose={() => setShowToast(false)} 
+                />
+            )}
         </div>
     )
 }
