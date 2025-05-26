@@ -1,33 +1,17 @@
 import { Link } from "react-router-dom";
 
 import { WalletMinimal } from "lucide-react";
+import NFTCollection from "./collection";
 
 
 
 export default function Hero() {
 	return (
-		<div className='bg-black min-h-screen flex items-center justify-center relative overflow-hidden'>
+		<div className=' bg-custom-hero-back min-h-screen flex flex-col items-center justify-center relative overflow-hidden'>
 			{/* Background decorative elements */}
 			<div className='absolute inset-0 overflow-hidden'>
 				{/* Purple icon decorations */}
-				<div className='absolute top-20 left-24 text-purple-500 opacity-30 text-6xl'>
-					⚡
-				</div>
-				<div className='absolute top-40 right-32 text-purple-500 opacity-30 text-7xl'>
-					♾️
-				</div>
-				<div className='absolute bottom-24 left-40 text-purple-500 opacity-30 text-6xl'>
-					♦️
-				</div>
-				<div className='absolute top-60 left-96 text-purple-500 opacity-30 text-5xl'>
-					⚛️
-				</div>
-				<div className='absolute bottom-40 right-48 text-purple-500 opacity-30 text-6xl'>
-					🔮
-				</div>
-				<div className='absolute bottom-32 left-32 text-purple-500 opacity-30 text-5xl'>
-					🌐
-				</div>
+				<img src="/Gradient2.png" alt="landing Background" className=" w-screen" />
 			</div>
 
 			{/* Main content */}
@@ -65,6 +49,7 @@ export default function Hero() {
 					</button>
 				</div>
 			</div>
+			<NFTCollection />
 		</div>
 	);
 }

@@ -7,6 +7,7 @@ from .models import (
     SolanaUser, Coin, Trade, UserCoinHoldings,
     DeveloperScore, TraderScore, CoinDRCScore, CoinRugFlag
 )
+# i can move the broadcast here
 
 # Create scores when users/coins are created
 @receiver(post_save, sender=SolanaUser)
@@ -34,7 +35,7 @@ def update_holdings_and_scores_on_trade(sender, instance, created, **kwargs):
         coin = instance.coin
         
         # Get or create the user's holdings for this coin
-        holdings, created_holdings = UserCoinHoldings.objects.get_or_create(
+        holdings, _ = UserCoinHoldings.objects.get_or_create(
             user=user,
             coin=coin,
             defaults={'amount_held': 0}
@@ -105,7 +106,8 @@ def create_coin_drc_score(sender, instance, created, **kwargs): # making the sco
     if created:
         # Create coin DRC score
         score, _ = CoinDRCScore.objects.get_or_create(coin=instance)
-        score.recalculate_score()
+        # score.last_recorded_price = instance.liquidity # there should be a starting price
+        # score.recalculate_score() # remove this because the score is in daily
         
         # Get or create developer score for the coin creator
         dev_score, _ = DeveloperScore.objects.get_or_create(developer=instance.creator)

@@ -1,9 +1,10 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-import uuid
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Sum
+from decimal import Decimal
 
 # integrate the score directly into the models
 class SolanaUserManager(BaseUserManager):
@@ -84,7 +85,7 @@ class Coin(models.Model): # add a way to make things more strick
     website = models.URLField(max_length=255, blank=True, null=True)
     twitter = models.CharField(max_length=255, blank=True, null=True)
 
-    current_price = models.DecimalField(max_digits=20, decimal_places=8, default=0)  # Added price field
+    current_price = models.DecimalField(max_digits=20, decimal_places=8, default=0)  # Added price field # start calculating
 
     def __str__(self):
         return f"{self.name} ({self.ticker})"
@@ -112,6 +113,10 @@ class Coin(models.Model): # add a way to make things more strick
         if hasattr(self, 'drc_score'):
             return self.drc_score.recalculate_score()
         return 200  # Default base score if no score record exists
+
+    @property
+    def liquidity(self):
+        return (self.total_held * self.current_price)
 
     class Meta:
         ordering = ['-created_at']
@@ -157,24 +162,427 @@ class Trade(models.Model): # change to transaction hash
             models.Index(fields=['created_at']),
         ]
 
-
 # drc stuffs
 class DRCScore(models.Model):
     """Base model for DRC scoring with common fields"""
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    score = models.IntegerField(default=200, validators=[MinValueValidator(0), MaxValueValidator(1000)])
+    score = models.IntegerField(default=150) #, validators=[MinValueValidator(0), MaxValueValidator(1000)])
     
     class Meta:
         abstract = True
+    
+    @property
+    def rank(self):
+        match self.score:
+            case x if x < 150:
+                return 1
+            case x if x < 500:
+                return 2
+            case x if x < 1000:
+                return 3
+            case x if x < 2000:
+                return 4
+            case x if x >= 2000:
+                return 5
+
+# fix some parts
+class CoinDRCScore(DRCScore):
+    """
+    DRC score for individual coins, combining developer reputation, 
+    market metrics and contract security
+    """
+    coin = models.OneToOneField(
+        Coin, 
+        on_delete=models.CASCADE, 
+        related_name='drc_score',
+        to_field="address"
+    )
+    
+    # Market metrics
+    holders_count = models.IntegerField(default=0)
+    age_in_hours = models.IntegerField(default=0)
+    max_volume_recorded = models.DecimalField(max_digits=24, decimal_places=8, default=0)
+    
+    # Price tracking
+    price_breakouts_per_month = models.IntegerField(default=0)
+    last_recorded_price = models.DecimalField(max_digits=24, decimal_places=8, default=0) # was integer before
+    last_price = models.DecimalField(max_digits=24, decimal_places=8, default=0)
+    
+    # Holder metrics
+    holder_retention_months = models.IntegerField(default=0)
+    last_recorded_holders = models.IntegerField(default=0)
+    
+    # Flags for abandonment detection
+    team_abandonment = models.BooleanField(default=False)
+    token_abandonment = models.BooleanField(default=False)
+    pump_and_dump_activity = models.BooleanField(default=False)
+    
+    # Tracking for periodic calculations
+    last_monthly_update = models.DateTimeField(auto_now_add=True)
+    last_biweekly_update = models.DateTimeField(auto_now_add=True)
+    last_daily_update = models.DateTimeField(null=True, blank=True)    
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['score']),
+            models.Index(fields=['coin']),
+            models.Index(fields=['age_in_hours']),
+            models.Index(fields=['last_monthly_update']),
+            models.Index(fields=['last_biweekly_update']),
+        ]
+    
+    def __str__(self):
+        return f"DRC Score for {self.coin.name}: {self.score}"
+    
+    def update_age(self, save=True):
+        """Update the age of the coin in hours"""
+        if self.coin.created_at:
+            self.age_in_hours = int((timezone.now() - self.coin.created_at).total_seconds() / 3600)
+            if save:
+                self.save(update_fields=['age_in_hours', 'updated_at'])
+        return self.age_in_hours
+
+    def update_price_breakouts(self, old_price, new_price, save=True):
+        """Detect and record price breakouts (changes exceeding 10%)"""
+        if old_price <= 0:
+            return
+            
+        pct_change = abs((new_price - old_price) / old_price)
+        
+        if pct_change > 0.1:  # 10% breakout threshold
+            self.price_breakouts_per_month += 1
+            if save:
+                self.save(update_fields=['price_breakouts_per_month', 'updated_at'])
+    
+    def update_holders_count(self, save=True):
+        """Update the count of holders for this coin"""
+        self.holders_count = self.coin.holders.count()
+        if save:
+            self.save(update_fields=['holders_count', 'updated_at'])
+        return self.holders_count
+    
+    def daily_checkup(self):
+        """Perform daily score maintenance tasks"""
+        now = timezone.now()
+        
+        # Skip if already updated today
+        if (self.last_daily_update and 
+            self.last_daily_update.date() == now.date()):
+            return
+        
+        # Update basic metrics
+        self.update_age(save=False)
+        self.update_holders_count(save=False)
+        
+        # Check for price breakouts
+        if self.last_price > 0:
+            self.update_price_breakouts(
+                self.last_price, 
+                self.coin.current_price, 
+                save=False
+            )
+        
+        # Update last price
+        self.last_price = self.coin.current_price
+        # Check abandonment conditions
+        self._check_dev_dumping(save=False)
+        self._check_token_abandonment(save=False)
+        self._check_pump_and_dump(save=False)
+        
+        # Update timestamp
+        self.last_daily_update = now
+        
+        # Save all changes
+        self.save(update_fields=[
+            'age_in_hours', 'holders_count', 'pump_and_dump_activity',
+            'price_breakouts_per_month', 'last_price', 'team_abandonment',
+            'token_abandonment', 'score', 'last_daily_update', 'updated_at'
+        ])
+        
+        # Recalculate score with daily factors
+        self._apply_daily_score_adjustments()
+
+    def monthly_recalculation(self):
+        """Perform comprehensive monthly score recalculation"""
+        now = timezone.now()
+        
+        # Skip if already updated this month
+        if (self.last_monthly_update and 
+            self.last_monthly_update.month == now.month and
+            self.last_monthly_update.year == now.year):
+            return
+        
+        # Calculate monthly factors
+        fair_trading_bonus = self._calculate_fair_trading_bonus()
+        price_growth_bonus = self._calculate_price_growth_bonus()
+        retention_bonus = self._calculate_retention_bonus()
+        
+        # Apply bonuses
+        total_bonus = (
+            fair_trading_bonus + 
+            price_growth_bonus + 
+            retention_bonus
+        )
+        
+        # Cap the bonus to prevent excessive score inflation
+        capped_bonus = min(total_bonus, 300)
+        self.score = max(0, self.score + int(capped_bonus))
+        
+        # Reset monthly counters
+        self._reset_monthly_counters()
+        
+        # Update timestamp
+        self.last_monthly_update = now
+        
+        self.save(update_fields=[
+            'score', 'price_breakouts_per_month', 'last_recorded_price',
+            'last_recorded_holders', 'holder_retention_months',
+            'last_monthly_update', 'updated_at'
+        ])
+
+    def biweekly_checkup(self):
+        """Perform bi-weekly score maintenance and holder quality assessment"""
+        now = timezone.now()
+        
+        # Skip if already updated this bi-weekly period
+        if self._is_same_biweekly_period(self.last_biweekly_update, now):
+            return
+        
+        holder_rank_bonus = self._calculate_holder_rank_bonus()
+        # Apply bi-weekly bonuses
+        total_biweekly_bonus = (
+            holder_rank_bonus
+        )
+        
+        # Cap the bi-weekly bonus
+        capped_bonus = min(total_biweekly_bonus, 50)
+        self.score = max(0, self.score + int(capped_bonus))
+        
+        self._update_biweekly_metrics()
+        
+        # Update timestamp
+        self.last_biweekly_update = now
+        
+        self.save(update_fields=[
+            'score', 'last_biweekly_update', 'updated_at'
+        ])
+
+    def _is_same_biweekly_period(self, last_update, current_time):
+        """Check if we're in the same bi-weekly period"""
+        if not last_update:
+            return False
+        
+        # Calculate days since last update
+        days_diff = (current_time - last_update).days
+        
+        # If less than 14 days, we're in the same period
+        return days_diff < 14
+
+    def _calculate_fair_trading_bonus(self):
+        cutoff_time = timezone.now() - timezone.timedelta(days=30)
+        volume_data = self.coin.trades.filter(
+            created_at__gte=cutoff_time
+        ).aggregate(
+            total_volume=Sum('sol_amount')
+        )
+        """Calculate bonus for fair trading patterns (low volatility)"""
+        if self.price_breakouts_per_month <= 6 and volume_data['total_volume'] != None:  # Max 6 breakouts considered fair
+            if volume_data['total_volume'] >= 15:
+                return 50 
+        return 0
+
+    def _calculate_price_growth_bonus(self): # issues use liqidity for now
+        """Calculate bonus for sustained price growth"""
+        if self.last_recorded_price <= 0:
+            return 0
+            
+        growth_ratio = float(self.coin.current_price / self.last_recorded_price)
+        # Reward gradual growth (50-300% growth)
+        if 1.5 <= growth_ratio <= 4.0: # wrong + 1.5 and above
+            return 50
+        # Smaller bonus for moderate growth
+        # elif 1.2 <= growth_ratio < 1.5: # remove
+        #     return 25
+        return 0
+
+    def _calculate_retention_bonus(self): # check this properly # this wrong
+        """Calculate bonus for holder retention"""
+        if self.last_recorded_holders <= 0:
+            return 0
+            
+        current_holders = self.holders_count
+        retention_rate = current_holders / self.last_recorded_holders
+        # were else is it been checked
+        # Bonus for maintaining or growing holder base
+        if retention_rate >= 1.1:  # 10% growth
+            self.holder_retention_months += 1
+            return min(self.holder_retention_months * 10, 100)
+        elif retention_rate >= 0.9:  # Stable within 10%
+            return 20
+        return 0
+    
+    def _check_pump_and_dump(self, save=True): # fix
+        if (self.pump_and_dump_activity or 
+            self.age_in_hours >= (30 * 24)):  # After 3 months
+            return
+        
+        # calculate pump and dump
+
+        if self.pump_and_dump_activity and save:
+            self.score = max(0, self.score - 100)
+            self.save(update_fields=[
+                'pump_and_dump_activity', 'score', 'updated_at'
+            ])
+
+    def _calculate_holder_rank_bonus(self):
+        """Calculate bonus based on holder quality (rank distribution)"""
+        if self.holders_count == 0:
+            return 0
+        
+        # Get holders with trader scores
+        holders_with_scores = self.coin.holders.select_related('user__trader_score')
+        
+        rank_counts = {3: 0, 4: 0, 5: 0}
+        total_ranked = 0
+        
+        for holding in holders_with_scores:
+            if hasattr(holding.user, 'trader_score'):
+                rank = holding.user.trader_score.rank
+                if rank in rank_counts:
+                    rank_counts[rank] += 1
+                    total_ranked += 1
+        
+        if total_ranked == 0:
+            return 0
+        
+        # Calculate percentages
+        rank_3_pct = rank_counts[3] / total_ranked
+        rank_4_pct = rank_counts[4] / total_ranked
+        rank_5_pct = rank_counts[5] / total_ranked
+        
+        # Award bonuses for high-quality holder concentrations
+        # if rank_5_pct > 0.3:  # 30%+ rank 5 holders
+        #     return 50
+        # elif rank_4_pct > 0.4:  # 40%+ rank 4 holders
+        #     return 30
+        # elif rank_3_pct > 0.5:  # 50%+ rank 3 holders
+        #     return 20
+        if rank_5_pct > 0.5:
+            return 50
+        elif rank_4_pct > 0.5:
+            return 30
+        elif rank_3_pct > 0.5:
+            return 20
+        return 0
+
+    def _check_dev_dumping(self, save=True):
+        """Check if developer has dumped their tokens early"""
+        if (self.team_abandonment or 
+            self.age_in_hours >= (30 * 24 * 3)):  # After 3 months
+            return
+        
+        try:
+            dev_holding = self.coin.holders.get(
+                user__wallet_address=self.coin.creator.wallet_address
+            )
+            dev_percentage = dev_holding.held_percentage()
+            
+            # Flag as abandoned if dev holds less than 1%
+            if dev_percentage < 1.0:
+                self.team_abandonment = True
+                self.score = max(0, self.score - 100)
+                if save:
+                    self.save(update_fields=[
+                        'team_abandonment', 'score', 'updated_at'
+                    ])
+        except self.coin.holders.model.DoesNotExist: # hmm
+            # Dev has no holdings - definitely abandoned
+            self.team_abandonment = True
+            self.score = max(0, self.score - 100)
+            if save:
+                self.save(update_fields=[
+                    'team_abandonment', 'score', 'updated_at'
+                ])
+
+    def _check_token_abandonment(self, save=True): # inactivity for 2 weeks a little to on good trades # this is sell numbers not acutal amounts
+        """Check if token shows signs of abandonment (low activity)"""
+        if (self.token_abandonment or 
+            self.age_in_hours >= (30 * 24)):  # After 1 month
+            return
+        
+        # Get trade statistics
+        total_trades = self.coin.trades.count()
+        sell_trades = self.coin.trades.filter(trade_type='SELL').count()
+        
+        # Token is considered abandoned if:
+        # 1. Very few trades (< 20) after reasonable time, OR
+        # 2. Sell ratio is too high (> 70%) indicating dump 
+        if total_trades < 20 and self.age_in_hours > (7 * 24):  # After 1 week
+            self.token_abandonment = True
+            self.score = max(0, self.score - 200)
+        elif total_trades >= 20 and (sell_trades / total_trades) > 0.7:
+            self.token_abandonment = True
+            self.score = max(0, self.score - 200)
+        
+        if self.token_abandonment and save:
+            self.save(update_fields=[
+                'token_abandonment', 'score', 'updated_at'
+            ])
+
+    def _apply_daily_score_adjustments(self):
+        """Apply daily volume and activity bonuses"""
+        fields = ['score', 'updated_at']
+        if self.max_volume_recorded < 100:
+            volume_data = self.coin.trades.all().aggregate(
+                total_volume=Sum('sol_amount')
+            )
+            volume_recorded = min(volume_data['total_volume'] or Decimal('0'), Decimal('100'))
+            volume_bonus = 0
+            # Update max volume if exceeded # nonsense
+            if self.max_volume_recorded > volume_recorded:
+                volume_bonus = volume_recorded - self.max_volume_recorded
+                self.max_volume_recorded = volume_recorded
+            # Apply bonus
+            self.score = max(0, self.score + int(volume_bonus))
+            fields = ['score', 'max_volume_recorded', 'updated_at']
+        self.save(update_fields=fields)
+
+    def _reset_monthly_counters(self):
+        """Reset counters for the new month"""
+        self.price_breakouts_per_month = 0
+        self.last_recorded_price = self.coin.current_price
+        self.last_recorded_holders = self.holders_count
+
+    def recalculate_score(self):
+        """Main entry point for score recalculation"""
+        # Ensure we have fresh data
+        self.update_age(save=False)
+        self.update_holders_count(save=False)
+        
+        # Apply daily checks if needed
+        now = timezone.now()
+        if (not self.last_daily_update or 
+            self.last_daily_update.date() != now.date()):
+            self.daily_checkup()
+        
+        # Apply bi-weekly checks if needed
+        if (not self.last_biweekly_update or 
+            not self._is_same_biweekly_period(self.last_biweekly_update, now)):
+            self.biweekly_checkup()
+
+        # Apply monthly recalculation if needed
+        if (not self.last_monthly_update or 
+            self.last_monthly_update.month != now.month or
+            self.last_monthly_update.year != now.year):
+            self.monthly_recalculation()
+        
+        return self.score
 
 class DeveloperScore(DRCScore):
     """
     Developer reputation score tracking for Solana users who create coins
     """
-    # developer = models.OneToOneField('SolanaUser', on_delete=models.CASCADE, 
-    #                                 related_name='developer_score', 
-    #                                 to_field="wallet_address")
     developer = models.OneToOneField(
         SolanaUser,
         on_delete=models.CASCADE,
@@ -182,12 +590,11 @@ class DeveloperScore(DRCScore):
         to_field="wallet_address"
     )
     
-    # Historical performance metrics
-    coins_created_count = models.IntegerField(default=0)
-    coins_active_24h_plus = models.IntegerField(default=0)
-    coins_rugged_count = models.IntegerField(default=0)
-    highest_market_cap = models.DecimalField(max_digits=24, decimal_places=8, default=0)
-    
+    # new meteric
+    successful_launch = models.IntegerField(default=0) # +100 
+    abandoned_projects = models.IntegerField(default=0) # -150 # check in drs score if the token is adandoned
+    rug_pull_or_sell_off = models.IntegerField(default=0) # -100 no rug pull + 100 how to check rug pull - coin count
+
     class Meta:
         indexes = [
             models.Index(fields=['score']),
@@ -210,46 +617,14 @@ class DeveloperScore(DRCScore):
         # Update coin counts
         self.coins_created_count = developer_coins.count()
         
-        # Count coins that have existed over 24 hours
-        one_day_ago = timezone.now() - timezone.timedelta(hours=24)
-        self.coins_active_24h_plus = developer_coins.filter(
-            created_at__lt=one_day_ago
-        ).count()
-        
-        # Find highest market cap
-        for coin in developer_coins:
-            if coin.market_cap > self.highest_market_cap:
-                self.highest_market_cap = coin.market_cap
-        
-        # Calculate score components
-        longevity_score = min(self.coins_active_24h_plus * 100, 300)
-        volume_score = min(self.coins_created_count * 50, 200)
-        
-        # Calculate rug penalty (determined by CoinRugFlag model)
-        self.coins_rugged_count = CoinRugFlag.objects.filter(
-            coin__in=developer_coins,
-            is_rugged=True
-        ).count()
-        
-        rug_penalty = min(self.coins_rugged_count * 200, 500)
-
-        # Market cap bonus (scaled logarithmically)
-        market_cap_bonus = 0
-        if self.highest_market_cap > 0: # recheck this
-            import math
-            # Log base 10 of market cap in SOL, max 100 points
-            market_cap_in_sol = float(self.highest_market_cap)
-            if market_cap_in_sol > 0:
-                market_cap_bonus = min(int(math.log10(market_cap_in_sol) * 25), 100)
-        
         # Calculate final score with clamping
-        total_score = base_score + longevity_score + volume_score + market_cap_bonus - rug_penalty
-        self.score = max(min(total_score, 1000), 200)  # Clamp between 200-1000
+        total_score = base_score
+        self.score = max(total_score, 200)  # Clamp between 200-1000
         
         self.save()
         return self.score
 
-class TraderScore(DRCScore):
+class TraderScore(DRCScore): # work on it tommorow
     """
     Trader reputation score tracking for Solana users who trade coins
     """
@@ -262,9 +637,15 @@ class TraderScore(DRCScore):
     avg_holding_time_hours = models.IntegerField(default=0)
     trades_count = models.IntegerField(default=0)
     quick_dumps_count = models.IntegerField(default=0)
-    profitable_trades_percent = models.FloatField(default=0,
+    profitable_trades_percent = models.FloatField(default=0, # for fancy
                                                  validators=[MinValueValidator(0), MaxValueValidator(100)])
     
+    # new meterics
+    held_tokens_per_month =models.IntegerField(default=0)
+    # increase portfolio
+    quick_pump_and_dumps_count = models.IntegerField(default=0)
+    sniping_and_dumps_count = models.IntegerField(default=0)
+
     class Meta:
         indexes = [
             models.Index(fields=['score']),
@@ -346,124 +727,6 @@ class TraderScore(DRCScore):
         
         self.save()
         return self.score
-
-class CoinDRCScore(DRCScore):
-    """
-    DRC score for individual coins, combining developer reputation, 
-    market metrics and contract security
-    """
-    coin = models.OneToOneField(Coin, on_delete=models.CASCADE, 
-                               related_name='drc_score',
-                               to_field="address")
-    
-    # Market metrics
-    holders_count = models.IntegerField(default=0)
-    age_in_hours = models.IntegerField(default=0)
-    trade_volume_24h = models.DecimalField(max_digits=24, decimal_places=8, default=0)
-    price_stability_score = models.IntegerField(default=50, 
-                                              validators=[MinValueValidator(0), MaxValueValidator(100)])
-    
-    # Security metrics
-    verified_contract = models.BooleanField(default=False)
-    audit_completed = models.BooleanField(default=False)
-    audit_score = models.IntegerField(default=0, 
-                                     validators=[MinValueValidator(0), MaxValueValidator(100)])
-    
-    class Meta:
-        indexes = [
-            models.Index(fields=['score']),
-            models.Index(fields=['coin']),
-            models.Index(fields=['age_in_hours']),
-        ]
-    
-    def __str__(self):
-        return f"DRC Score for {self.coin.name}: {self.score}"
-    
-    def update_age(self, dont_save: bool = False):
-        """Update the age of the coin in hours"""
-        if self.coin.created_at:
-            self.age_in_hours = int((timezone.now() - self.coin.created_at).total_seconds() / 3600)
-            if not dont_save:
-                self.save(update_fields=['age_in_hours', 'updated_at'])
-        return self.age_in_hours
-    
-    def update_holders_count(self, dont_save: bool = False):
-        """Update the count of holders for this coin"""
-        self.holders_count = self.coin.holders.count()
-        if not dont_save:
-            self.save(update_fields=['holders_count', 'updated_at'])
-        return self.holders_count
-    
-    def recalculate_score(self):
-        """
-        Calculate DRC score based on coin metrics and developer reputation
-        """
-        # Make sure age is up to date
-        self.update_age(dont_save=True)
-        self.update_holders_count(dont_save=True)
-        
-        # Get developer score
-        try:
-            dev_score = self.coin.creator.developer_score.score
-        except Exception:
-            # Create developer score if it doesn't exist
-            dev_score = DeveloperScore.objects.create(developer=self.coin.creator).score
-        
-        # Check if coin is rugged
-        is_rugged = CoinRugFlag.objects.filter(coin=self.coin, is_rugged=True).exists()
-        
-        # Base components
-        age_factor = min(self.age_in_hours / 24, 10) * 20  # Max 200 points for age (capped at 10 days)
-        holder_factor = min(self.holders_count, 200) / 2  # Max 100 points for holders
-        
-        # Volume and liquidity factors
-        volume_factor = min(float(self.trade_volume_24h), 1000) / 10  # Max 100 points
-        
-        # Security factors
-        contract_bonus = 50 if self.verified_contract else 0
-        audit_bonus = self.audit_score / 2 if self.audit_completed else 0  # Max 50 points
-        
-        # Developer reputation factor (20% influence)
-        dev_factor = dev_score * 0.2  # Max 200 points if dev score is 1000
-        
-        # Price stability (more stable prices get more points)
-        stability_factor = self.price_stability_score / 2  # Max 50 points
-        
-        # Rug penalty
-        rug_penalty = 500 if is_rugged else 0
-        
-        # Calculate total score
-        total_score = age_factor + holder_factor + volume_factor + contract_bonus + audit_bonus + dev_factor + stability_factor - rug_penalty
-        
-        # Ensure score is within bounds
-        self.score = max(min(int(total_score), 1000), 0)
-        self.save()
-        
-        return self.score
-    
-    @property
-    def score_breakdown(self):
-        """
-        Provides a detailed breakdown of the score components
-        """
-        try:
-            dev_score = self.coin.creator.developer_score.score
-        except Exception:
-            dev_score = 200  # Default score
-            
-        is_rugged = CoinRugFlag.objects.filter(coin=self.coin, is_rugged=True).exists()
-        
-        return {
-            'age_factor': min(self.age_in_hours / 24, 10) * 20,
-            'holder_factor': min(self.holders_count, 200) / 2,
-            'volume_factor': min(float(self.trade_volume_24h), 1000) / 10,
-            'contract_verified': 50 if self.verified_contract else 0,
-            'audit_bonus': self.audit_score / 2 if self.audit_completed else 0,
-            'dev_reputation': dev_score * 0.2,
-            'stability_factor': self.price_stability_score / 2,
-            'rug_penalty': -500 if is_rugged else 0,
-            'total': self.score
-        }
 
 class CoinRugFlag(models.Model): # remove if they decide a detailed logs might not be needed
     """

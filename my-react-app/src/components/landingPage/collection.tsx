@@ -60,7 +60,7 @@ export default function NFTCollection() {
 		})()
 	}, [])
 	return (
-		<div className='bg-black min-h-screen p-4 sm:p-8'>
+		<div className='bg-transparent min-h-screen p-4 sm:p-8 z-10 w-screen'>
 			<div className='max-w-7xl mx-auto'>
 				<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6'>
 					{nfts.map((nft) => (
