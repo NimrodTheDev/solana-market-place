@@ -33,34 +33,12 @@ export default function NFTCollection() {
 		(async () => {
 			const arg = await axios.get('https://solana-market-place-backend.onrender.com/api/coins/')
 			if (arg.status === 200) {
-				for (let i = 0; i < 4; i++) {
-					arg.data.push(
-						{
-							address: "GmKAfu4FA5dqfY4wJP4cmTK8y8Fz5zMoBftQVaBAoAfx",
-							ticker: "Name",
-							name: "NFT Name",
-							creator: "Gg6adJKhWcF6rdU91D6iZLKN95nyudjnSMRqNJgxRJfx",
-							creator_display_name: "love",
-							created_at: "76338739",
-							total_supply: "10000000",
-							image_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRZJiXLt7EVfO9PL9VYmbgW86UX1jDbPsKeA&s",
-							description: null,
-							telegram: null,
-							score: 3,
-							website: null,
-							twitter: null,
-							current_price: "1.00",
-							total_held: 0,
-							market_cap: 1000000,
-						}
-					)
-				}
 				setNft(arg.data)
 			}
 		})()
 	}, [])
 	return (
-		<div className='bg-black min-h-screen p-4 sm:p-8'>
+		<div className='bg-transparent min-h-screen p-4 sm:p-8 z-10 w-screen'>
 			<div className='max-w-7xl mx-auto'>
 				<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6'>
 					{nfts.map((nft) => (

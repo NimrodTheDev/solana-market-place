@@ -1,5 +1,4 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import NFTCollection from "../components/landingPage/collection";
 import FeaturesSection from "../components/landingPage/features";
 import Hero from "../components/landingPage/hero";
 import HowItWorks from "../components/landingPage/howItWorks";
@@ -10,26 +9,26 @@ import axios from "axios";
 const LandingPage = () => {
 	const wallet = useWallet()
 	// uploadFile()
-	useEffect(()=>{
+	useEffect(() => {
 		const connectWallet = async () => {
 			if (wallet.connected) {
-				await wallet.connect().then(()=>{
+				await wallet.connect().then(() => {
 					console.log(wallet.publicKey)
 					axios.post(`https://solana-market-place-backend.onrender.com/api/connect_wallet/`, {
 						wallet_address: wallet.publicKey?.toBase58()
-					},{
+					}, {
 						headers: {
 							"Content-Type": "application/json",
 						}
 					})
-					.then((res)=>{
-						console.log(res.data)
-					})
-					.catch((err)=>{
-						console.log(err)
-					})
+						.then((res) => {
+							console.log(res.data)
+						})
+						.catch((err) => {
+							console.log(err)
+						})
 				})
-			}else{
+			} else {
 				wallet.connect()
 			}
 		}
@@ -38,7 +37,6 @@ const LandingPage = () => {
 	return (
 		<div>
 			<Hero />
-			<NFTCollection />
 			<FeaturesSection />
 			<HowItWorks />
 			<OnboardingCard />
