@@ -40,24 +40,19 @@ export default function Header() {
 
 				{/* Desktop Navigation links */}
 				<nav className='hidden md:flex md:items-center gap-6 text-sm text-gray-300'>
-					<Link to='/Wallet' className='block md:inline hover:text-white'>
+					<Link to='#' className='block md:inline hover:text-white'>
 						Wallet
 					</Link>
-					<Link to='/AITools' className='block md:inline hover:text-white'>
-						AI Tools
+					<Link to='#' className='block md:inline hover:text-white'>
+						Coin Market
 					</Link>
-					<Link to='/OnChainNews' className='block md:inline hover:text-white'>
-						On Chain News
+					<Link to='#' className='block md:inline hover:text-white'>
+						About DRS
 					</Link>
-					<Link to='/DrsSystem' className='block md:inline hover:text-white'>
-						DRS System
-					</Link>
-					<Link to='/Talentpool' className='block md:inline hover:text-white'>
+					<Link to='#' className='block md:inline hover:text-white'>
 						Talent Pool
 					</Link>
-					<Link to='/coin/create' className='block md:inline hover:text-white'>
-						Create Coin
-					</Link>
+
 				</nav>
 
 				{/* Right icons + button */}
@@ -82,36 +77,26 @@ export default function Header() {
 						>
 							Wallet
 						</Link>
+
 						<Link
-							to='/AITools'
+							to='#'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
-							AI Tools
+							Coin Market
 						</Link>
 						<Link
-							to='/OnChainNews'
+							to='#'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
-							On Chain News
+							About DRS
 						</Link>
 						<Link
-							to='/DrsSystem'
-							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
-						>
-							DRS System
-						</Link>
-						<Link
-							to='/Talentpool'
+							to='#'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							Talent Pool
 						</Link>
-						<Link
-							to='/coin/create'
-							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
-						>
-							Create Coin
-						</Link>
+
 					</nav>
 					{/* Icons and wallet button */}
 					<div className='flex items-center gap-4 pt-2 border-t border-gray-700 w-full'>

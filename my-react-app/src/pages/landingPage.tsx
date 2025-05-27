@@ -1,5 +1,5 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import NFTCollection from "../components/landingPage/collection";
+
 import FeaturesSection from "../components/landingPage/features";
 import Hero from "../components/landingPage/hero";
 import HowItWorks from "../components/landingPage/howItWorks";
@@ -38,6 +38,7 @@ const LandingPage = () => {
 	return (
 		<div>
 			<Hero />
+			{/* moved into her section */}
 			{/* <NFTCollection /> */}
 			<FeaturesSection />
 			<HowItWorks />
