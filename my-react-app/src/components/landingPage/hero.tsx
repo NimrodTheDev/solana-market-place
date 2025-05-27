@@ -11,7 +11,7 @@ export default function Hero() {
 			{/* Background decorative elements */}
 			<div className='absolute inset-0 overflow-hidden'>
 				{/* Purple icon decorations */}
-				<img src="/Gradient2.png" alt="landing Background" className=" w-screen" />
+				<img src="/Untitled_20250307_133911 1 (2).png" alt="landing Background" className=" w-screen" />
 			</div>
 
 			{/* Main content */}
