@@ -5,18 +5,18 @@ export default defineConfig({
   plugins: [react()],
   define: {
     'process.env': {},
-    'Buffer': ['buffer', 'Buffer'],
-    'global': {},
   },
   resolve: {
     alias: {
       process: "process/browser",
       stream: "stream-browserify",
       zlib: "browserify-zlib",
-      util: 'util'
+      util: 'util',
+      buffer: 'buffer'
     }
   },
   optimizeDeps: {
+    include: ["buffer"],
     esbuildOptions: {
       define: {
         global: 'globalThis'
