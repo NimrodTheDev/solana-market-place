@@ -37,7 +37,8 @@ export async function uploadFile(
   try {
     // First upload the image file
     const imageUpload = await pinata.upload.public.file(imageFile);
-    const imageUrl = `https://orange-official-perch-389.mypinata.cloud/ipfs/${imageUpload.cid}`;
+    console.log(gateway);
+    const imageUrl = `https://${gateway}/ipfs/${imageUpload.cid}`;
 
     // Create metadata object
     const tokenMetadata: TokenMetadata = {
