@@ -1,8 +1,5 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-<<<<<<< HEAD
 
-=======
->>>>>>> 498aab4563f5c6e3ff73a252e257150ffcc5751e
 import FeaturesSection from "../components/landingPage/features";
 import Hero from "../components/landingPage/hero";
 import HowItWorks from "../components/landingPage/howItWorks";
@@ -41,15 +38,12 @@ const LandingPage = () => {
 	return (
 		<div>
 			<Hero />
-<<<<<<< HEAD
 			{/* moved into her section */}
 			{/* <NFTCollection /> */}
-=======
->>>>>>> 498aab4563f5c6e3ff73a252e257150ffcc5751e
 			<FeaturesSection />
 			<HowItWorks />
 			<OnboardingCard />
-		</div>
+		</div >
 	);
 };
 
