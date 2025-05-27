@@ -1,5 +1,5 @@
 import { useState, ReactNode, isValidElement } from 'react'
-import {  ArrowRight, X, Copy, Check } from 'lucide-react';
+import { ArrowRight, X, Copy, Check } from 'lucide-react';
 import { useSolana } from '../solanaClient/index';
 import { uploadFile } from '../solanaClient/usePinta';
 import DragAndDropFileInput from '../components/general/dragNdrop';
@@ -63,19 +63,18 @@ function Toast({ message, type, onClose }: ToastProps) {
     };
 
     return (
-        <div className={`fixed top-4 z-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300 animate-slide-up ${
-            type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        } text-white`}>
+        <div className={`fixed top-4 z-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300 animate-slide-up ${type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            } text-white`}>
             <span>{message}</span>
             <div className="flex items-center gap-1">
-                <button 
+                <button
                     onClick={handleCopy}
                     className="hover:bg-white/10 rounded-full p-1 transition-colors"
                     title="Copy to clipboard"
                 >
                     {copied ? <Check size={16} /> : <Copy size={16} />}
                 </button>
-                <button 
+                <button
                     onClick={onClose}
                     className="hover:bg-white/10 rounded-full p-1 transition-colors"
                 >
@@ -100,7 +99,7 @@ function CreateCoin() {
     const [tokenWebsite, setTokenWebsite] = useState("");
     const [tokenTwitter, setTokenTwitter] = useState("");
     const [tokenDiscord, setTokenDiscord] = useState("");
-    const {CreateTokenMint} = useSolana()
+    const { CreateTokenMint } = useSolana()
     const [error, setError] = useState<string | null>(null);
     const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
     // const handleImageChange = (e: any) => {
@@ -116,7 +115,7 @@ function CreateCoin() {
 
     const validateForm = (): boolean => {
         const errors: ValidationErrors = {};
-        
+
         // Token Name validation
         if (!tokenName.trim()) {
             errors.tokenName = "Token name is required";
@@ -177,21 +176,21 @@ function CreateCoin() {
     };
 
     return (
-        <div className='relative'>
+        <div className='relative sm:min-h-[160vh]'>
             <style>{styles}</style>
             <div className="h-64 z-10 crtGradient background-container  top-10 left-10  ...">
                 <div className="h-40  justify-center...">
                     <div className="flex flex-col items-center justify-center h-full">
-                        <h1 className="text-5xl font-bold text-custom-dark-blue mb-4 text-center">Launch a new Project</h1>
+                        <h1 className="text-5xl font-bold text-custom-dark-blue mb-4 mt-8 text-center">Launch a new Project</h1>
                         <p className="text-gray-800 max-w-lg mx-auto text-center">
-                        Build your reputation in the Web3 ecosystem as you bring your vision to life on Notty Terminal.
+                            Build your reputation in the Web3 ecosystem as you bring your vision to life on Notty Terminal.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div className="h-[calc(100vh+10rem)] bg-custom-dark-blue "></div>
-            <div className="flex justify-center items-center mt-10 flex-col  absolute left-16 right-16 border-gray-600 border  top-36 h-218 bg-custom-dark-blue z-10 p-4 text-white rounded p-10">
+            <div className="h-[calc(140vh+10rem)] sm:h-[calc(124vh+8rem)] max-[400px]:h-[calc(124vh+8rem)] bg-custom-dark-blue "></div>
+            <div className="flex justify-center items-center mt-10 flex-col absolute md:left-16 md:right-16 border-gray-600 border max-[400px]:left-0 max-[400px]:right-0 top-36  bg-custom-dark-blue z-10 p-4 lg:right-20 lg:left-20 text-white rounded">
                 {/* <article className="flex  justify-self-end self-start">lwa</article> */}
                 <form method='POST' className="flex flex-col justify-center w-full max-w-[500px] mx-auto mb-10 mt=10">
                     <div className="mb-8">
@@ -201,85 +200,85 @@ function CreateCoin() {
                     <div className="space-y-6">
                         <div>
                             <label htmlFor="projectName" className='block text-sm font-medium mb-2'>Project name</label>
-                            <input 
-                                type="text" 
-                                name="" 
-                                id="projectName" 
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenName ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
-                                placeholder="Enter your project name" 
-                                onChange={(e)=>settTokenName(e.target.value)} 
+                            <input
+                                type="text"
+                                name=""
+                                id="projectName"
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenName ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                placeholder="Enter your project name"
+                                onChange={(e) => settTokenName(e.target.value)}
                             />
                             {validationErrors.tokenName && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenName}</p>}
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium mb-2" htmlFor="projectDesc">Project description</label>
-                            <textarea 
-                                name="" 
-                                id="projectDesc" 
-                                className={`w-full h-[200px] bg-gray-800 border ${validationErrors.tokenDescription ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background resize-none`} 
-                                placeholder="Describe your projects" 
-                                onChange={(e)=>setTokenDescription(e.target.value)} 
+                            <textarea
+                                name=""
+                                id="projectDesc"
+                                className={`w-full h-[200px] bg-gray-800 border ${validationErrors.tokenDescription ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background resize-none`}
+                                placeholder="Describe your projects"
+                                onChange={(e) => setTokenDescription(e.target.value)}
                             />
                             {validationErrors.tokenDescription && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenDescription}</p>}
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium mb-2" htmlFor="projectSymb">Project symbol</label>
-                            <input 
-                                type="text" 
-                                name="" 
-                                id="projectSymb" 
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenSymbol ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
-                                placeholder="Set token symbol" 
-                                onChange={(e)=>settTokenSymbol(e.target.value.toUpperCase())} 
+                            <input
+                                type="text"
+                                name=""
+                                id="projectSymb"
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenSymbol ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                placeholder="Set token symbol"
+                                onChange={(e) => settTokenSymbol(e.target.value.toUpperCase())}
                             />
                             {validationErrors.tokenSymbol && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenSymbol}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium mb-2" htmlFor="projectImage">Project Image</label>
-                            <DragAndDropFileInput 
-                                singleFile={true}  
+                            <DragAndDropFileInput
+                                singleFile={true}
                                 onFileSelect={function (files: File[]): void {
                                     setTokenImage(files[0]);
-                                }} 
-                                id={'file'}  
+                                }}
+                                id={'file'}
                             />
                             {validationErrors.tokenImage && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenImage}</p>}
                         </div>
                         <div>
                             <label htmlFor="webAddress" className="block text-sm font-medium mb-2">Website Address</label>
-                            <input 
-                                type="url" 
-                                name="" 
-                                id="webAddress" 
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenWebsite ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
-                                placeholder="https://your-website.com" 
-                                onChange={(e)=>setTokenWebsite(e.target.value)} 
+                            <input
+                                type="url"
+                                name=""
+                                id="webAddress"
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenWebsite ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                placeholder="https://your-website.com"
+                                onChange={(e) => setTokenWebsite(e.target.value)}
                             />
                             {validationErrors.tokenWebsite && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenWebsite}</p>}
                         </div>
                         <div>
                             <label htmlFor="twithand" className="block text-sm font-medium mb-2">Twitter Handle</label>
-                            <input 
-                                type="text" 
-                                name="" 
-                                id="twithand" 
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenTwitter ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
-                                placeholder="@yourhandle" 
-                                onChange={(e)=>setTokenTwitter(e.target.value)} 
+                            <input
+                                type="text"
+                                name=""
+                                id="twithand"
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenTwitter ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                placeholder="@yourhandle"
+                                onChange={(e) => setTokenTwitter(e.target.value)}
                             />
                             {validationErrors.tokenTwitter && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenTwitter}</p>}
                         </div>
                         <div>
                             <label htmlFor="discord" className="block text-sm font-medium mb-2">Discord Channel</label>
-                            <input 
-                                type="url" 
-                                name="" 
-                                id="discord" 
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenDiscord ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`} 
-                                placeholder="https://discord.gg/your-channel" 
-                                onChange={(e)=>setTokenDiscord(e.target.value)} 
+                            <input
+                                type="url"
+                                name=""
+                                id="discord"
+                                className={`w-full bg-gray-800 border ${validationErrors.tokenDiscord ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                placeholder="https://discord.gg/your-channel"
+                                onChange={(e) => setTokenDiscord(e.target.value)}
                             />
                             {validationErrors.tokenDiscord && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenDiscord}</p>}
                         </div>
@@ -289,20 +288,20 @@ function CreateCoin() {
                             type="button"
                             disabled={loading.bool}
                             className="flex items-center justify-center bg-custom-light-purple hover:bg-indigo-600 text-white px-6 py-2 rounded transition-colors"
-                            onClick={async ()=>{
+                            onClick={async () => {
                                 setError("")
                                 setResult("")
-                                setLoading({bool: true, msg: "loading"})
-                                
+                                setLoading({ bool: true, msg: "loading" })
+
                                 if (!validateForm()) {
-                                    setLoading({bool: false, msg: ""})
+                                    setLoading({ bool: false, msg: "" })
                                     return;
                                 }
 
                                 try {
                                     // First upload the image and metadata to IPFS
                                     if (!tokenImage) {
-                                        setLoading({bool: false, msg:''})
+                                        setLoading({ bool: false, msg: '' })
                                         return
                                     }
                                     const metadataUrl = await uploadFile(tokenImage, {
@@ -315,11 +314,11 @@ function CreateCoin() {
                                     });
                                     console.log('called')
                                     if (metadataUrl.length === 0) {
-                                        setLoading({bool: false, msg:''})
+                                        setLoading({ bool: false, msg: '' })
                                         showToastMessage("Failed to upload token", "error");
                                         return
                                     }
-                                    setLoading({bool: true, msg: "uploading MetaData"})
+                                    setLoading({ bool: true, msg: "uploading MetaData" })
                                     // Then create the token with the metadata URL
                                     if (CreateTokenMint) {
                                         console.log('called')
@@ -341,8 +340,8 @@ function CreateCoin() {
                                     console.error(e)
                                     showToastMessage(e.message, "error");
                                 }
-                                finally{
-                                    setLoading({bool: false, msg:''})
+                                finally {
+                                    setLoading({ bool: false, msg: '' })
                                 }
                             }}
                         >
@@ -352,16 +351,16 @@ function CreateCoin() {
                     </div>
                 </form>
                 <div className='flex flex-col items-center justify-center overflow-hidden w-full'>
-                
+
                     {result && <Link to={`https://explorer.solana.com/tx/${result}?cluster=devnet`} className='text-green-500 underline'>link to TX hash</Link>}
                     {error && <p className='text-red-500'>{error}</p>}
                 </div>
             </div>
             {showToast && (
-                <Toast 
-                    message={toastMessage} 
-                    type={toastType} 
-                    onClose={() => setShowToast(false)} 
+                <Toast
+                    message={toastMessage}
+                    type={toastType}
+                    onClose={() => setShowToast(false)}
                 />
             )}
         </div>
