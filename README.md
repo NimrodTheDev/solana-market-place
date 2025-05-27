@@ -6,7 +6,7 @@
 
 Notty Terminal is a revolutionary permissionless launchpad powered by a Dynamic Reputation System (DRS) that transforms on-chain behavior into quantifiable reputation and trust. In an industry plagued by rugs and scams, Notty creates a transparent ecosystem where every wallet builds a verifiable reputation based on real activity.
 
-![Platform Interface](public/hero.png)
+![Platform Interface](public/Hero2.png)
 
 ## Why Notty Terminal?
 
@@ -139,11 +139,15 @@ Our team combines deep expertise in both crypto and reputation systems:
 
 **Peterben** - Backend Engineer
 - Software Engineer at Novena
-- Deep expertise in Backend and app devlopment
+- Deep expertise in Backend and app development
 
 **Peter** - Frontend Engineer
-- [relevant area]
-- Deep expertise in [relevant area]
+- HTML, CSS, JS (strong); React (basic to intermediate, solid up to hooks)
+- Deep expertise in UI development
+
+**Ruth Ezeneche** – UI/UX Designer
+– Product Design • Web Design 
+– Deep expertise in designing intuitive user experiences, building community-based digital products, and translating complex ideas into clean, user-friendly interfaces.
 
 ## 📞 Contact
 
