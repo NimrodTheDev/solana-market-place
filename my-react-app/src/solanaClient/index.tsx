@@ -14,8 +14,6 @@ import { getProvider } from './proveder';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 
-
-
 const TOKEN_METADATA_PROGRAM_ID = new web3.PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
 
 interface SolanaContextType {
@@ -73,6 +71,7 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
           systemProgram: web3.SystemProgram.programId,
           rent: web3.SYSVAR_RENT_PUBKEY
         })
+          //@ts-ignore
           .signers([mintAccount])
           .rpc();
 
