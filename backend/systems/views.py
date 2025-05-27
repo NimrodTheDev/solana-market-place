@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
+from .permissions import IsCronjobRequest
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.views import APIView
 from django.db.models import Q
 
@@ -13,7 +15,6 @@ from .models import (
     DeveloperScore, 
     TraderScore, 
     CoinDRCScore, 
-    CoinRugFlag,
     Coin, UserCoinHoldings, Trade, SolanaUser,
 )
 
@@ -21,7 +22,6 @@ from .serializers import (
     DeveloperScoreSerializer, 
     TraderScoreSerializer, 
     CoinDRCScoreSerializer,
-    CoinRugFlagSerializer,
     ConnectWalletSerializer,
     CoinSerializer, 
     UserCoinHoldingsSerializer, 
@@ -30,6 +30,18 @@ from .serializers import (
 )
 
 User = get_user_model()
+
+class RecalculateDailyScoresView(APIView):
+    permission_classes = [IsCronjobRequest]
+
+    def post(self, request):
+        for drc in CoinDRCScore.objects.select_related('coin').all():
+            drc.recalculate_score()
+        for devs in DeveloperScore.objects.select_related('developer').all():
+            devs.recalculate_score()
+        for trds in TraderScore.objects.select_related('trader').all():
+            trds.recalculate_score()
+        return HttpResponse("OK")
 
 class RestrictedViewset(viewsets.ModelViewSet):
     """
@@ -416,71 +428,4 @@ class CoinDRCScoreViewSet(viewsets.ReadOnlyModelViewSet):
         coin_drc.recalculate_score()
         
         serializer = self.get_serializer(coin_drc)
-        return Response(serializer.data)
-
-class CoinRugFlagViewSet(viewsets.ModelViewSet): # fix this
-    """API endpoint for viewing and updating coin rug flags"""
-    queryset = CoinRugFlag.objects.all()
-    serializer_class = CoinRugFlagSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        
-        # Filter by rugged status
-        is_rugged = self.request.query_params.get('is_rugged')
-        if is_rugged is not None:
-            is_rugged_bool = is_rugged.lower() == 'true' # possible error
-            queryset = queryset.filter(is_rugged=is_rugged_bool)
-        
-        # Filter by coin address
-        coin_address = self.request.query_params.get('coin')
-        if coin_address:
-            queryset = queryset.filter(coin__address__iexact=coin_address)
-        
-        # Filter by developer
-        developer = self.request.query_params.get('developer')
-        if developer:
-            queryset = queryset.filter(coin__creator__wallet_address__iexact=developer)
-        
-        return queryset
-    
-    def update(self, request, *args, **kwargs):
-        """Only staff can update rug flags"""
-        if not request.user.is_staff:
-            return Response(
-                {"detail": "Only staff members can update rug flags"},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        return super().update(request, *args, **kwargs)
-        
-    def partial_update(self, request, *args, **kwargs):
-        """Only staff can update rug flags"""
-        if not request.user.is_staff:
-            return Response(
-                {"detail": "Only staff members can update rug flags"},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        return super().partial_update(request, *args, **kwargs)
-    
-    @action(detail=True, methods=['post'])
-    def mark_rugged(self, request, pk=None):
-        """Mark a coin as rugged with optional transaction ID and description"""
-        rug_flag = self.get_object()
-        
-        # Check if user is staff
-        if not request.user.is_staff:
-            return Response(
-                {"detail": "Only staff members can mark coins as rugged"},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        # Get parameters from request
-        transaction_id = request.data.get('transaction_id')
-        description = request.data.get('description', '')
-        
-        # Mark as rugged
-        rug_flag.mark_as_rugged(transaction_id=transaction_id, description=description)
-        
-        serializer = self.get_serializer(rug_flag)
         return Response(serializer.data)

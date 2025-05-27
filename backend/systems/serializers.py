@@ -3,7 +3,6 @@ from .models import (
     DeveloperScore, 
     TraderScore, 
     CoinDRCScore, 
-    CoinRugFlag,
     SolanaUser,
     Coin,
     UserCoinHoldings, 
@@ -171,14 +170,3 @@ class CoinDRCScoreSerializer(serializers.ModelSerializer):
             return obj.coin.rug_flag.is_rugged
         except Exception:
             return False
-
-class CoinRugFlagSerializer(serializers.ModelSerializer):
-    coin_address = serializers.CharField(source='coin.address', read_only=True)
-    coin_name = serializers.CharField(source='coin.name', read_only=True)
-    
-    class Meta:
-        model = CoinRugFlag
-        fields = [
-            'coin_address', 'coin_name', 'is_rugged', 
-            'rugged_at', 'rug_transaction', 'rug_description'
-        ]
