@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, MessageSquare, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Link } from "react-router-dom";
 
@@ -40,28 +40,33 @@ export default function Header() {
 
 				{/* Desktop Navigation links */}
 				<nav className='hidden md:flex md:items-center gap-6 text-sm text-gray-300'>
-					<Link to='#' className='block md:inline hover:text-white'>
+					<Link to='/Wallet' className='block md:inline hover:text-white'>
 						Wallet
 					</Link>
-					<Link to='#' className='block md:inline hover:text-white'>
-						Coin Market
+					<Link to='/AITools' className='block md:inline hover:text-white'>
+						AI Tools
 					</Link>
-					<Link to='#' className='block md:inline hover:text-white'>
-						About DRS
+					<Link to='/OnChainNews' className='block md:inline hover:text-white'>
+						On Chain News
 					</Link>
-					<Link to='#' className='block md:inline hover:text-white'>
+					<Link to='/DrsSystem' className='block md:inline hover:text-white'>
+						DRS System
+					</Link>
+					<Link to='/Talentpool' className='block md:inline hover:text-white'>
 						Talent Pool
 					</Link>
-
+					<Link to='/coin/create' className='block md:inline hover:text-white'>
+						Create Coin
+					</Link>
 				</nav>
 
 				{/* Right icons + button */}
 				<div className='hidden md:flex items-center gap-4'>
-					<div className='relative'>
+					{/* <div className='relative'>
 						<Bell className='w-5 h-5 text-gray-300 hover:text-white' />
 						<span className='absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500' />
-					</div>
-					<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white' />
+					</div> */}
+					{/* <MessageSquare className='w-5 h-5 text-gray-300 hover:text-white' /> */}
 					<WalletMultiButton />
 				</div>
 			</div>
@@ -77,34 +82,44 @@ export default function Header() {
 						>
 							Wallet
 						</Link>
-
 						<Link
-							to='#'
+							to='/AITools'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
-							Coin Market
+							AI Tools
 						</Link>
 						<Link
-							to='#'
+							to='/OnChainNews'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
-							About DRS
+							On Chain News
 						</Link>
 						<Link
-							to='#'
+							to='/DrsSystem'
+							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
+						>
+							DRS System
+						</Link>
+						<Link
+							to='/Talentpool'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							Talent Pool
 						</Link>
-
+						<Link
+							to='/coin/create'
+							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
+						>
+							Create Coin
+						</Link>
 					</nav>
 					{/* Icons and wallet button */}
 					<div className='flex items-center gap-4 pt-2 border-t border-gray-700 w-full'>
-						<div className='relative'>
+						{/* <div className='relative'>
 							<Bell className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' />
 							<span className='absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500' />
-						</div>
-						<MessageSquare className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' />
+						</div> */}
+						{/* <MessageSquare className='w-5 h-5 text-gray-300 hover:text-white cursor-pointer' /> */}
 						<WalletMultiButton />
 					</div>
 				</div>
