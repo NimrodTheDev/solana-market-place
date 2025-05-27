@@ -12,11 +12,11 @@ router.register(r'trades', views.TradeViewSet)
 router.register(r'developer-scores', views.DeveloperScoreViewSet)
 router.register(r'trader-scores', views.TraderScoreViewSet)
 router.register(r'coin-scores', views.CoinDRCScoreViewSet)
-router.register(r'rug-flags', views.CoinRugFlagViewSet)
 
 auth_urls = [
     path("connect_wallet/", views.ConnectWalletView.as_view(), name="connect_wallet"),
     path("me/", views.MeView.as_view(), name="me"),
+    path("recalculate-scores/", views.RecalculateDailyScoresView.as_view(), name="recalculate-scores"),
 ]
 
 urlpatterns = [

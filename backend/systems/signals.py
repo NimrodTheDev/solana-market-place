@@ -5,7 +5,7 @@ from django.db.models import F
 from django.utils import timezone
 from .models import (
     SolanaUser, Coin, Trade, UserCoinHoldings,
-    DeveloperScore, TraderScore, CoinDRCScore, CoinRugFlag
+    DeveloperScore, TraderScore, CoinDRCScore
 )
 # i can move the broadcast here
 
@@ -167,16 +167,3 @@ def update_price_stability(coin, new_price):
                 
                 # Recalculate coin score
                 coin_score.recalculate_score()
-
-# Update scores when a coin is flagged as rugged
-@receiver(post_save, sender=CoinRugFlag)
-def update_scores_on_rug(sender, instance, created, **kwargs):
-    """Update scores when a coin is flagged as rugged"""
-    if instance.is_rugged:
-        # Update coin score
-        coin_score, _ = CoinDRCScore.objects.get_or_create(coin=instance.coin)
-        coin_score.recalculate_score()
-        
-        # Update developer score
-        dev_score, _ = DeveloperScore.objects.get_or_create(developer=instance.coin.creator)
-        dev_score.recalculate_score()

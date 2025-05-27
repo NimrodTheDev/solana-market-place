@@ -11,14 +11,8 @@ import { Program } from "@project-serum/anchor";
 import drc_token_json from "./drc_token.json"
 // import { DrcToken } from './drc_token_type';
 import { getProvider } from './proveder';
-import { Buffer as buffer } from "buffer";
 import { useWallet } from '@solana/wallet-adapter-react';
 
-//@ts-ignore
-global.Buffer = buffer;
-
-Buffer = buffer;
-console.log(Buffer)
 
 const TOKEN_METADATA_PROGRAM_ID = new web3.PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
 
@@ -53,7 +47,7 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
 
   const CreateTokenMint = async (tokenName: string, tokenSymbol: string, tokenUri: string) => {
     const mintAccount = web3.Keypair.generate();
-    const [metadataAddress] = await web3.PublicKey.findProgramAddressSync(
+    const [metadataAddress] = web3.PublicKey.findProgramAddressSync(
       [
         new Uint8Array([109, 101, 116, 97, 100, 97, 116, 97]),
         TOKEN_METADATA_PROGRAM_ID.toBuffer(),
@@ -77,6 +71,7 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
           systemProgram: web3.SystemProgram.programId,
           rent: web3.SYSVAR_RENT_PUBKEY
         })
+          //@ts-ignore
           .signers([mintAccount])
           .rpc();
 

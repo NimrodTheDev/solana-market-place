@@ -3,6 +3,7 @@ import { PinataSDK } from "pinata";
 const apiKey = import.meta.env.VITE_PINATA_JWT;
 const gateway = import.meta.env.VITE_IPFS_GATEWAY;
 
+
 console.log(apiKey)
 const pinata = new PinataSDK({
   pinataJwt: apiKey,
