@@ -6,7 +6,7 @@
 
 Notty Terminal is a revolutionary permissionless launchpad powered by a Dynamic Reputation System (DRS) that transforms on-chain behavior into quantifiable reputation and trust. In an industry plagued by rugs and scams, Notty creates a transparent ecosystem where every wallet builds a verifiable reputation based on real activity.
 
-![Platform Interface](public/hero.png)
+![Platform Interface](public/Hero2.png)
 
 ## Why Notty Terminal?
 
