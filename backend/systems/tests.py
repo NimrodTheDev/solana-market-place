@@ -435,8 +435,25 @@ class CoinDRCScoreTestCase(TestCase):
     def test_monthly_recalculation(self): # bonus no no check
         """Test monthly recalculation"""
         dev_score = DeveloperScore.objects.get(developer= self.creator) #self.creator.devscore
-
-        dev_score.recalculate_score()
+        drs_score = CoinDRCScore.objects.get(coin= self.coin)
+        Trade.objects.create(
+            transaction_hash="HASH2234567890123456789012345678901234567890123456789012345678901234567890",
+            user=self.creator,
+            coin=self.coin,
+            trade_type='BUY',
+            coin_amount=Decimal('200000'),
+            sol_amount=Decimal('5000'),
+        )
+        Trade.objects.create(
+            transaction_hash="HASH2634567890123456789012345678901234567890123456789012345678901234567890",
+            user=self.creator,
+            coin=self.coin,
+            trade_type='BUY',
+            coin_amount=Decimal('500000'),
+            sol_amount=Decimal('5000'),
+        )
+        drs_score._calculate_retention_bonus()
+        # dev_score.recalculate_score()
         print(dev_score.score)
 
     # def test_recalculate_score_integration(self): # nonsense
