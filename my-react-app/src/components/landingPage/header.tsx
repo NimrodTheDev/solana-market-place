@@ -43,14 +43,11 @@ export default function Header() {
 					<Link to='/Wallet' className='block md:inline hover:text-white'>
 						Wallet
 					</Link>
-					<Link to='/AITools' className='block md:inline hover:text-white'>
-						AI Tools
+					<Link to="/coinMarket" className='block md:inline hover:text-white'>
+						Coin Market
 					</Link>
-					<Link to='/OnChainNews' className='block md:inline hover:text-white'>
-						On Chain News
-					</Link>
-					<Link to='/DrsSystem' className='block md:inline hover:text-white'>
-						DRS System
+					<Link to='/aboutDrs' className='block md:inline hover:text-white'>
+						About DRS
 					</Link>
 					<Link to='/Talentpool' className='block md:inline hover:text-white'>
 						Talent Pool
@@ -77,28 +74,23 @@ export default function Header() {
 					{/* Navigation links dropdown */}
 					<nav className='flex flex-col w-full'>
 						<Link
-							to='/Wallet'
+							to='/dashboard'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
-							Wallet
+							DashBoard
+						</Link>
+
+						<Link
+							to='/coinMarket'
+							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
+						>
+							Coin Market
 						</Link>
 						<Link
-							to='/AITools'
+							to='/aboutDrs'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
-							AI Tools
-						</Link>
-						<Link
-							to='/OnChainNews'
-							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
-						>
-							On Chain News
-						</Link>
-						<Link
-							to='/DrsSystem'
-							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
-						>
-							DRS System
+							About DRS
 						</Link>
 						<Link
 							to='/Talentpool'

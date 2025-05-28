@@ -23,9 +23,9 @@ export default function Hero() {
 
 				{/* Headline */}
 				<h1 className='text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-purple-200 text-transparent bg-clip-text'>
-					The Ultimate Platform For
+					Build Credibility as you
 					<br />
-					Web3 Talent & Projects
+					Launch on Web3
 				</h1>
 
 				{/* Subheading */}
@@ -39,7 +39,7 @@ export default function Hero() {
 				<div className='flex flex-col sm:flex-row gap-4 justify-center'>
 
 					<Link to="coin/create">
-						<button className='px-6 py-3 bg-custom-light-purple hover:bg-purple-600 rounded-md text-white font-medium flex items-center justify-center gap-2 transition-colors'>
+						<button className='px-6 py-3 sm:w-full bg-custom-light-purple hover:bg-purple-600 rounded-md text-white font-medium flex items-center justify-center gap-2 transition-colors'>
 							Create Coin <span className='ml-1'><WalletMinimal size={20} color="#ffffff" /></span>
 						</button>
 					</Link>
