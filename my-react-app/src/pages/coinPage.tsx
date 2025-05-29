@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import CoinProfile from "../components/coin/coinProfile";
 // import CoinComments from "../components/coin/comment";
 import CryptoTokenDetails from "../components/coin/cryptoTokenDetail";
-// import SimilarCoins from "../components/coin/similiarCoin";
+import SimilarCoins from "../components/coin/similiarCoin";
 // import CryptoTradingWidget from "../components/coin/tradingWidget";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -63,8 +63,8 @@ export default function CoinPage() {
 
 	return (
 
-		<div className=" bg-custom-dark-blue items-center ">
-			<div className='bg-custom-dark-blue flex flex-col gap-2 w-4/5 mx-auto p-4 text-white'>
+		<div className=" bg-custom-dark-blue w-full items-center ">
+			<div className='bg-custom-dark-blue flex flex-col gap-2  mx-auto text-white'>
 				<div className='grid lg:grid-cols-custom-2-1 gap-2'>
 					<div className='flex flex-col gap-2 w-full'>
 						<CoinProfile coinData={coinData} />
@@ -76,7 +76,7 @@ export default function CoinPage() {
 						{/* <HoldersAnalytics coinData={coinData} /> */}
 					</div>
 				</div>
-				{/* <SimilarCoins coinData={coinData} /> */}
+				<SimilarCoins coinData={coinData} />
 			</div>
 		</div>
 

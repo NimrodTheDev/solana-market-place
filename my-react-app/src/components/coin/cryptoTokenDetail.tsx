@@ -1,4 +1,4 @@
-import { Copy} from "lucide-react";
+import { Copy } from "lucide-react";
 import { useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -48,26 +48,34 @@ export default function CryptoTokenDetails({ coinData }: CryptoTokenDetailsProps
 	// const bondingProgress = 60;
 
 	return (
-		<div className="bg-gray-900 text-white p-8 rounded-lg flex flex-col gap-6 w-full">
-			<div className="grid grid-cols-2 gap-x-8 gap-y-4 items-start">
-				<div className="text-purple-200">Creator</div>
-				<div className="flex items-center gap-2 justify-end">
-					<span className="text-yellow-400">👋</span>
-					<Link to={`https://explorer.solana.com/address/${coinData.creator}?cluster=devnet`} className="font-medium underline">{coinData.creator_display_name || "Smart Contract Owner"}</Link>
+		<div className="bg-custom-dark-blue text-white p-8 rounded-lg flex flex-col  ">
+			<div className="space-y-2">
+				<div className="flex sm:flex-col justify-between">
+					<div className="text-purple-200">Creator</div>
+					<div className="flex items-center gap-2 justify-end">
+						{/* <span className="text-yellow-400">👋</span> */}
+						<Link to={`https://explorer.solana.com/address/${coinData.creator}?cluster=devnet`} className="font-medium underline text-xs">{coinData.creator_display_name || "Smart Contract Owner"}</Link>
+					</div>
+				</div>
+				<div className="flex justify-between">
+					<div className="text-purple-200">Time Launched:</div>
+					<div className="text-right">{timeLaunched}</div>
 				</div>
 
-				<div className="text-purple-200">Time Launched:</div>
-				<div className="text-right">{timeLaunched}</div>
+				<div className="flex justify-between">
+					<div className="text-purple-200">Marketcap:</div>
+					<div className="text-right">${coinData.market_cap.toLocaleString()}</div>
+				</div>
 
-				<div className="text-purple-200">Marketcap:</div>
-				<div className="text-right">${coinData.market_cap.toLocaleString()}</div>
+				<div className="flex justify-between">
+					<div className="text-purple-200">DRS:</div>
+					<div className="text-right">{drs}</div>
+				</div>
 
-				<div className="text-purple-200">DRS:</div>
-				<div className="text-right">{drs}</div>
 
 				<div className="text-purple-200">Contract Address</div>
 				<div className="flex items-center gap-2 justify-end">
-					<span className="break-all">{coinData.address}</span>
+					<span className="break-all text-xs">{coinData.address}</span>
 					<button onClick={handleCopyClick} className="hover:text-purple-400 transition-colors">
 						<Copy size={16} />
 					</button>
