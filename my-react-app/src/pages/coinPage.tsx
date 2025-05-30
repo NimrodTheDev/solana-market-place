@@ -65,7 +65,7 @@ export default function CoinPage() {
 
 		<div className=" bg-custom-dark-blue w-full items-center ">
 			<div className='bg-custom-dark-blue flex flex-col gap-2  mx-auto text-white'>
-				<div className=''>
+				<div className='flex'>
 					<div className='flex flex-col gap-2 w-full'>
 						<CoinProfile coinData={coinData} />
 						<CryptoTokenDetails coinData={coinData} />
