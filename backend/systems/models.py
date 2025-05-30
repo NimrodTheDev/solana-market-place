@@ -83,6 +83,7 @@ class Coin(models.Model): # we have to store the ath
     discord = models.CharField(max_length=255, blank=True, null=True)
     website = models.URLField(max_length=255, blank=True, null=True)
     twitter = models.CharField(max_length=255, blank=True, null=True)
+    score = models.IntegerField(default=150)
 
     current_price = models.DecimalField(max_digits=20, decimal_places=8, default=0)  # Added price field # start calculating
     ath = models.DecimalField(max_digits=20, decimal_places=8, default=0) # will work like coin to store the highest
@@ -107,13 +108,6 @@ class Coin(models.Model): # we have to store the ath
         """Calculates market cap: (Total Supply - Total Held) * Current Price"""
         return (self.total_supply - self.total_held) * self.current_price
     
-    @property
-    def score(self):
-        """Dynamically retrieve and recalculate the trade score."""
-        if hasattr(self, 'drc_score'):
-            return self.drc_score.recalculate_score()
-        return 200  # Default base score if no score record exists
-
     @property
     def liquidity(self):
         return (self.total_held * self.current_price)
@@ -480,9 +474,6 @@ class CoinDRCScore(DRCScore):
         if self.holders_count == 0:
             return 0
         
-        # Get holders with trader scores
-        # holders_with_scores = self.coin.holders.select_related('user__trader_score')
-
         holders_with_scores = self.coin.holders.select_related(
             'user__trader_score'
         ).prefetch_related('user')
@@ -505,13 +496,6 @@ class CoinDRCScore(DRCScore):
         rank_4_pct = rank_counts[4] / total_ranked
         rank_5_pct = rank_counts[5] / total_ranked
         
-        # Award bonuses for high-quality holder concentrations
-        # if rank_5_pct > 0.3:  # 30%+ rank 5 holders
-        #     return 50
-        # elif rank_4_pct > 0.4:  # 40%+ rank 4 holders
-        #     return 30
-        # elif rank_3_pct > 0.5:  # 50%+ rank 3 holders
-        #     return 20
         if rank_5_pct > 0.5:
             return 50
         elif rank_4_pct > 0.5:
@@ -630,6 +614,14 @@ class CoinDRCScore(DRCScore):
             self.monthly_recalculation()
         
         return self.score
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Sync score to coin
+        if self.coin:
+            self.coin.score = self.score
+            self.coin.save(update_fields=['score'])
 
 class DeveloperScore(DRCScore): # the system will eventually have to leave here
     """
