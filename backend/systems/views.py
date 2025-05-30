@@ -32,12 +32,6 @@ from .serializers import (
 
 User = get_user_model()
 
-# class MyPublicApiView(APIView):
-#     permission_classes = [permissions.AllowAny]
-
-#     def get(self, request):
-#         return Response({"message": "Public"})
-
 class RecalculateDailyScoresView(APIView):
     permission_classes = [IsCronjobRequest]
 
