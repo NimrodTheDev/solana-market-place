@@ -75,7 +75,7 @@ class CoinViewSet(RestrictedViewset):
         if cached:
             return Response(cached)
 
-        coins = Coin.objects.order_by('-score')[:10]
+        coins = Coin.objects.order_by('-score')[:limit]
         serializer = self.get_serializer(coins, many=True)
         cache.set(cache_key, serializer.data, timeout=60)  # cache for 1 minute
 
