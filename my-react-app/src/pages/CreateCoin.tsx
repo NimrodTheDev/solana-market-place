@@ -178,8 +178,8 @@ function CreateCoin() {
     return (
         <div className='relative sm:min-h-[180vh] xl:min-h-[124vh]'>
             <style>{styles}</style>
-            <div className="h-64 z-10 crtGradient background-container  top-10 left-10  ...">
-                <div className="h-40  justify-center...">
+            <div className="h-64 z-10 crtGradient background-container  top-10 left-10 ">
+                <div className="h-40  justify-center ">
                     <div className="flex flex-col items-center justify-center h-full">
                         <h1 className="text-5xl font-bold text-custom-dark-blue mb-4 mt-8 text-center">Launch a new Project</h1>
                         <p className="text-gray-800 max-w-lg mx-auto text-center">
@@ -189,10 +189,9 @@ function CreateCoin() {
                 </div>
             </div>
 
-            <div className="max-[400px]:h-[calc(124vh+8rem)] sm:h-[calc(124vh+8rem)]  bg-custom-dark-blue "></div>
-            <div className="flex justify-center items-center mt-10 flex-col absolute md:left-16 md:right-16 border-gray-600 border max-[440px]:left-0 max-[440px]:right-0 top-36  bg-custom-dark-blue z-10 p-4 lg:right-20 lg:left-20 text-white rounded">
-                {/* <article className="flex  justify-self-end self-start">lwa</article> */}
-                <form method='POST' className="flex flex-col justify-center w-full max-w-[500px] mx-auto mb-10 mt=10">
+            <div className="max-[400px] h-[1200px] mx-auto  bg-custom-dark-blue relative flex items-center justify-center">
+            <div className="flex justify-center items-center absolute mt-10 flex-col border-gray-600 border max-w-[600px] w-full top-[-150px] mx-auto  bg-custom-dark-blue z-10 p-4 text-white rounded ">
+            <form method='POST' className="flex flex-col justify-center w-full max-w-[500px] mx-auto mb-10 mt=10">
                     <div className="mb-8">
                         <h1 className="text-2xl font-bold mb-2">Project details</h1>
                         <p className="text-gray-400">Provide important details about your project</p>
@@ -350,6 +349,8 @@ function CreateCoin() {
                         </button>
                     </div>
                 </form>
+            </div>
+                {/* <article className="flex  justify-self-end self-start">lwa</article> */}
                 <div className='flex flex-col items-center justify-center overflow-hidden w-full'>
 
                     {result && <Link to={`https://explorer.solana.com/tx/${result}?cluster=devnet`} className='text-green-500 underline'>link to TX hash</Link>}
