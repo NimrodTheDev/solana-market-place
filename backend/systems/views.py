@@ -63,7 +63,7 @@ class CoinViewSet(RestrictedViewset):
     @action(detail=False, methods=['get'], url_path='top-coins')
     def top_coins(self, request):
         """Return top coins by score (cached)"""
-         try:
+        try:
             limit = int(request.query_params.get('limit', 10))
             limit = max(1, min(limit, 100))  # Clamp limit between 1 and 100
         except ValueError:
