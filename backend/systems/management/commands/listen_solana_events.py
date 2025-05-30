@@ -84,55 +84,6 @@ class Command(BaseCommand):
                             await self.handle_trade(signature, event)
                             break
 
-    @sync_to_async
-    def handle_coin_creation(self, signature: str, logs: dict):
-        """Handle coin creation event"""
-        creator = None
-        try:
-            creator = SolanaUser.objects.get(wallet_address=logs["creator"])
-        except SolanaUser.DoesNotExist:
-            print("Creator not found.")
-        
-        if not Coin.objects.filter(address=logs["mint_address"]).exists() and creator is not None:
-            attributes = logs.get('attributes')
-            coin_info = {
-                "address":logs["mint_address"],
-                "name":logs["token_name"],
-                "ticker":logs["token_symbol"],
-                "creator":logs["creator"],
-                "total_supply":"1000000.0",
-                "image_url":logs.get('image', ''),
-                "current_price":"1.0",
-                "description":logs.get('description', None),
-                "discord":attributes.get('discord') if isinstance(attributes, dict) else None,
-                "website":attributes.get('website') if isinstance(attributes, dict) else None,
-                "twitter":attributes.get('twitter') if isinstance(attributes, dict) else None,
-            }
-            new_coin = Coin(
-                address=coin_info["address"],
-                name=coin_info["name"],
-                ticker=coin_info["ticker"],
-                creator=creator,
-                total_supply=Decimal(coin_info["total_supply"]),
-                image_url=coin_info["image_url"],
-                current_price=Decimal(coin_info["current_price"]),
-                description=coin_info["description"],
-                discord=coin_info["discord"],
-                website=coin_info["website"],
-                twitter=coin_info["twitter"],
-            )
-            new_coin.save()
-            
-            print(f"Created new coin with address: {logs['mint_address']}")
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                "events",  # Group name
-                {
-                    "type": "solana_event",
-                    'data': coin_info,
-                }
-            )
-
     async def get_metadata(self, log:dict):
         try:
             ipfuri:str = log["token_uri"]
@@ -154,47 +105,58 @@ class Command(BaseCommand):
             print(e)
         return log
     
-    @sync_to_async
+    @sync_to_async(thread_sensitive=False)
+    def handle_coin_creation(self, signature: str, logs: dict):
+        """Handle coin creation event"""
+        creator = None
+        try:
+            creator = SolanaUser.objects.get(wallet_address=logs["creator"])
+        except SolanaUser.DoesNotExist:
+            print("Creator not found.")
+        
+        if not Coin.objects.filter(address=logs["mint_address"]).exists() and creator is not None:
+            attributes = logs.get('attributes')
+            new_coin = Coin(
+                address=logs["mint_address"],
+                name=logs["token_name"],
+                ticker=logs["token_symbol"],
+                creator=creator,
+                total_supply=Decimal("1000000.0"),
+                image_url=logs.get('image', ''),
+                current_price=Decimal("1.0"),
+                description=logs.get('description', None),
+                discord=attributes.get('discord') if isinstance(attributes, dict) else None,
+                website=attributes.get('website') if isinstance(attributes, dict) else None,
+                twitter=attributes.get('twitter') if isinstance(attributes, dict) else None,
+            )
+            new_coin.save()
+            print(f"Created new coin with address: {logs['mint_address']}")
+
+    @sync_to_async(thread_sensitive=False)
     def handle_trade(self, signature, logs):
         """Handle coin creation event"""
         tradeuser = None
+        coin = None
         try:
             tradeuser = SolanaUser.objects.get(wallet_address=logs["user"])
         except SolanaUser.DoesNotExist:
             print("Creator not found.")
         
-        coin = None
         try:
             coin = Coin.objects.get(address=logs["mint_address"])
         except Coin.DoesNotExist:
             print("Coins not found.")
 
         if not Trade.objects.filter(transaction_hash=signature).exists() and tradeuser != None and coin != None:
-            trade_info = {
-                "transaction_hash":signature,
-                "user":logs["user"],
-                "coin_address":logs["mint_address"],
-                "trade_type":self.get_transaction_type(logs["transfer_type"]),
-                "coin_amount":logs["coin_amount"],
-                "sol_amount":logs["sol_amount"],
-            }
             new_trade = Trade(
-                transaction_hash=trade_info["transaction_hash"],
+                transaction_hash=signature,
                 user= tradeuser,
                 coin=coin,
-                trade_type=trade_info["trade_type"],
-                coin_amount=trade_info["coin_amount"],
-                sol_amount=trade_info["sol_amount"],
+                trade_type=self.get_transaction_type(logs["transfer_type"]),
+                coin_amount=logs["coin_amount"],
+                sol_amount=logs["sol_amount"],
             )
             new_trade.save()
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                "events",  # Group name
-                {
-                    "type": "solana_event",
-                    'data': trade_info,
-                }
-            )
             print(f"Created new trade with transaction_hash: {signature}")
 
     def get_transaction_type(self, ttype):

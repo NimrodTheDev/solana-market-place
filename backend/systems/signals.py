@@ -7,7 +7,7 @@ from .models import (
     SolanaUser, Coin, Trade, UserCoinHoldings,
     DeveloperScore, TraderScore, CoinDRCScore
 )
-# i can move the broadcast here
+from .utils.broadcast import broadcast_coin_created, broadcast_trade_created
 
 # Create scores when users/coins are created
 @receiver(post_save, sender=SolanaUser)
@@ -80,9 +80,9 @@ def update_holdings_and_scores_on_trade(sender, instance, created, **kwargs):
             )
             
             # Calculate volume
-            volume = sum(t.sol_amount for t in recent_trades)
-            coin_score.trade_volume_24h = volume
-            coin_score.save(update_fields=['trade_volume_24h', 'updated_at'])
+            # volume = sum(t.sol_amount for t in recent_trades)
+            # coin_score.trade_volume_24h = volume
+            # coin_score.save(update_fields=['trade_volume_24h', 'updated_at'])
         
         # If this is a coin creation, update developer score
         if instance.trade_type == 'COIN_CREATE':
@@ -97,6 +97,7 @@ def update_holdings_and_scores_on_trade(sender, instance, created, **kwargs):
         coin_score.update_holders_count()
         coin_score.recalculate_score()
         trader_score.recalculate_score()
+        broadcast_trade_created(instance)
 
 @receiver(post_save, sender=Coin)
 def create_coin_drc_score(sender, instance, created, **kwargs): # making the score realtime
@@ -112,6 +113,7 @@ def create_coin_drc_score(sender, instance, created, **kwargs): # making the sco
         # Get or create developer score for the coin creator
         dev_score, _ = DeveloperScore.objects.get_or_create(developer=instance.creator)
         dev_score.recalculate_score()
+        broadcast_coin_created(instance)
 
 @receiver(post_delete, sender=UserCoinHoldings)
 def update_on_holdings_delete(sender, instance, **kwargs):
