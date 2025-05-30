@@ -1,5 +1,5 @@
 import { Twitter, Globe } from "lucide-react";
-import {  useState } from "react";
+import { useState } from "react";
 // import img from "../../assets/images/istockphoto-1409329028-612x612.jpg"
 // import { useParams } from "react-router-dom";
 // import axios from "axios";
@@ -46,25 +46,22 @@ export default function CoinProfile({ coinData }: CoinProfileProps) {
 	// 	})
 	// }, [])
 	return (
-		<div className='bg-gray-900 text-white  p-4'>
-			<div className='max-w-2xl mx-auto'>
+		// 
+		<div className='bg-custom-dark-blue w-full overflow-x-hidden text-white grid grid-cols-custom-3-1 p-4'>
+			<div className=' mx-auto '>
 				{/* Header */}
 				<div className='flex justify-between items-center mb-6'>
-					<h1 className='text-4xl font-bold text-center flex-grow'>
-						{coinData.name} ({coinData.ticker})
-					</h1>
-					<button
-						onClick={handleFireClick}
-						className='flex items-center gap-2 text-orange-500 hover:text-orange-400 transition-colors'
-					>
-						<span className='text-2xl'>🔥</span>
-						<span>{fireCount}</span>
-					</button>
+					<div className="">
+						<h1 className='text-4xl font-bold text-center flex-grow'>
+							{coinData.name} ({coinData.ticker})
+						</h1>
+					</div>
+
 				</div>
 
 				{/* Cat Image */}
 				<div className='mb-8'>
-					<div className='rounded-lg overflow-hidden border-2 border-gray-700 mx-auto max-w-md'>
+					<div className='rounded-xl overflow-hidden border-2 border-gray-700 mx-auto max-w-md'>
 						<img
 							src={coinData.image_url || img}
 							alt={`${coinData.name} image`}
@@ -76,7 +73,7 @@ export default function CoinProfile({ coinData }: CoinProfileProps) {
 				{/* Social Links */}
 				<div className='flex justify-center gap-4 mb-8'>
 					{coinData?.twitter && (
-						<a href={"https://x.com/"+ coinData?.twitter || ''} target="_blank" rel="noopener noreferrer" className='p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors'>
+						<a href={"https://x.com/" + coinData?.twitter || ''} target="_blank" rel="noopener noreferrer" className='p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors'>
 							<Twitter size={20} />
 						</a>
 					)}
@@ -113,6 +110,15 @@ export default function CoinProfile({ coinData }: CoinProfileProps) {
 						{coinData?.description || "No description available"}
 					</p>
 				</div>
+			</div>
+			<div className="justify-self-center">
+				<button
+					onClick={handleFireClick}
+					className='flex items-center gap-2 text-orange-500 hover:text-orange-400 transition-colors shadow-md shadow-indigo-700 rounded-lg'
+				>
+					<span className='text-2xl'>🔥</span>
+					<span>{fireCount}</span>
+				</button>
 			</div>
 		</div>
 	);

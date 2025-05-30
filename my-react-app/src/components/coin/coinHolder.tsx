@@ -1,4 +1,4 @@
-export default function HoldersAnalytics({}:{coinData: any}) {
+export default function HoldersAnalytics({ }: { coinData: any }) {
 	// Top holders data
 	const topHolders = [
 		{ name: "Specialdev", percentage: "50%" },
@@ -20,7 +20,7 @@ export default function HoldersAnalytics({}:{coinData: any}) {
 	];
 
 	return (
-		<div className='bg-gray-900 text-white p-6 rounded-lg'>
+		<div className='bg-custom-dark-blue text-white p-6 rounded-lg'>
 			{/* Top Holders Section */}
 			<h2 className='text-2xl font-bold mb-6'>Top Holders</h2>
 

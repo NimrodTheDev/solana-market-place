@@ -45,7 +45,7 @@ export default function CoinComments({ coinData }: CoinCommentsProps) {
 	};
 
 	return (
-		<div className='bg-gray-800 p-4 rounded-lg'>
+		<div className='bg-custom-dark-blue p-4 rounded-lg'>
 			<h2 className='text-xl font-bold mb-4'>Comments</h2>
 			<div className='space-y-4'>
 				<p className='text-gray-400'>Comments for {coinData.name}</p>
@@ -72,7 +72,7 @@ export default function CoinComments({ coinData }: CoinCommentsProps) {
 							value={newComment}
 							onChange={(e) => setNewComment(e.target.value)}
 							placeholder='Add a comment...'
-							className='flex-1 bg-gray-800 p-3 outline-none'
+							className='flex-1 bg-custom-dark-blue p-3 outline-none'
 							onKeyPress={(e) => {
 								if (e.key === "Enter") {
 									handleSubmitComment();
