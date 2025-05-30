@@ -43,7 +43,6 @@ class ConnectWalletSerializer(serializers.Serializer):
 
 class CoinSerializer(serializers.ModelSerializer):
     creator_display_name = serializers.SerializerMethodField()
-    score = serializers.SerializerMethodField()
     
     class Meta:
         model = Coin
@@ -57,9 +56,6 @@ class CoinSerializer(serializers.ModelSerializer):
     
     def get_creator_display_name(self, obj):
         return obj.creator.get_display_name()
-
-    def get_score(self, obj):
-        return obj.score
 
 class UserCoinHoldingsSerializer(serializers.ModelSerializer):
     coin_ticker = serializers.ReadOnlyField(source='coin.ticker')

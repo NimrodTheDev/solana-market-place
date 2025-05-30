@@ -38,13 +38,3 @@ def broadcast_trade_created(instance: Trade):
         "sol_amount": str(instance.sol_amount),
     }
     _broadcast(trade_info)   
-
-# def _broadcast(info: dict):
-#     channel_layer = get_channel_layer()
-#     async_to_sync(channel_layer.group_send)(
-#         "events",
-#         {
-#             "type": "solana_event",
-#             "data": info,
-#         }
-#     )

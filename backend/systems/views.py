@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.views import APIView
 from django.db.models import Q
+from django.core.cache import cache
 
 from rest_framework.authtoken.models import Token
 
@@ -65,6 +66,21 @@ class CoinViewSet(RestrictedViewset):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     lookup_field = 'address'
     
+    @action(detail=False, methods=['get'], url_path='top-coins')
+    def top_coins(self, request):
+        """Return top coins by score (cached)"""
+        limit = int(request.query_params.get('limit', 10))
+        cache_key = f'top_coins_{limit}'
+        cached = cache.get(cache_key)
+        if cached:
+            return Response(cached)
+
+        coins = Coin.objects.order_by('-score')[:limit]
+        serializer = self.get_serializer(coins, many=True)
+        cache.set(cache_key, serializer.data, timeout=60)  # cache for 1 minute
+
+        return Response(serializer.data)
+
     @action(detail=True, methods=['get'])
     def holders(self, request, address=None):
         """Get all holders of a specific coin"""
