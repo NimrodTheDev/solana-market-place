@@ -48,14 +48,11 @@ export default function CryptoTokenDetails({ coinData }: CryptoTokenDetailsProps
 	// const bondingProgress = 60;
 
 	return (
-		<div className="bg-custom-dark-blue text-white p-8 rounded-lg flex flex-col  ">
-			<div className="space-y-2">
+		<div className="bg-custom-dark-blue text-white p-8 w-full rounded-lg flex flex-col  ">
+			<div className="flex flex-col gap-2">
 				<div className="flex sm:flex-col justify-between">
 					<div className="text-purple-200">Creator</div>
-					<div className="flex items-center gap-2 justify-end">
-						{/* <span className="text-yellow-400">👋</span> */}
-						<Link to={`https://explorer.solana.com/address/${coinData.creator}?cluster=devnet`} className="font-medium underline text-xs">{coinData.creator_display_name || "Smart Contract Owner"}</Link>
-					</div>
+					<Link to={`https://explorer.solana.com/address/${coinData.creator}?cluster=devnet`} className="font-medium underline text-xs whitespace-wrap">{coinData.creator_display_name || "Smart Contract Owner"}</Link>
 				</div>
 				<div className="flex justify-between">
 					<div className="text-purple-200">Time Launched:</div>
@@ -74,8 +71,8 @@ export default function CryptoTokenDetails({ coinData }: CryptoTokenDetailsProps
 
 
 				<div className="text-purple-200">Contract Address</div>
-				<div className="flex items-center gap-2 justify-end">
-					<span className="break-all text-xs">{coinData.address}</span>
+				<div className="flex items-center gap-2 justify-end flex-wrap">
+					<span className="break-all text-xs whitespace-wrap">{coinData.address}</span>
 					<button onClick={handleCopyClick} className="hover:text-purple-400 transition-colors">
 						<Copy size={16} />
 					</button>

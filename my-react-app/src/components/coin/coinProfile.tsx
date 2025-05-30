@@ -47,8 +47,8 @@ export default function CoinProfile({ coinData }: CoinProfileProps) {
 	// }, [])
 	return (
 		// 
-		<div className='bg-custom-dark-blue max-[400px]:w-400px overflow-x-hidden text-white grid grid-cols-custom-3-1 p-4'>
-			<div className='max-w-2xl mx-auto '>
+		<div className='bg-custom-dark-blue max-w-[400px] w-full overflow-x-hidden text-white grid grid-cols-custom-3-1 p-4'>
+			<div className=' mx-auto '>
 				{/* Header */}
 				<div className='flex justify-between items-center mb-6'>
 					<div className="">
