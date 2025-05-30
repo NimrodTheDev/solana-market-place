@@ -145,9 +145,9 @@ Our team combines deep expertise in both crypto and reputation systems:
 - HTML, CSS, JS (strong); React (basic to intermediate, solid up to hooks)
 - Deep expertise in UI development
 
-**Ruth Ezeneche** – UI/UX Designer
-– Product Design • Web Design 
-– Deep expertise in designing intuitive user experiences, building community-based digital products, and translating complex ideas into clean, user-friendly interfaces.
+**Ruth Ezeneche** - UI/UX Designer
+- Product Design, Web Design
+- Deep expertise in designing intuitive user experiences, building community-based digital products, and translating complex ideas into clean, user-friendly interfaces.
 
 ## 📞 Contact
 
