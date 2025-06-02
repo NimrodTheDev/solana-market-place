@@ -51,7 +51,6 @@ function App() {
 			<WalletProvider wallets={wallets} localStorageKey="key" autoConnect={false}>
 				<SolanaProvider>
 				<WalletModalProvider>
-					<PhantomError>
 						<Router>
 							<Header />
 							<Routes>
@@ -65,7 +64,11 @@ function App() {
 								/>
 								<Route path='/coin/:id' element={<CoinPage />} />
 								<Route path='*' element={<div>Not found</div>} />
-								<Route path='/coin/create' element={< CreateCoin />} />
+								<Route path='/coin/create' element={
+									<PhantomError>
+									< CreateCoin />
+									</PhantomError>
+									} />
 								<Route path="/login" element={<Loginconnect/>} />
 								<Route path='/Wallet' element={<Wallet />} />
 								<Route path='/AITools' element={<AITools />} />
@@ -75,7 +78,6 @@ function App() {
 							</Routes>
 							<NottyTerminalFooter />
 						</Router>
-					</PhantomError>
 				</WalletModalProvider>
 				</SolanaProvider>
 			</WalletProvider>
