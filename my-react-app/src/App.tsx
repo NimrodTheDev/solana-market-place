@@ -9,7 +9,7 @@ import AITools from "./pages/AI Tools";
 import DrsSystem from "./pages/DrsSystem";
 import Wallet from "./pages/Wallet";
 import OnChainNews from "./pages/OnChainNews";
-import { 
+import {
 	ConnectionProvider,
 	// useWallet,
 	WalletProvider,
@@ -25,6 +25,7 @@ import Loginconnect from "./solanaClient/Loginconnect";
 import { SolanaProvider } from "./solanaClient";
 import PhantomError from "./components/PhantomError";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+
 function App() {
 	const endpoint = clusterApiUrl("devnet");
 	const wallets = [
@@ -45,12 +46,12 @@ function App() {
 			}
 		})
 	];
-	
+
 	return (
 		<ConnectionProvider endpoint={endpoint}>
 			<WalletProvider wallets={wallets} localStorageKey="key" autoConnect={false}>
 				<SolanaProvider>
-				<WalletModalProvider>
+					<WalletModalProvider>
 						<Router>
 							<Header />
 							<Routes>
@@ -66,19 +67,20 @@ function App() {
 								<Route path='*' element={<div>Not found</div>} />
 								<Route path='/coin/create' element={
 									<PhantomError>
-									< CreateCoin />
+										< CreateCoin />
 									</PhantomError>
-									} />
-								<Route path="/login" element={<Loginconnect/>} />
+								} />
+								<Route path="/login" element={<Loginconnect />} />
 								<Route path='/Wallet' element={<Wallet />} />
 								<Route path='/AITools' element={<AITools />} />
 								<Route path='/DrsSystem' element={<DrsSystem />} />
 								<Route path='/Talentpool' element={<Talentpool />} />
 								<Route path='/OnChainNews' element={<OnChainNews />} />
+
 							</Routes>
 							<NottyTerminalFooter />
 						</Router>
-				</WalletModalProvider>
+					</WalletModalProvider>
 				</SolanaProvider>
 			</WalletProvider>
 		</ConnectionProvider>
