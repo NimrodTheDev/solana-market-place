@@ -566,6 +566,9 @@ class CoinDRCScore(DRCScore):
                 'token_abandonment', 'score', 'updated_at'
             ])
 
+    def _update_biweekly_metrics(self):
+        pass
+    
     def _apply_daily_score_adjustments(self):
         """Apply daily volume and activity bonuses"""
         fields = ['score', 'updated_at']
