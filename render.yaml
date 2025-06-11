@@ -1,9 +1,8 @@
-# Exported from Render on 2025-05-01T12:29:32Z
 services:
 - type: web
-  name: solana-market-place
+  name: Notty-Terminal
   runtime: static
-  repo: https://github.com/NimrodTheDev/solana-market-place
+  repo: https://github.com/NimrodTheDev/Notty-Terminal
   buildCommand: npm run build
   staticPublishPath: dist
   rootDir: ./my-react-app
@@ -11,7 +10,7 @@ services:
 - type: web
   name: solana-market-place-backend
   runtime: python
-  repo: https://github.com/NimrodTheDev/solana-market-place
+  repo: https://github.com/NimrodTheDev/Notty-Terminal
   plan: free
   region: oregon
   buildCommand: pip install -r requirements.txt
