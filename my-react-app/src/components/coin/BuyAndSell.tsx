@@ -30,7 +30,7 @@ function BuyAndSell({ coinData }: BuyAndSellProps) {
     ];
 
     return (
-        <div className="bg-custom-dark-blue rounded-lg p-4 w-80 text-white md:mr-12 lg:mr-24">
+        <div className="bg-custom-dark-blue rounded-lg p-4 w-80 text-white md:mr-12 lg:mr-24 sm:w-full">
             {/* Buy/Sell Tabs */}
             <div className="flex mb-4">
                 <button
