@@ -4,6 +4,7 @@ import { useSolana } from '../solanaClient/index';
 import { uploadFile } from '../solanaClient/usePinta';
 import DragAndDropFileInput from '../components/general/dragNdrop';
 import { Link } from 'react-router-dom';
+import { web3 } from '@project-serum/anchor';
 // import Hero from '../components/landingPage/hero'
 
 // Add animation keyframes
@@ -32,6 +33,8 @@ interface ValidationErrors {
     tokenTwitter?: string;
     tokenDiscord?: string;
     tokenImage?: string;
+    initialSupply?: string;
+    pricePerToken?: string;
 }
 
 interface ToastProps {
@@ -44,7 +47,6 @@ function Toast({ message, type, onClose }: ToastProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
-        // If message is a React element (Link), extract the href
         let textToCopy = '';
         if (isValidElement(message) && typeof message.props === 'object' && message.props !== null && 'to' in message.props) {
             const to = message.props.to as string;
@@ -86,81 +88,88 @@ function Toast({ message, type, onClose }: ToastProps) {
 }
 
 function CreateCoin() {
-    // const [preview, setPreview] = useState<string | null>(null);
+    const [currentStep, setCurrentStep] = useState(1);
     const [tokenName, settTokenName] = useState("");
     const [tokenSymbol, settTokenSymbol] = useState("");
     const [loading, setLoading] = useState({
         bool: false,
         msg: ""
-    })
-    // const [tokenUri, setTokenUri] = useState("");
+    });
     const [tokenDescription, setTokenDescription] = useState("");
     const [tokenImage, setTokenImage] = useState<File | null>(null);
     const [tokenWebsite, setTokenWebsite] = useState("");
     const [tokenTwitter, setTokenTwitter] = useState("");
     const [tokenDiscord, setTokenDiscord] = useState("");
-    const { CreateTokenMint } = useSolana()
+    const [initialSupply, setInitialSupply] = useState("");
+    const [pricePerToken, setPricePerToken] = useState("");
+    const { CreateTokenMint,InitTokenVault } = useSolana();
     const [error, setError] = useState<string | null>(null);
     const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
-    // const handleImageChange = (e: any) => {
-    //     const file = e.target.files[0];
-    //     if (file && file.type.startsWith('image/')) {
-    //         setPreview(URL.createObjectURL(file));
-    //     }
-    // };
     const [result, setResult] = useState<string | null>(null);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState<ReactNode>('');
     const [toastType, setToastType] = useState<'success' | 'error'>('success');
-
-    const validateForm = (): boolean => {
+    const [mint, setMint]= useState<web3.Keypair|undefined>()
+    const validateStep1 = (): boolean => {
         const errors: ValidationErrors = {};
 
-        // Token Name validation
         if (!tokenName.trim()) {
             errors.tokenName = "Token name is required";
         } else if (tokenName.length > 50) {
             errors.tokenName = "Token name must be less than 50 characters";
         }
 
-        // Token Symbol validation
         if (!tokenSymbol.trim()) {
             errors.tokenSymbol = "Token symbol is required";
         } else if (!/^[A-Z0-9]{2,10}$/.test(tokenSymbol)) {
             errors.tokenSymbol = "Token symbol must be 2-10 uppercase letters or numbers";
         }
 
-        // Description validation
         if (!tokenDescription.trim()) {
             errors.tokenDescription = "Description is required";
         } else if (tokenDescription.length > 1000) {
             errors.tokenDescription = "Description must be less than 1000 characters";
         }
 
-        // Website validation
         if (!tokenWebsite.trim()) {
             errors.tokenWebsite = "Website is required";
         } else if (!/^https?:\/\/.+/.test(tokenWebsite)) {
             errors.tokenWebsite = "Please enter a valid URL starting with http:// or https://";
         }
 
-        // Twitter validation
         if (!tokenTwitter.trim()) {
             errors.tokenTwitter = "Twitter handle is required";
         } else if (!/^@?[A-Za-z0-9_]{1,15}$/.test(tokenTwitter)) {
             errors.tokenTwitter = "Please enter a valid Twitter handle";
         }
 
-        // Discord validation
         if (!tokenDiscord.trim()) {
             errors.tokenDiscord = "Discord channel is required";
         } else if (!/^https?:\/\/discord\/+/.test(tokenDiscord)) {
             errors.tokenDiscord = "Please enter a valid Discord invite link";
         }
 
-        // Image validation
         if (!tokenImage) {
             errors.tokenImage = "Project image is required";
+        }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const validateStep2 = (): boolean => {
+        const errors: ValidationErrors = {};
+
+        if (!initialSupply.trim()) {
+            errors.initialSupply = "Initial supply is required";
+        } else if (isNaN(Number(initialSupply)) || Number(initialSupply) <= 0) {
+            errors.initialSupply = "Initial supply must be a positive number";
+        }
+
+        if (!pricePerToken.trim()) {
+            errors.pricePerToken = "Price per token is required";
+        } else if (isNaN(Number(pricePerToken)) || Number(pricePerToken) <= 0) {
+            errors.pricePerToken = "Price per token must be a positive number";
         }
 
         setValidationErrors(errors);
@@ -171,15 +180,94 @@ function CreateCoin() {
         setToastMessage(message);
         setToastType(type);
         setShowToast(true);
-        // Auto-hide after 5 seconds
         setTimeout(() => setShowToast(false), 5000);
+    };
+
+    const handleStep1Submit = async () => {
+        if (!validateStep1()) {
+            return;
+        }
+        try {
+            if (!tokenImage) {
+                setLoading({ bool: false, msg: '' });
+                return;
+            }
+
+            const metadataUrl = await uploadFile(tokenImage, {
+                name: tokenName,
+                symbol: tokenSymbol,
+                description: tokenDescription,
+                website: tokenWebsite,
+                twitter: tokenTwitter,
+                discord: tokenDiscord
+            });
+
+            if (metadataUrl.length === 0) {
+                setLoading({ bool: false, msg: '' });
+                showToastMessage("Failed to upload token", "error");
+                return;
+            }
+
+            setLoading({ bool: true, msg: "Creating token" });
+
+            if (CreateTokenMint) {
+                const txHash = await CreateTokenMint(tokenName, tokenSymbol, metadataUrl);
+
+                if (txHash) {
+                    setResult(txHash.tx);
+                    showToastMessage(
+                        <Link to={`https://explorer.solana.com/tx/${txHash.tx}?cluster=devnet`} className='underline'>
+                            Token created successfully! View on Explorer
+                        </Link>,
+                        "success"
+                    );
+                    setMint(txHash.mintAccount)
+                    setCurrentStep(2);
+                } else {
+                    showToastMessage("Please ensure you have Phantom extension installed", "error");
+                }
+            }
+        } catch (e: any) {
+            console.error(e);
+            showToastMessage(e.message, "error");
+        } finally {
+            setLoading({ bool: false, msg: '' });
+        }
+    };
+
+    const handleStep2Submit = async () => {
+        if (!validateStep2()) {
+            return;
+        }
+
+        setError("");
+        setResult("");
+        setLoading({ bool: true, msg: "Creating token" });
+
+        try {
+            if (mint && InitTokenVault) {
+                let resp = await InitTokenVault(Number(pricePerToken), Number(initialSupply), mint )   
+                setResult(resp.tx)
+                showToastMessage(
+                    <Link to={`https://explorer.solana.com/tx/${resp.tx}?cluster=devnet`} className='underline'>
+                            Token created successfully! View on Explorer
+                        </Link>,
+                        "success"
+                )
+            }
+        } catch (e: any) {
+            setError(e.message)
+            console.error(e)
+        } finally {
+           setLoading({bool:false, msg:""})
+        }
     };
 
     return (
         <div className='relative sm:min-h-[180vh] xl:min-h-[124vh]'>
             <style>{styles}</style>
-            <div className="h-64 z-10 crtGradient background-container  top-10 left-10 ">
-                <div className="h-40  justify-center ">
+            <div className="h-64 z-10 crtGradient background-container top-10 left-10">
+                <div className="h-40 justify-center">
                     <div className="flex flex-col items-center justify-center h-full">
                         <h1 className="text-5xl font-bold text-custom-dark-blue mb-4 mt-8 text-center">Launch a new Project</h1>
                         <p className="text-gray-800 max-w-lg mx-auto text-center">
@@ -189,174 +277,170 @@ function CreateCoin() {
                 </div>
             </div>
 
-            <div className="max-[400px] h-[1200px] mx-auto  bg-custom-dark-blue relative flex items-center justify-center">
-            <div className="flex justify-center items-center absolute mt-10 flex-col border-gray-600 border max-w-[600px] w-full top-[-150px] mx-auto  bg-custom-dark-blue z-10 p-4 text-white rounded ">
-            <form method='POST' className="flex flex-col justify-center w-full max-w-[500px] mx-auto mb-10 mt=10">
+            <div className="max-[400px] h-[1200px] mx-auto bg-custom-dark-blue relative flex items-center justify-center">
+                <div className="flex justify-center items-center absolute mt-10 flex-col border-gray-600 border max-w-[600px] w-full top-[-150px] mx-auto bg-custom-dark-blue z-10 p-4 text-white rounded">
                     <div className="mb-8">
-                        <h1 className="text-2xl font-bold mb-2">Project details</h1>
-                        <p className="text-gray-400">Provide important details about your project</p>
+                        <h1 className="text-2xl font-bold text-center mb-2">{currentStep===1 ? "Project details" : "Vault"}</h1>
+                        <p className="text-gray-400">
+                            {currentStep === 1 ? "Provide important details about your project" : "Set initial supply and price"}
+                        </p>
                     </div>
-                    <div className="space-y-6">
-                        <div>
-                            <label htmlFor="projectName" className='block text-sm font-medium mb-2'>Project name</label>
-                            <input
-                                type="text"
-                                name=""
-                                id="projectName"
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenName ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
-                                placeholder="Enter your project name"
-                                onChange={(e) => settTokenName(e.target.value)}
-                            />
-                            {validationErrors.tokenName && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenName}</p>}
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2" htmlFor="projectDesc">Project description</label>
-                            <textarea
-                                name=""
-                                id="projectDesc"
-                                className={`w-full h-[200px] bg-gray-800 border ${validationErrors.tokenDescription ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background resize-none`}
-                                placeholder="Describe your projects"
-                                onChange={(e) => setTokenDescription(e.target.value)}
-                            />
-                            {validationErrors.tokenDescription && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenDescription}</p>}
-                        </div>
+                    {currentStep === 1 ? (
+                        <form className="flex flex-col justify-center w-full max-w-[500px] mx-auto mb-10 mt=10">
+                            <div className="space-y-6">
+                                <div>
+                                    <label htmlFor="projectName" className='block text-sm font-medium mb-2'>Project name</label>
+                                    <input
+                                        type="text"
+                                        id="projectName"
+                                        className={`w-full bg-gray-800 border ${validationErrors.tokenName ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                        placeholder="Enter your project name"
+                                        onChange={(e) => settTokenName(e.target.value)}
+                                    />
+                                    {validationErrors.tokenName && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenName}</p>}
+                                </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2" htmlFor="projectSymb">Project symbol</label>
-                            <input
-                                type="text"
-                                name=""
-                                id="projectSymb"
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenSymbol ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
-                                placeholder="Set token symbol"
-                                onChange={(e) => settTokenSymbol(e.target.value.toUpperCase())}
-                            />
-                            {validationErrors.tokenSymbol && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenSymbol}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-2" htmlFor="projectImage">Project Image</label>
-                            <DragAndDropFileInput
-                                singleFile={true}
-                                onFileSelect={function (files: File[]): void {
-                                    setTokenImage(files[0]);
-                                }}
-                                id={'file'}
-                            />
-                            {validationErrors.tokenImage && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenImage}</p>}
-                        </div>
-                        <div>
-                            <label htmlFor="webAddress" className="block text-sm font-medium mb-2">Website Address</label>
-                            <input
-                                type="url"
-                                name=""
-                                id="webAddress"
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenWebsite ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
-                                placeholder="https://your-website.com"
-                                onChange={(e) => setTokenWebsite(e.target.value)}
-                            />
-                            {validationErrors.tokenWebsite && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenWebsite}</p>}
-                        </div>
-                        <div>
-                            <label htmlFor="twithand" className="block text-sm font-medium mb-2">Twitter Handle</label>
-                            <input
-                                type="text"
-                                name=""
-                                id="twithand"
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenTwitter ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
-                                placeholder="@yourhandle"
-                                onChange={(e) => setTokenTwitter(e.target.value)}
-                            />
-                            {validationErrors.tokenTwitter && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenTwitter}</p>}
-                        </div>
-                        <div>
-                            <label htmlFor="discord" className="block text-sm font-medium mb-2">Discord Channel</label>
-                            <input
-                                type="url"
-                                name=""
-                                id="discord"
-                                className={`w-full bg-gray-800 border ${validationErrors.tokenDiscord ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
-                                placeholder="https://discord.gg/your-channel"
-                                onChange={(e) => setTokenDiscord(e.target.value)}
-                            />
-                            {validationErrors.tokenDiscord && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenDiscord}</p>}
-                        </div>
-                    </div>
-                    <div className="flex justify-start mt-8">
-                        <button
-                            type="button"
-                            disabled={loading.bool}
-                            className="flex items-center justify-center bg-custom-light-purple hover:bg-indigo-600 text-white px-6 py-2 rounded transition-colors"
-                            onClick={async () => {
-                                setError("")
-                                setResult("")
-                                setLoading({ bool: true, msg: "loading" })
+                                <div>
+                                    <label className="block text-sm font-medium mb-2" htmlFor="projectDesc">Project description</label>
+                                    <textarea
+                                        id="projectDesc"
+                                        className={`w-full h-[200px] bg-gray-800 border ${validationErrors.tokenDescription ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background resize-none`}
+                                        placeholder="Describe your projects"
+                                        onChange={(e) => setTokenDescription(e.target.value)}
+                                    />
+                                    {validationErrors.tokenDescription && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenDescription}</p>}
+                                </div>
 
-                                if (!validateForm()) {
-                                    setLoading({ bool: false, msg: "" })
-                                    return;
-                                }
+                                <div>
+                                    <label className="block text-sm font-medium mb-2" htmlFor="projectSymb">Project symbol</label>
+                                    <input
+                                        type="text"
+                                        id="projectSymb"
+                                        className={`w-full bg-gray-800 border ${validationErrors.tokenSymbol ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                        placeholder="Set token symbol"
+                                        onChange={(e) => settTokenSymbol(e.target.value.toUpperCase())}
+                                    />
+                                    {validationErrors.tokenSymbol && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenSymbol}</p>}
+                                </div>
 
-                                try {
-                                    // First upload the image and metadata to IPFS
-                                    if (!tokenImage) {
-                                        setLoading({ bool: false, msg: '' })
-                                        return
-                                    }
-                                    const metadataUrl = await uploadFile(tokenImage, {
-                                        name: tokenName,
-                                        symbol: tokenSymbol,
-                                        description: tokenDescription,
-                                        website: tokenWebsite,
-                                        twitter: tokenTwitter,
-                                        discord: tokenDiscord
-                                    });
-                                    console.log('called')
-                                    if (metadataUrl.length === 0) {
-                                        setLoading({ bool: false, msg: '' })
-                                        showToastMessage("Failed to upload token", "error");
-                                        return
-                                    }
-                                    setLoading({ bool: true, msg: "uploading MetaData" })
-                                    // Then create the token with the metadata URL
-                                    if (CreateTokenMint) {
-                                        console.log('called')
-                                        const txHash = await CreateTokenMint(tokenName, tokenSymbol, metadataUrl);
+                                <div>
+                                    <label className="block text-sm font-medium mb-2" htmlFor="projectImage">Project Image</label>
+                                    <DragAndDropFileInput
+                                        singleFile={true}
+                                        onFileSelect={function (files: File[]): void {
+                                            setTokenImage(files[0]);
+                                        }}
+                                        id={'file'}
+                                    />
+                                    {validationErrors.tokenImage && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenImage}</p>}
+                                </div>
 
-                                        if (txHash) {
-                                            setResult(txHash);
-                                            showToastMessage(
-                                                <Link to={`https://explorer.solana.com/tx/${txHash}?cluster=devnet`} className='underline'>
-                                                    Transaction successful! View on Explorer
-                                                </Link>,
-                                                "success"
-                                            );
-                                        } else {
-                                            showToastMessage("Please ensure you have Phantom extension installed", "error");
-                                        }
-                                    }
-                                } catch (e: any) {
-                                    console.error(e)
-                                    showToastMessage(e.message, "error");
-                                }
-                                finally {
-                                    setLoading({ bool: false, msg: '' })
-                                }
-                            }}
-                        >
-                            {loading.bool ? loading.msg + "..." : "Mint"}
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                        </button>
-                    </div>
-                </form>
-            </div>
-                {/* <article className="flex  justify-self-end self-start">lwa</article> */}
+                                <div>
+                                    <label htmlFor="webAddress" className="block text-sm font-medium mb-2">Website Address</label>
+                                    <input
+                                        type="url"
+                                        id="webAddress"
+                                        className={`w-full bg-gray-800 border ${validationErrors.tokenWebsite ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                        placeholder="https://your-website.com"
+                                        onChange={(e) => setTokenWebsite(e.target.value)}
+                                    />
+                                    {validationErrors.tokenWebsite && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenWebsite}</p>}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="twithand" className="block text-sm font-medium mb-2">Twitter Handle</label>
+                                    <input
+                                        type="text"
+                                        id="twithand"
+                                        className={`w-full bg-gray-800 border ${validationErrors.tokenTwitter ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                        placeholder="@yourhandle"
+                                        onChange={(e) => setTokenTwitter(e.target.value)}
+                                    />
+                                    {validationErrors.tokenTwitter && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenTwitter}</p>}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="discord" className="block text-sm font-medium mb-2">Discord Channel</label>
+                                    <input
+                                        type="url"
+                                        id="discord"
+                                        className={`w-full bg-gray-800 border ${validationErrors.tokenDiscord ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                        placeholder="https://discord.gg/your-channel"
+                                        onChange={(e) => setTokenDiscord(e.target.value)}
+                                    />
+                                    {validationErrors.tokenDiscord && <p className="text-red-500 text-sm mt-1">{validationErrors.tokenDiscord}</p>}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end mt-8">
+                                <button
+                                    type="button"
+                                    className="flex items-center justify-center bg-custom-light-purple hover:bg-indigo-600 text-white px-6 py-2 rounded transition-colors"
+                                    onClick={handleStep1Submit}
+                                >
+                                    Next Step
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </button>
+                            </div>
+                        </form>
+                    ) : (
+                        <form className="flex flex-col justify-center w-full max-w-[500px] mx-auto mb-10 mt=10">
+                            <div className="space-y-6">
+                                <div>
+                                    <label htmlFor="initialSupply" className="block text-sm font-medium mb-2">Initial Supply</label>
+                                    <input
+                                        type="number"
+                                        id="initialSupply"
+                                        className={`w-full bg-gray-800 border ${validationErrors.initialSupply ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                        placeholder="Enter initial token supply"
+                                        onChange={(e) => setInitialSupply(e.target.value)}
+                                    />
+                                    {validationErrors.initialSupply && <p className="text-red-500 text-sm mt-1">{validationErrors.initialSupply}</p>}
+                                </div>
+
+                                <div>
+                                    <label htmlFor="pricePerToken" className="block text-sm font-medium mb-2">Price per Token (SOL)</label>
+                                    <input
+                                        type="number"
+                                        id="pricePerToken"
+                                        step="0.000000001"
+                                        className={`w-full bg-gray-800 border ${validationErrors.pricePerToken ? 'border-red-500' : 'border-gray-700'} rounded px-4 py-2 text-white no-background`}
+                                        placeholder="Enter price per token in SOL"
+                                        onChange={(e) => setPricePerToken(e.target.value)}
+                                    />
+                                    {validationErrors.pricePerToken && <p className="text-red-500 text-sm mt-1">{validationErrors.pricePerToken}</p>}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between mt-8">
+                                {/* <button
+                                    type="button"
+                                    className="flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded transition-colors"
+                                    onClick={() => setCurrentStep(1)}
+                                >
+                                    Back
+                                </button> */}
+                                <button
+                                    type="button"
+                                    disabled={loading.bool}
+                                    className="flex items-center justify-center bg-custom-light-purple hover:bg-indigo-600 text-white px-6 py-2 rounded transition-colors"
+                                    onClick={handleStep2Submit}
+                                >
+                                    {loading.bool ? loading.msg + "..." : "Initialize Vault"}
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+
                 <div className='flex flex-col items-center justify-center overflow-hidden w-full'>
-
                     {result && <Link to={`https://explorer.solana.com/tx/${result}?cluster=devnet`} className='text-green-500 underline'>link to TX hash</Link>}
                     {error && <p className='text-red-500'>{error}</p>}
                 </div>
             </div>
+
             {showToast && (
                 <Toast
                     message={toastMessage}
@@ -365,7 +449,7 @@ function CreateCoin() {
                 />
             )}
         </div>
-    )
+    );
 }
 
-export default CreateCoin
+export default CreateCoin;

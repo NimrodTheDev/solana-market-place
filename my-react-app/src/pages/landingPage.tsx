@@ -38,7 +38,7 @@ const LandingPage = () => {
 	return (
 		<div>
 			<Hero />
-			{/* moved into her section */}
+			{/* moved into hero section */}
 			{/* <NFTCollection /> */}
 			<FeaturesSection />
 			<HowItWorks />
