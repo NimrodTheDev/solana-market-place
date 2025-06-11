@@ -7,6 +7,8 @@ import SimilarCoins from "../components/coin/similiarCoin";
 // import CryptoTradingWidget from "../components/coin/tradingWidget";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import BuyAndSell from "../components/coin/BuyAndSell";
+
 // Add the type definition
 interface CoinData {
 	address: string;
@@ -32,7 +34,6 @@ export default function CoinPage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const { id } = useParams();
-
 
 	useEffect(() => {
 		const fetchCoinData = async () => {
@@ -62,9 +63,8 @@ export default function CoinPage() {
 	}
 
 	return (
-
-		<div className=" bg-custom-dark-blue w-full items-center ">
-			<div className='bg-custom-dark-blue flex flex-col gap-2  mx-auto text-white'>
+		<div className="bg-custom-dark-blue w-full items-center">
+			<div className='bg-custom-dark-blue flex flex-col gap-2 mx-auto text-white'>
 				<div className='flex'>
 					<div className='flex flex-col gap-2 w-full'>
 						<CoinProfile coinData={coinData} />
@@ -72,6 +72,7 @@ export default function CoinPage() {
 						{/* <CoinComments coinData={coinData} /> */}
 					</div>
 					<div className='flex flex-col gap-2'>
+						<BuyAndSell coinData={coinData} />
 						{/* <CryptoTradingWidget coinData={coinData} /> */}
 						{/* <HoldersAnalytics coinData={coinData} /> */}
 					</div>
@@ -79,6 +80,5 @@ export default function CoinPage() {
 				<SimilarCoins coinData={coinData} />
 			</div>
 		</div>
-
 	);
 }

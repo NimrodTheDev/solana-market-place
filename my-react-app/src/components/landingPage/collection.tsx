@@ -31,7 +31,7 @@ export default function NFTCollection() {
 	const [nfts, setNft] = useState<NFT[]>([]);
 	useEffect(() => {
 		(async () => {
-			const arg = await axios.get('https://solana-market-place-backend.onrender.com/api/coins/top-coins/')
+			const arg = await axios.get('https://solana-market-place-backend.onrender.com/api/coins/top-coins/?limit=8')
 			if (arg.status === 200) {
 				setNft(arg.data)
 			}
