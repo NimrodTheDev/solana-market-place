@@ -35,7 +35,7 @@ function BuyAndSell({ coinData }: BuyAndSellProps) {
             <div className="flex justify-between lg:w-64 mb-4">
                 <button
                     onClick={() => setActiveTab('buy')}
-                    className={` py-2 px-4 rounded-md mr-8 w-24  font-medium ${activeTab === 'buy'
+                    className={` py-2 px-4 rounded-md w-24  font-medium ${activeTab === 'buy'
                         ? 'bg-custom-light-purple text-white'
                         : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                         }`}
