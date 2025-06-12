@@ -8,7 +8,7 @@ interface BuyAndSellProps {
     };
 }
 
-function BuyAndSell({ coinData }: BuyAndSellProps) {
+function BuyAndSell({ }: BuyAndSellProps) {
     const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
     const [amount, setAmount] = useState('0.001');
 
