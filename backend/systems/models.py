@@ -660,17 +660,21 @@ class DeveloperScore(DRCScore): # the system will eventually have to leave here
         base_score = 150
         
         # Get all coins created by this developer
-        abandoned_count = self.developer.coins.filter(drc_score__token_abandonment=True).count() * 150 
+        self.abandoned_count = self.developer.coins.filter(drc_score__token_abandonment=True).count() * 150 
         # (this is wrong) the recalculation instead it should be, optmized 
-        rug_pull_or_sell_off_count = self.developer.coins.filter(drc_score__team_abandonment=True).count() *100
-        no_rugs_count = self.developer.coins.filter(drc_score__team_abandonment=False).count() *100 # add when discussed
-        successful_launch_count = self.developer.coins.filter(drc_score__successful_token=True).count() * 100
+        self.rug_pull_or_sell_off_count = self.developer.coins.filter(drc_score__team_abandonment=True).count() *100
+        self.no_rugs_count = self.developer.coins.filter(drc_score__team_abandonment=False).count() *100 # add when discussed
+        self.successful_launch_count = self.developer.coins.filter(drc_score__successful_token=True).count() * 100
 
         # Calculate final score with clamping
-        total_score = base_score + successful_launch_count -(abandoned_count+rug_pull_or_sell_off_count)
+        total_score = base_score + self.successful_launch_count -(self.abandoned_count+self.rug_pull_or_sell_off_count)
         self.score = max(total_score, 0)
+        self.save(update_fields=[
+            'score', 'successful_launch', 'abandoned_projects',
+            'no_rugs_count',
+            # 'updated_at'
+        ])
         
-        self.save()
         return self.score
 
 class TraderScore(DRCScore): # check extensivily
