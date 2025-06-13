@@ -41,7 +41,7 @@ const CoinFilter: React.FC<CoinFilterProps> = ({
   onFilterChange,
 }) => {
   return (
-    <div className="bg-transparent min-h-screen p-4 sm:p-8 z-10 w-screen">
+    <div className="bg-gray-900 min-h-screen p-4 sm:p-8 z-10 w-screen">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="max-w-2xl mx-auto text-center rounded-md px-6 mb-8">
