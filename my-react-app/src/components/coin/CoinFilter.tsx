@@ -52,7 +52,7 @@ const CoinFilter: React.FC<CoinFilterProps> = ({
         </div>
 
         {/* Navbar */}
-        <nav className="mb-8 bg-indigo-300 px-6 py-3 rounded-md flex items-center justify-between w-full">
+        <nav className="mb-8 bg-purple-800 px-6 py-3 rounded-md flex items-center justify-between w-full"
           <div className="flex items-center flex-1 max-w-lg">
             <input
               type="text"
