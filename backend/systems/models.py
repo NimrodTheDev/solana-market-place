@@ -669,8 +669,11 @@ class DeveloperScore(DRCScore): # the system will eventually have to leave here
         # Calculate final score with clamping
         total_score = base_score + successful_launch_count -(abandoned_count+rug_pull_or_sell_off_count)
         self.score = max(total_score, 0)
+        self.save(update_fields=[
+            'score', 'successful_launch', 'abandoned_projects',
+            # 'updated_at'
+        ])
         
-        self.save()
         return self.score
 
 class TraderScore(DRCScore): # check extensivily
