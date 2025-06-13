@@ -261,7 +261,7 @@ class CoinDRCScore(DRCScore):
             self.save(update_fields=['holders_count', 'updated_at'])
         return self.holders_count
     
-    def daily_checkup(self):
+    def daily_checkup(self): # check
         """Perform daily score maintenance tasks"""
         now = timezone.now()
         
@@ -302,7 +302,7 @@ class CoinDRCScore(DRCScore):
         # Recalculate score with daily factors
         self._apply_daily_score_adjustments()
 
-    def monthly_recalculation(self):
+    def monthly_recalculation(self): # check
         """Perform comprehensive monthly score recalculation"""
         now = timezone.now()
         
@@ -341,12 +341,12 @@ class CoinDRCScore(DRCScore):
             'last_monthly_update', 'updated_at'
         ])
 
-    def biweekly_checkup(self):
+    def biweekly_checkup(self): # check
         """Perform bi-weekly score maintenance and holder quality assessment"""
         now = timezone.now()
         
         # Skip if already updated this bi-weekly period
-        if self._is_same_biweekly_period(self.last_biweekly_update, now):
+        if self._is_same_period(self.last_biweekly_update, now, 14):
             return
         
         holder_rank_bonus = self._calculate_holder_rank_bonus()
@@ -367,8 +367,8 @@ class CoinDRCScore(DRCScore):
         self.save(update_fields=[
             'score', 'last_biweekly_update', 'updated_at'
         ])
-
-    def _is_same_biweekly_period(self, last_update, current_time):
+    
+    def _is_same_period(self, last_update, current_time, days_left: int= 1):
         """Check if we're in the same bi-weekly period"""
         if not last_update:
             return False
@@ -376,8 +376,7 @@ class CoinDRCScore(DRCScore):
         # Calculate days since last update
         days_diff = (current_time - last_update).days
         
-        # If less than 14 days, we're in the same period
-        return days_diff < 14
+        return days_diff < days_left
 
     def _calculate_fair_trading_bonus(self):
         cutoff_time = timezone.now() - timezone.timedelta(days=30)
@@ -519,6 +518,8 @@ class CoinDRCScore(DRCScore):
             return
         
         try:
+            if self.age_in_hours < 24: # a day grace period
+                return
             dev_holding = self.coin.holders.get(
                 user__wallet_address=self.coin.creator.wallet_address
             )
