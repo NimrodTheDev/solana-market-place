@@ -87,7 +87,7 @@ export default function Header() {
 							Coin Market
 						</Link>
 						<Link
-							to='/aboutDrs'
+							to='/AboutDrs'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							About DRS
