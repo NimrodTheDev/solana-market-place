@@ -1,6 +1,6 @@
- // pages/DrsSystem
+ // pages/Talentpool
 import ComingSoon from '../components/general/ComingSoon';
 
-export default function DrsSystem() {
+export default function Talentpool() {
     return <ComingSoon />;
 }

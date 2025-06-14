@@ -43,10 +43,10 @@ export default function Header() {
 					<Link to='/Wallet' className='block md:inline hover:text-white'>
 						Wallet
 					</Link>
-					<Link to="./coinPage" className='block md:inline hover:text-white'>
+					<Link to="./CoinMarket" className='block md:inline hover:text-white'>
 						Coin Market
 					</Link>
-					<Link to='/aboutDrs' className='block md:inline hover:text-white'>
+					<Link to='/AboutDrs' className='block md:inline hover:text-white'>
 						About DRS
 					</Link>
 					<Link to='/Talentpool' className='block md:inline hover:text-white'>
@@ -81,7 +81,7 @@ export default function Header() {
 						</Link>
 
 						<Link
-							to='/coinPage'
+							to='/CoinMarket'
 							className='block w-full py-2 px-3 rounded-md hover:bg-gradient-to-r hover:from-[#a4b9fa] hover:to-[#4a0a80] hover:text-white transition-colors duration-300'
 						>
 							Coin Market
