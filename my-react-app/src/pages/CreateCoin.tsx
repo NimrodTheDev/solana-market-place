@@ -247,6 +247,7 @@ function CreateCoin() {
         try {
             if (mint && InitTokenVault) {
                 let resp = await InitTokenVault(Number(pricePerToken), Number(initialSupply), mint )   
+                console.log(resp)
                 setResult(resp.tx)
                 showToastMessage(
                     <Link to={`https://explorer.solana.com/tx/${resp.tx}?cluster=devnet`} className='underline'>
