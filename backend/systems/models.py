@@ -608,7 +608,7 @@ class CoinDRCScore(DRCScore):
         
         # Apply bi-weekly checks if needed
         if (not self.last_biweekly_update or 
-            not self._is_same_biweekly_period(self.last_biweekly_update, now)):
+            not self._is_same_period(self.last_biweekly_update, now, 14)):#self._is_same_biweekly_period(self.last_biweekly_update, now)):
             self.biweekly_checkup()
 
         # Apply monthly recalculation if needed
