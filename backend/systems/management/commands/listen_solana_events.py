@@ -86,7 +86,7 @@ class Command(BaseCommand):
                             await self.handle_trade(signature, event)
                             break
 
-    async def get_metadata(self, log: dict):
+    async def get_metadata2(self, log: dict):
         try:
             ipfuri: str = log["token_uri"]
             ipfs_hash = ipfuri.split("/")
@@ -108,47 +108,69 @@ class Command(BaseCommand):
             print(e)
         return log
     
+    async def get_metadata(self, log:dict):
+        try:
+            ipfuri:str = log["token_uri"]
+            ipfs_hash = ipfuri.split("/")
+            for i in range(2):
+                if ipfs_hash[-(i+1)] != "":
+                    ipfs_hash = ipfs_hash[-(i+1)]
+                    break
+            url = f"https://ipfs.io/ipfs/{ipfs_hash}"
+
+            response = requests.get(url)
+
+            if response.status_code == 200:
+                content:dict = response.json()  # raw bytes
+                log.update(content)
+            else:
+                print(f"Failed to fetch: {response.status_code}")
+        except Exception as e:
+            print(e)
+        return log
+
     @sync_to_async(thread_sensitive=False)
     def handle_coin_creation(self, signature: str, logs: dict):
         """Handle coin creation event"""
         print(logs)
         creator = None
         for attempt in range(3):
+        #     try:
+        #         creator = SolanaUser.objects.get(wallet_address=logs["creator"]) # flag if created from here
+        #         break
+        #     except SolanaUser.DoesNotExist:
+        #         print("Creator not found.")
+        #         return
+        #     except OperationalError as e:
+        #         print(f"DB OperationalError (attempt {attempt+1}/3): {e}")
+        #         # time.sleep(1)
+        #     except Exception as e:
+        #         print(f"Unexpected error: {e}")
+        #         return
+
             try:
-                creator = SolanaUser.objects.get(wallet_address=logs["creator"]) # flag if created from here
+                creator = SolanaUser.objects.get(wallet_address=logs["creator"])
                 break
             except SolanaUser.DoesNotExist:
                 print("Creator not found.")
-                return
-            except OperationalError as e:
-                print(f"DB OperationalError (attempt {attempt+1}/3): {e}")
-                # time.sleep(1)
-            except Exception as e:
-                print(f"Unexpected error: {e}")
-                return
-
-            # try:
-            #     creator = SolanaUser.objects.get(wallet_address=logs["creator"])
-            # except SolanaUser.DoesNotExist:
-            #     print("Creator not found.")
             
-            if not Coin.objects.filter(address=logs["mint_address"]).exists() and creator is not None:
-                attributes = logs.get('attributes')
-                new_coin = Coin(
-                    address=logs["mint_address"],
-                    name=logs["token_name"],
-                    ticker=logs["token_symbol"],
-                    creator=creator,
-                    total_supply=Decimal("1000000.0"),
-                    image_url=logs.get('image', ''),
-                    current_price=Decimal("1.0"),
-                    description=logs.get('description', None),
-                    discord=attributes.get('discord') if isinstance(attributes, dict) else None,
-                    website=attributes.get('website') if isinstance(attributes, dict) else None,
-                    twitter=attributes.get('twitter') if isinstance(attributes, dict) else None,
-                )
-                new_coin.save()
-                print(f"Created new coin with address: {logs['mint_address']}")
+        if not Coin.objects.filter(address=logs["mint_address"]).exists() and creator is not None:
+            attributes = logs.get('attributes')
+            new_coin = Coin(
+                address=logs["mint_address"],
+                name=logs["token_name"],
+                ticker=logs["token_symbol"],
+                creator=creator,
+                total_supply=Decimal("1000000.0"),
+                image_url=logs.get('image', ''),
+                current_price=Decimal("1.0"),
+                description=logs.get('description', None),
+                discord=attributes.get('discord') if isinstance(attributes, dict) else None,
+                website=attributes.get('website') if isinstance(attributes, dict) else None,
+                twitter=attributes.get('twitter') if isinstance(attributes, dict) else None,
+            )
+            new_coin.save()
+            print(f"Created new coin with address: {logs['mint_address']}")
 
     @sync_to_async(thread_sensitive=False)
     def handle_trade(self, signature, logs):
