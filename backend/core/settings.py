@@ -124,7 +124,7 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
-        'CONN_MAX_AGE': 60,  # persistent connections (in seconds)
+        'CONN_MAX_AGE': 90,  # persistent connections (in seconds)
         'OPTIONS': {
             'sslmode': 'require',
         }
@@ -162,7 +162,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'systems.SolanaUser'
 
-# Add to settings.py
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
