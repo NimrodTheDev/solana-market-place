@@ -1,7 +1,7 @@
-  // pages/AI Tools.tsx
+  // pages/AboutDrs.tsx
  import ComingSoon from '../components/general/ComingSoon';
  
- export default function AITools() {
+ export default function AboutDrs() {
      return <ComingSoon />;
  }
  

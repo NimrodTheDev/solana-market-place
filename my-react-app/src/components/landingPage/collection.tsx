@@ -46,6 +46,7 @@ export default function NFTCollection() {
 					))}
 				</div>
 				<div className='flex justify-center mt-6'>
+				<Link to="/CoinMarket"> {/* link to show all coins page */}
 					<button className='text-white'>
 						<svg
 							className='w-8 h-8'
@@ -61,6 +62,7 @@ export default function NFTCollection() {
 							/>
 						</svg>
 					</button>
+					</Link>
 				</div>
 			</div>
 		</div>

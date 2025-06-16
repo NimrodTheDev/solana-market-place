@@ -52,11 +52,11 @@ const CoinFilter: React.FC<CoinFilterProps> = ({
         </div>
 
         {/* Navbar */}
-        <nav className="mb-8 bg-purple-800 px-6 py-3 rounded-md flex items-center justify-between w-full"
+        <nav className="mb-8 bg-purple-800 px-6 py-3 rounded-md flex items-center justify-between w-full">
           <div className="flex items-center flex-1 max-w-lg">
             <input
               type="text"
-              placeholder="Search by ID or Coin Name"
+              placeholder="Let's Go!"
               value={searchTerm}
               onChange={onSearchChange}
               className="w-full rounded-md px-3 py-1 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
@@ -97,9 +97,8 @@ const CoinFilter: React.FC<CoinFilterProps> = ({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {coins.map((coin) => (
-           <NFTCard key={coin.address} {...coin} />
-))}
-
+              <NFTCard key={coin.address} {...coin} />
+            ))}
           </div>
         )}
       </div>
