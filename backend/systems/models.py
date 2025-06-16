@@ -652,7 +652,7 @@ class DeveloperScore(DRCScore): # the system will eventually have to leave here
     def __str__(self):
         return f"Dev Score for {self.developer.wallet_address}: {self.score}"
     
-    def recalculate_score(self): # determining succes
+    def recalculate_score(self): # determining success
         """
         Calculate developer reputation based on their coin creation history
         """
@@ -663,7 +663,7 @@ class DeveloperScore(DRCScore): # the system will eventually have to leave here
         self.abandoned_count = self.developer.coins.filter(drc_score__token_abandonment=True).count() * 150 
         # (this is wrong) the recalculation instead it should be, optmized 
         self.rug_pull_or_sell_off_count = self.developer.coins.filter(drc_score__team_abandonment=True).count() *100
-        self.no_rugs_count = self.developer.coins.filter(drc_score__team_abandonment=False).count() *100 # add when discussed
+        # self.no_rugs_count = self.developer.coins.filter(drc_score__team_abandonment=False).count() *100 # add when discussed
         self.successful_launch_count = self.developer.coins.filter(drc_score__successful_token=True).count() * 100
 
         # Calculate final score with clamping
