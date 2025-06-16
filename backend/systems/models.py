@@ -642,6 +642,7 @@ class DeveloperScore(DRCScore): # the system will eventually have to leave here
     successful_launch = models.IntegerField(default=0) # +100 # tricky
     abandoned_projects = models.IntegerField(default=0) # -150 # check in drs score if the token is adandoned
     rug_pull_or_sell_off = models.IntegerField(default=0) # -100 no rug pull + 100 how to check rug pull - coin count
+    no_rugs_count = models.IntegerField(default=0) # -100 no rug pull + 100 how to check rug pull - coin count
 
     class Meta:
         indexes = [
@@ -663,7 +664,7 @@ class DeveloperScore(DRCScore): # the system will eventually have to leave here
         self.abandoned_count = self.developer.coins.filter(drc_score__token_abandonment=True).count() * 150 
         # (this is wrong) the recalculation instead it should be, optmized 
         self.rug_pull_or_sell_off_count = self.developer.coins.filter(drc_score__team_abandonment=True).count() *100
-        # self.no_rugs_count = self.developer.coins.filter(drc_score__team_abandonment=False).count() *100 # add when discussed
+        self.no_rugs_count = self.developer.coins.filter(drc_score__team_abandonment=False).count() *100 # add when discussed
         self.successful_launch_count = self.developer.coins.filter(drc_score__successful_token=True).count() * 100
 
         # Calculate final score with clamping
