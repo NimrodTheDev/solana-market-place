@@ -11,8 +11,6 @@ const CoinMarket: React.FC = () => {
   const [loadingList, setLoadingList] = useState<boolean>(true);
   const [errorList, setErrorList] = useState<string | null>(null);
 
-  // Determine limit based on window width
-  const limit = typeof window !== "undefined" && window.innerWidth < 768 ? 5 : 10;
 
   // Fetch all coins once without filter params (server returns all)
   useEffect(() => {
@@ -21,7 +19,7 @@ const CoinMarket: React.FC = () => {
       setErrorList(null);
       try {
         const response = await axios.get<CoinData[]>(
-          `https://solana-market-place-backend.onrender.com/api/coins/topcoins?limit=${limit}`
+          `https://solana-market-place-backend.onrender.com/api/coins/`
         );
         if (response.status === 200) {
           setAllCoins(response.data);
@@ -40,7 +38,7 @@ const CoinMarket: React.FC = () => {
       }
     };
     fetchAllCoins();
-  }, [limit]);
+  }, []);
 
   // Client-side filtering logic applied on allCoins when filter or searchTerm changes
   useEffect(() => {

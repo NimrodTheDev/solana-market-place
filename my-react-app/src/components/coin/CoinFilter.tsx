@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from "react";
 import { Funnel } from "lucide-react";
-import NFTCard from "../landingPage/collection";
+import {NFTCard} from "../landingPage/collection";
 
 export interface CoinData {
   address: string;
@@ -97,7 +97,7 @@ const CoinFilter: React.FC<CoinFilterProps> = ({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {coins.map((coin) => (
-              <NFTCard key={coin.address} {...coin} />
+              <NFTCard key={coin.address} nft={coin}  />
             ))}
           </div>
         )}

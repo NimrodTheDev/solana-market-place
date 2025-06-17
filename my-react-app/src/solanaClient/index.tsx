@@ -12,7 +12,7 @@ import drc_token_json from "./drc_token.json"
 // import { DrcToken } from './drc_token_type';
 import { getProvider } from './proveder';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { publicKey } from '@project-serum/anchor/dist/cjs/utils';
+
 
 
 const TOKEN_METADATA_PROGRAM_ID = new web3.PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
@@ -22,6 +22,14 @@ interface SolanaContextType {
   InitTokenVault?: (pricePerToken: number, initialSupply: number, mintAccount: web3.Keypair) => Promise<{
     tx: any;
     vault: web3.PublicKey;
+}>
+  BuyTokenMint?: (mintAccount: web3.PublicKey, amount: number) => Promise<{
+    tx: any;
+    buyerTokenAccount: web3.PublicKey;
+}>
+  SellTokenMint?: (mintAccount: web3.PublicKey, amount: number) => Promise<{
+    tx: any;
+    sellerTokenAccount: web3.PublicKey;
 }>
 }
 
@@ -156,13 +164,158 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
     return { tx: resp, vault: vaultAccount };
   };
   
+  const BuyTokenMint = async (mintAccount: web3.PublicKey, amount: number) => {
+    const encoder = new TextEncoder();
 
+    const [tokenVault] = web3.PublicKey.findProgramAddressSync(
+      [
+        encoder.encode("token_vault"),
+        mintAccount.toBuffer()
+      ],
+      programId
+    );
+
+    const [vaultAccount] = web3.PublicKey.findProgramAddressSync(
+      [
+        encoder.encode("vault"),
+        mintAccount.toBuffer()
+      ],
+      programId
+    );
+
+    const [solVault] = web3.PublicKey.findProgramAddressSync(
+      [
+        encoder.encode("sol_vault")
+      ],
+      programId
+    );
+
+    const [vaultAuthority] = web3.PublicKey.findProgramAddressSync(
+      [
+        encoder.encode("authority"),
+        mintAccount.toBuffer()
+      ],
+      programId
+    );
+
+    // Get the buyer's associated token account
+    const [buyerTokenAccount] = web3.PublicKey.findProgramAddressSync(
+      [
+        //@ts-ignore
+        window.solana.publicKey.toBuffer(),
+        TOKEN_PROGRAM_ID.toBuffer(),
+        mintAccount.toBuffer(),
+      ],
+      new web3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')
+    );
+
+    //@ts-ignore
+    let resp = await window.solana.connect().then(async (resp) => {
+      console.log(resp);
+      if (program) {
+        const transaction = await program.methods.buyToken(
+          new BN(amount)
+        ).accounts({
+          //@ts-ignore
+          buyer: window.solana.publicKey,
+          mint: mintAccount,
+          tokenVault: tokenVault,
+          vaultAccount: vaultAccount,
+          buyerTokenAccount: buyerTokenAccount,
+          solVault: solVault,
+          vaultAuthority: vaultAuthority,
+          associatedTokenProgram: new web3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'),
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: web3.SystemProgram.programId
+        })
+          .rpc();
+
+        return transaction;
+      }
+    });
+
+    return { tx: resp, buyerTokenAccount: buyerTokenAccount };
+  };
+
+  const SellTokenMint = async (mintAccount: web3.PublicKey, amount: number) => {
+    const encoder = new TextEncoder();
+
+    const [tokenVault] = web3.PublicKey.findProgramAddressSync(
+      [
+        encoder.encode("token_vault"),
+        mintAccount.toBuffer()
+      ],
+      programId
+    );
+
+    const [vaultAccount] = web3.PublicKey.findProgramAddressSync(
+      [
+        encoder.encode("vault"),
+        mintAccount.toBuffer()
+      ],
+      programId
+    );
+
+    const [solVault] = web3.PublicKey.findProgramAddressSync(
+      [
+        encoder.encode("sol_vault")
+      ],
+      programId
+    );
+
+    const [vaultAuthority] = web3.PublicKey.findProgramAddressSync(
+      [
+        encoder.encode("authority"),
+        mintAccount.toBuffer()
+      ],
+      programId
+    );
+
+    // Get the seller's associated token account
+    const [sellerTokenAccount] = web3.PublicKey.findProgramAddressSync(
+      [
+        //@ts-ignore
+        window.solana.publicKey.toBuffer(),
+        TOKEN_PROGRAM_ID.toBuffer(),
+        mintAccount.toBuffer(),
+      ],
+      new web3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')
+    );
+
+    //@ts-ignore
+    let resp = await window.solana.connect().then(async (resp) => {
+      console.log(resp);
+      if (program) {
+        const transaction = await program.methods.sellToken(
+          new BN(amount)
+        ).accounts({
+          //@ts-ignore
+          seller: window.solana.publicKey,
+          mint: mintAccount,
+          tokenVault: tokenVault,
+          vaultAccount: vaultAccount,
+          sellerTokenAccount: sellerTokenAccount,
+          solVault: solVault,
+          vaultAuthority: vaultAuthority,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: web3.SystemProgram.programId
+        })
+          .rpc();
+
+        return transaction;
+      }
+    });
+
+    return { tx: resp, sellerTokenAccount: sellerTokenAccount };
+  };
 
   return (
     <SolanaContext.Provider
       value={{
         CreateTokenMint,
-        InitTokenVault
+        InitTokenVault,
+        BuyTokenMint,
+        SellTokenMint
       }}
     >
       {children}
