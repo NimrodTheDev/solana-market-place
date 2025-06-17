@@ -1,10 +1,11 @@
-import { useState, ReactNode, isValidElement } from 'react'
-import { ArrowRight, X, Copy, Check } from 'lucide-react';
+import { useState, ReactNode} from 'react'
+import { ArrowRight } from 'lucide-react';
 import { useSolana } from '../solanaClient/index';
 import { uploadFile } from '../solanaClient/usePinta';
 import DragAndDropFileInput from '../components/general/dragNdrop';
 import { Link } from 'react-router-dom';
 import { web3 } from '@project-serum/anchor';
+import { Toast } from '../components/general/Toast';
 // import Hero from '../components/landingPage/hero'
 
 // Add animation keyframes
@@ -37,55 +38,7 @@ interface ValidationErrors {
     pricePerToken?: string;
 }
 
-interface ToastProps {
-    message: ReactNode;
-    type: 'success' | 'error';
-    onClose: () => void;
-}
 
-function Toast({ message, type, onClose }: ToastProps) {
-    const [copied, setCopied] = useState(false);
-
-    const handleCopy = async () => {
-        let textToCopy = '';
-        if (isValidElement(message) && typeof message.props === 'object' && message.props !== null && 'to' in message.props) {
-            const to = message.props.to as string;
-            textToCopy = to.split('/tx/')[1].split('?')[0];
-        } else if (message) {
-            textToCopy = message.toString();
-        }
-
-        try {
-            await navigator.clipboard.writeText(textToCopy);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error('Failed to copy text: ', err);
-        }
-    };
-
-    return (
-        <div className={`fixed top-4 z-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all duration-300 animate-slide-up ${type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            } text-white`}>
-            <span>{message}</span>
-            <div className="flex items-center gap-1">
-                <button
-                    onClick={handleCopy}
-                    className="hover:bg-white/10 rounded-full p-1 transition-colors"
-                    title="Copy to clipboard"
-                >
-                    {copied ? <Check size={16} /> : <Copy size={16} />}
-                </button>
-                <button
-                    onClick={onClose}
-                    className="hover:bg-white/10 rounded-full p-1 transition-colors"
-                >
-                    <X size={16} />
-                </button>
-            </div>
-        </div>
-    );
-}
 
 function CreateCoin() {
     const [currentStep, setCurrentStep] = useState(1);
@@ -216,7 +169,7 @@ function CreateCoin() {
                 if (txHash) {
                     setResult(txHash.tx);
                     showToastMessage(
-                        <Link to={`https://explorer.solana.com/tx/${txHash.tx}?cluster=devnet`} className='underline'>
+                        <Link to={`https://explorer.solana.com/tx/${txHash.tx}?cluster=devnet`} target='_blank' className='underline'>
                             Token created successfully! View on Explorer
                         </Link>,
                         "success"
@@ -247,12 +200,13 @@ function CreateCoin() {
         try {
             if (mint && InitTokenVault) {
                 let resp = await InitTokenVault(Number(pricePerToken), Number(initialSupply), mint )   
+                console.log(resp)
                 setResult(resp.tx)
                 showToastMessage(
-                    <Link to={`https://explorer.solana.com/tx/${resp.tx}?cluster=devnet`} className='underline'>
-                            Token created successfully! View on Explorer
-                        </Link>,
-                        "success"
+                    <Link to={`https://explorer.solana.com/tx/${resp.tx}?cluster=devnet`} className='underline' target='_blank'>
+                            Token vault successfully initialized! View on Explorer
+                    </Link>,
+                    "success"
                 )
             }
         } catch (e: any) {
@@ -414,13 +368,6 @@ function CreateCoin() {
                             </div>
 
                             <div className="flex justify-between mt-8">
-                                {/* <button
-                                    type="button"
-                                    className="flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded transition-colors"
-                                    onClick={() => setCurrentStep(1)}
-                                >
-                                    Back
-                                </button> */}
                                 <button
                                     type="button"
                                     disabled={loading.bool}
@@ -436,7 +383,7 @@ function CreateCoin() {
                 </div>
 
                 <div className='flex flex-col items-center justify-center overflow-hidden w-full'>
-                    {result && <Link to={`https://explorer.solana.com/tx/${result}?cluster=devnet`} className='text-green-500 underline'>link to TX hash</Link>}
+                    {result && <Link to={`https://explorer.solana.com/tx/${result}?cluster=devnet`} className='text-green-500 underline' target='_blank'>link to TX hash</Link>}
                     {error && <p className='text-red-500'>{error}</p>}
                 </div>
             </div>

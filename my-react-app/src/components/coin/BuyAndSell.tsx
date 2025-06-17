@@ -1,5 +1,10 @@
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useState } from 'react';
-
+import { useSolana } from '../../solanaClient';
+import { useParams } from 'react-router-dom';
+import { PublicKey } from '@solana/web3.js';
+import { Link } from 'react-router-dom';
+import { Toast, useToast } from '../general/Toast';
 
 interface BuyAndSellProps {
     coinData?: {
@@ -8,25 +13,53 @@ interface BuyAndSellProps {
     };
 }
 
-function BuyAndSell({ }: BuyAndSellProps) {
+function BuyAndSell({coinData}: BuyAndSellProps) {
     const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
     const [amount, setAmount] = useState('0.001');
+    const {BuyTokenMint, SellTokenMint} = useSolana()
+    const { id } = useParams();
+    const { showToast, toastMessage, toastType, showToastMessage, setShowToast } = useToast();
 
+    const handleSell = async () => {
+        if (SellTokenMint && id) {
+            try {
+                const amount = 1; // or whatever amount you want to sell
+                const { tx, sellerTokenAccount } = await SellTokenMint(new PublicKey(id), amount);
+                console.log('Sell transaction:', tx);
+                console.log('Seller token account:', sellerTokenAccount.toString());
+                showToastMessage(
+                    <Link to={`https://explorer.solana.com/tx/${tx}?cluster=devnet`} target='_blank' className='underline'>
+                        Tokens sold successfully! View on Explorer
+                    </Link>,
+                    "success"
+                );
+            } catch (error) {
+                console.error('Error selling tokens:', error);
+                showToastMessage("Failed to sell tokens. Please try again.", "error");
+            }   
+        }
+    };
+        
     // Mock data for holders
-    const topHolders = [
-        { address: '8rqb2fJrj...', percentage: '92%' },
-        { address: '8rqb2fJrj...', percentage: '0.97%' },
-        { address: '8rqb2fJrj...', percentage: '0.97%' },
-        { address: '8rqb2fJrj...', percentage: '0.97%' },
-        { address: '8rqb2fJrj...', percentage: '0.97%' },
-        { address: '8rqb2fJrj...', percentage: '0.97%' },
+    const topHolders: {
+        address: string;
+        percentage: string;
+    }[] = [
+        // { address: '8rqb2fJrj...', percentage: '92%' },
+        // { address: '8rqb2fJrj...', percentage: '0.97%' },
+        // { address: '8rqb2fJrj...', percentage: '0.97%' },
+        // { address: '8rqb2fJrj...', percentage: '0.97%' },
+        // { address: '8rqb2fJrj...', percentage: '0.97%' },
     ];
 
-    const holderAnalytics = [
-        { label: 'Total Holders', value: '200,000' },
-        { label: 'T2 Holders', value: '99' },
-        { label: 'Holders with 500K-500K', value: '25%' },
-        { label: 'Holders with 500K-49M', value: '25%' },
+    const holderAnalytics: {
+        label: string;
+        value: string;
+    }[] = [
+        // { label: 'Total Holders', value: '200,000' },
+        // { label: 'T2 Holders', value: '99' },
+        // { label: 'Holders with 500K-500K', value: '25%' },
+        // { label: 'Holders with 500K-49M', value: '25%' },
     ];
 
     return (
@@ -34,7 +67,25 @@ function BuyAndSell({ }: BuyAndSellProps) {
             {/* Buy/Sell Tabs */}
             <div className="flex justify-between lg:w-64 mb-4">
                 <button
-                    onClick={() => setActiveTab('buy')}
+                    onClick={() => {
+                        setActiveTab('buy')
+                        if (BuyTokenMint && id) {
+                            BuyTokenMint(new PublicKey(id), Number(amount))
+                                .then((res) => {
+                                    console.log(res);
+                                    showToastMessage(
+                                        <Link to={`https://explorer.solana.com/tx/${res.tx}?cluster=devnet`} target='_blank' className='underline'>
+                                            Tokens bought successfully! View on Explorer
+                                        </Link>,
+                                        "success"
+                                    );
+                                })
+                                .catch((error) => {
+                                    console.error('Error buying tokens:', error);
+                                    showToastMessage("Failed to buy tokens. Please try again.", "error");
+                                });
+                        }
+                    }}
                     className={` py-2 px-4 rounded-md w-24  font-medium ${activeTab === 'buy'
                         ? 'bg-custom-light-purple text-white'
                         : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -43,7 +94,10 @@ function BuyAndSell({ }: BuyAndSellProps) {
                     Buy
                 </button>
                 <button
-                    onClick={() => setActiveTab('sell')}
+                    onClick={() => {
+                        setActiveTab('sell')
+                        handleSell()
+                    }}
                     className={` py-2 px-4 rounded-md w-24 font-medium ${activeTab === 'sell'
                         ? 'bg-custom-light-purple text-white'
                         : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -55,24 +109,21 @@ function BuyAndSell({ }: BuyAndSellProps) {
 
             {/* Amount Input */}
             <div className="mb-4">
-
                 <div className="relative">
                     <input
                         type="number"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
-                        className="w-full bg-custom-dark-blue border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-purple-500"
+                        className="w-full bg-custom-dark-blue border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:border-purple-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         step="0.001"
                         min="0"
                     />
-                    <span className="absolute right-3 top-2 text-gray-400">SOL</span>
+                    <span className="absolute right-3 top-2 text-gray-400">{coinData?.ticker}</span>
                 </div>
             </div>
 
             {/* Connect Wallet Button */}
-            <button className="w-full bg-custom-light-purple hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-md mb-6 transition-colors">
-                Connect Wallet to trade
-            </button>
+            <WalletMultiButton />
 
             {/* Top Holders Section */}
             <div className="mb-6">
@@ -113,6 +164,14 @@ function BuyAndSell({ }: BuyAndSellProps) {
                     ))}
                 </div>
             </div>
+
+            {showToast && (
+                <Toast
+                    message={toastMessage}
+                    type={toastType}
+                    onClose={() => setShowToast(false)}
+                />
+            )}
         </div>
     );
 }
