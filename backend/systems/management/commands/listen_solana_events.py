@@ -129,24 +129,12 @@ class Command(BaseCommand):
             print(e)
         return log
 
-    @sync_to_async(thread_sensitive=False)
+    @sync_to_async(thread_sensitive=True)
     def handle_coin_creation(self, signature: str, logs: dict):
         """Handle coin creation event"""
         print(logs)
         creator = None
         for attempt in range(3):
-        #     try:
-        #         creator = SolanaUser.objects.get(wallet_address=logs["creator"]) # flag if created from here
-        #         break
-        #     except SolanaUser.DoesNotExist:
-        #         print("Creator not found.")
-        #         return
-        #     except OperationalError as e:
-        #         print(f"DB OperationalError (attempt {attempt+1}/3): {e}")
-        #         # time.sleep(1)
-        #     except Exception as e:
-        #         print(f"Unexpected error: {e}")
-        #         return
 
             try:
                 creator = SolanaUser.objects.get(wallet_address=logs["creator"])
@@ -172,7 +160,7 @@ class Command(BaseCommand):
             new_coin.save()
             print(f"Created new coin with address: {logs['mint_address']}")
 
-    @sync_to_async(thread_sensitive=False)
+    @sync_to_async(thread_sensitive=True)
     def handle_trade(self, signature, logs):
         """Handle coin creation event"""
         tradeuser = None
