@@ -41,7 +41,7 @@ export default function Header() {
 				{/* Desktop Navigation links */}
 				<nav className='hidden md:flex md:items-center gap-6 text-sm text-gray-300'>
 					<Link to='/Wallet' className='block md:inline hover:text-white'>
-						Wallet
+						Dashboard
 					</Link>
 					<Link to="./CoinMarket" className='block md:inline hover:text-white'>
 						Coin Market
