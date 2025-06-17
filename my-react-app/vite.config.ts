@@ -12,15 +12,16 @@ export default defineConfig({
       stream: "stream-browserify",
       zlib: "browserify-zlib",
       util: 'util',
-      buffer: 'buffer'
+      buffer: 'buffer',
+      'bn.js': 'bn.js'
     }
   },
   optimizeDeps: {
-    include: ["buffer"],
+    include: ["buffer", "bn.js"],
     esbuildOptions: {
       define: {
         global: 'globalThis'
       }
     }
   }
-})
+}) 
