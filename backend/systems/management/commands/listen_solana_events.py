@@ -163,9 +163,10 @@ class Command(BaseCommand):
                     user= tradeuser,
                     coin=coin,
                     trade_type=self.get_transaction_type(logs["transfer_type"]),
-                    coin_amount=Decimal(logs["coin_amount"]),
-                    sol_amount=Decimal(logs["sol_amount"]),
+                    coin_amount=logs["coin_amount"],
+                    sol_amount=logs["sol_amount"],
                 )
+                print(new_trade.coin_amount, new_trade.sol_amount)
                 new_trade.save()
                 print(f"Created new trade with transaction_hash: {signature}")
         except Exception as e:
