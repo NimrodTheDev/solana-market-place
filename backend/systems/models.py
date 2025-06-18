@@ -608,7 +608,7 @@ class CoinDRCScore(DRCScore):
         
         # Apply bi-weekly checks if needed
         if (not self.last_biweekly_update or 
-            not self._is_same_period(self.last_biweekly_update, now, 14)):#self._is_same_biweekly_period(self.last_biweekly_update, now)):
+            not self._is_same_period(self.last_biweekly_update, now, 14)):
             self.biweekly_checkup()
 
         # Apply monthly recalculation if needed
@@ -740,7 +740,7 @@ class TraderScore(DRCScore): # check extensivily
                 for buy in buy_trades:
                     time_diff = (trade.created_at - buy.created_at).total_seconds() / 3600
                     if time_diff <= 2:
-                        price_diff = float(trade.sol_amount / trade.coin_amount) / float(buy.sol_amount / buy.coin_amount)
+                        price_diff = float(trade.sol_amount / max(trade.coin_amount), 0.0001) / float(buy.sol_amount / max(buy.coin_amount,0.0001))
                         if price_diff > 2:
                             suspicious_count += 1
                             break

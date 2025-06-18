@@ -9,6 +9,7 @@ from asgiref.sync import sync_to_async
 import requests
 import aiohttp
 import time
+from django.db import connection
 
 class Command(BaseCommand):
     help = 'Listen for Solana program events'
@@ -119,6 +120,7 @@ class Command(BaseCommand):
             url = f"https://ipfs.io/ipfs/{ipfs_hash}"
 
             response = requests.get(url)
+            print(url)
 
             if response.status_code == 200:
                 content:dict = response.json()  # raw bytes
@@ -131,61 +133,88 @@ class Command(BaseCommand):
 
     @sync_to_async(thread_sensitive=True)
     def handle_coin_creation(self, signature: str, logs: dict):
-        """Handle coin creation event"""
-        print(logs)
-        creator = None
-        for attempt in range(3):
+        # creator = None
+        creator = self.custom_check(
+            lambda: SolanaUser.objects.get(wallet_address=logs["creator"]),
+            not_found_exception=SolanaUser.DoesNotExist
+        )
 
-            try:
-                creator = SolanaUser.objects.get(wallet_address=logs["creator"])
-                break
-            except SolanaUser.DoesNotExist:
-                print("Creator not found.")
-            
-        if not Coin.objects.filter(address=logs["mint_address"]).exists() and creator is not None:
-            attributes = logs.get('attributes')
-            new_coin = Coin(
-                address=logs["mint_address"],
-                name=logs["token_name"],
-                ticker=logs["token_symbol"],
-                creator=creator,
-                total_supply=Decimal("1000000.0"),
-                image_url=logs.get('image', ''),
-                current_price=Decimal("1.0"),
-                description=logs.get('description', None),
-                discord=attributes.get('discord') if isinstance(attributes, dict) else None,
-                website=attributes.get('website') if isinstance(attributes, dict) else None,
-                twitter=attributes.get('twitter') if isinstance(attributes, dict) else None,
-            )
-            new_coin.save()
-            print(f"Created new coin with address: {logs['mint_address']}")
+        try:
+            self.ensure_connection()
+            if not Coin.objects.filter(address=logs["mint_address"]).exists() and creator:
+                attributes = logs.get('attributes') or {}
+                new_coin = Coin(
+                    address=logs["mint_address"],
+                    name=logs["token_name"],
+                    ticker=logs["token_symbol"],
+                    creator=creator,
+                    total_supply=Decimal("1000000.0"),
+                    image_url=logs.get("image", ""),
+                    current_price=Decimal("1.0"),
+                    description=logs.get("description", None),
+                    discord=attributes.get("discord"),
+                    website=attributes.get("website"),
+                    twitter=attributes.get("twitter"),
+                )
+                new_coin.save()
+                print(f"Created new coin with address: {logs['mint_address']}")
+        except Exception as e:
+            print(f"Error while saving coin: {e}")
 
     @sync_to_async(thread_sensitive=True)
     def handle_trade(self, signature, logs):
         """Handle coin creation event"""
         tradeuser = None
         coin = None
-        try:
-            tradeuser = SolanaUser.objects.get(wallet_address=logs["user"])
-        except SolanaUser.DoesNotExist:
-            print("Creator not found.")
-        
-        try:
-            coin = Coin.objects.get(address=logs["mint_address"])
-        except Coin.DoesNotExist:
-            print("Coins not found.")
 
-        if not Trade.objects.filter(transaction_hash=signature).exists() and tradeuser != None and coin != None:
-            new_trade = Trade(
-                transaction_hash=signature,
-                user= tradeuser,
-                coin=coin,
-                trade_type=self.get_transaction_type(logs["transfer_type"]),
-                coin_amount=logs["coin_amount"],
-                sol_amount=logs["sol_amount"],
-            )
-            new_trade.save()
-            print(f"Created new trade with transaction_hash: {signature}")
+        tradeuser = self.custom_check(
+            lambda: SolanaUser.objects.get(wallet_address=logs["user"]),
+            not_found_exception=SolanaUser.DoesNotExist
+        )
+
+        coin = self.custom_check(
+            lambda: Coin.objects.get(address=logs["mint_address"]),
+            not_found_exception=Coin.DoesNotExist
+        )
+
+        try:
+            self.ensure_connection()
+            if not Trade.objects.filter(transaction_hash=signature).exists() and tradeuser != None and coin != None:
+                new_trade = Trade(
+                    transaction_hash=signature,
+                    user= tradeuser,
+                    coin=coin,
+                    trade_type=self.get_transaction_type(logs["transfer_type"]),
+                    coin_amount=logs["coin_amount"],
+                    sol_amount=logs["sol_amount"],
+                )
+                new_trade.save()
+                print(f"Created new trade with transaction_hash: {signature}")
+        except Exception as e:
+            print(f"Error while saving coin: {e}")
+
+    def custom_check(self, info: callable, not_found_exception: type[Exception]):
+        return_value = None
+        for attempt in range(3):
+            try:
+                self.ensure_connection()
+                return_value = info()
+                break
+            except not_found_exception as e:
+                print(f"Specific object({not_found_exception}) not found: {e}")
+                return
+            except OperationalError as e:
+                print(f"DB OperationalError (attempt {attempt + 1}/3): {e}")
+                time.sleep(1)
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                return
+        return return_value
+
+
+    def ensure_connection(self):
+        if connection.connection and connection.connection.closed:
+            connection.close()
 
     def get_transaction_type(self, ttype):
         ttype = str(ttype)
