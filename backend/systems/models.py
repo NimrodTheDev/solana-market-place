@@ -141,8 +141,8 @@ class Trade(models.Model): # change to transaction hash
     user = models.ForeignKey(SolanaUser, on_delete=models.CASCADE, related_name='trades', to_field="wallet_address")
     coin = models.ForeignKey(Coin, on_delete=models.CASCADE, related_name='trades', to_field="address")
     trade_type = models.CharField(max_length=14, choices=TRADE_TYPES)
-    coin_amount = models.DecimalField(max_digits=20, decimal_places=8)
-    sol_amount = models.DecimalField(max_digits=20, decimal_places=8)
+    coin_amount = models.DecimalField(max_digits=20, decimal_places=10)
+    sol_amount = models.DecimalField(max_digits=20, decimal_places=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

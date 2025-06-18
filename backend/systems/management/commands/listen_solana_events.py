@@ -87,28 +87,6 @@ class Command(BaseCommand):
                             await self.handle_trade(signature, event)
                             break
 
-    async def get_metadata2(self, log: dict):
-        try:
-            ipfuri: str = log["token_uri"]
-            ipfs_hash = ipfuri.split("/")
-            for i in range(2):
-                if ipfs_hash[-(i + 1)] != "":
-                    ipfs_hash = ipfs_hash[-(i + 1)]
-                    break
-            url = f"https://ipfs.io/ipfs/{ipfs_hash}"
-            print(url)
-
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    if response.status == 200:
-                        content = await response.json()
-                        log.update(content)
-                    else:
-                        print(f"Failed to fetch: {response.status}")
-        except Exception as e:
-            print(e)
-        return log
-    
     async def get_metadata(self, log:dict):
         try:
             ipfuri:str = log["token_uri"]
@@ -164,8 +142,8 @@ class Command(BaseCommand):
     @sync_to_async(thread_sensitive=True)
     def handle_trade(self, signature, logs):
         """Handle coin creation event"""
-        tradeuser = None
-        coin = None
+        # tradeuser = None
+        # coin = None
 
         tradeuser = self.custom_check(
             lambda: SolanaUser.objects.get(wallet_address=logs["user"]),
@@ -176,7 +154,7 @@ class Command(BaseCommand):
             lambda: Coin.objects.get(address=logs["mint_address"]),
             not_found_exception=Coin.DoesNotExist
         )
-
+        print(logs)
         try:
             self.ensure_connection()
             if not Trade.objects.filter(transaction_hash=signature).exists() and tradeuser != None and coin != None:
@@ -191,7 +169,7 @@ class Command(BaseCommand):
                 new_trade.save()
                 print(f"Created new trade with transaction_hash: {signature}")
         except Exception as e:
-            print(f"Error while saving coin: {e}")
+            print(f"Error while saving trade: {e}")
 
     def custom_check(self, info: callable, not_found_exception: type[Exception]):
         return_value = None
@@ -210,7 +188,6 @@ class Command(BaseCommand):
                 print(f"Unexpected error: {e}")
                 return
         return return_value
-
 
     def ensure_connection(self):
         if connection.connection and connection.connection.closed:
