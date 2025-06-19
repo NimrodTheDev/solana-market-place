@@ -124,13 +124,11 @@ class Command(BaseCommand):
         return log
 
     def extract_ipfs_hash(self, uri: str) -> str:
-        ipfs_hash = uri.split("/")
-        for i in range(2):
-            if ipfs_hash[-(i+1)] != "":
-                ipfs_hash = ipfs_hash[-(i+1)]
-                return ipfs_hash
+        parts = uri.rstrip("/").split("/")
+        if parts:
+            return parts[-1]
         return ""
-
+    
     @sync_to_async(thread_sensitive=True)
     def handle_coin_creation(self, signature: str, logs: dict):
         creator = self.custom_check(
