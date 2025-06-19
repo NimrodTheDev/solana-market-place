@@ -678,6 +678,47 @@ class DeveloperScore(DRCScore): # the system will eventually have to leave here
         ])
         
         return self.score
+    
+    def get_score_breakdown(self) -> dict:
+        """
+        Returns a dictionary showing the breakdown of how the score was calculated.
+        """
+        base_score = 150
+
+        # Calculate each factor again (same as in recalculate_score)
+        abandoned_count = self.developer.coins.filter(drc_score__token_abandonment=True).count()
+        rug_pull_count = self.developer.coins.filter(drc_score__team_abandonment=True).count()
+        successful_launch_count = self.developer.coins.filter(drc_score__successful_token=True).count()
+        no_rugs_count = self.developer.coins.filter(drc_score__team_abandonment=False).count()
+
+        # Compute individual scores
+        abandoned_score = abandoned_count * 150
+        rug_pull_score = rug_pull_count * 100
+        successful_launch_score = successful_launch_count * 100
+        no_rugs_score = no_rugs_count * 100
+
+        total_score = base_score + successful_launch_score - (abandoned_score + rug_pull_score)
+
+        return {
+            "base_score": base_score,
+            "successful_launches": {
+                "count": successful_launch_count,
+                "score": successful_launch_score,
+            },
+            "abandoned_projects": {
+                "count": abandoned_count,
+                "penalty": abandoned_score,
+            },
+            "rug_pulls_or_sell_offs": {
+                "count": rug_pull_count,
+                "penalty": rug_pull_score,
+            },
+            "no_rug_tokens": {
+                "count": no_rugs_count,
+                "bonus": no_rugs_score,  # Note: this is not used in `recalculate_score` yet
+            },
+            "final_score": max(total_score, 0),
+        }
 
 class TraderScore(DRCScore): # check extensivily
     """
