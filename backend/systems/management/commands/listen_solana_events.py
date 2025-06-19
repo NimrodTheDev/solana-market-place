@@ -87,27 +87,49 @@ class Command(BaseCommand):
                             await self.handle_trade(signature, event)
                             break
 
-    async def get_metadata(self, log:dict):
+    async def get_metadata(self, log: dict) -> dict:
         try:
-            ipfuri:str = log["token_uri"]
-            ipfs_hash = ipfuri.split("/")
-            for i in range(2):
-                if ipfs_hash[-(i+1)] != "":
-                    ipfs_hash = ipfs_hash[-(i+1)]
-                    break
-            url = f"https://ipfs.io/ipfs/{ipfs_hash}"
+            ipfuri: str = log.get("token_uri", "")
+            ipfs_hash = self.extract_ipfs_hash(ipfuri)
 
-            response = requests.get(url)
-            print(url)
+            if not ipfs_hash:
+                print(f"Invalid IPFS URI: {ipfuri}")
+                return log
 
-            if response.status_code == 200:
-                content:dict = response.json()  # raw bytes
-                log.update(content)
-            else:
-                print(f"Failed to fetch: {response.status_code}")
+            gateways = [
+                "https://ipfs.io/ipfs/",
+                "https://cloudflare-ipfs.com/ipfs/",
+                "https://gateway.pinata.cloud/ipfs/"
+            ]
+
+            timeout = aiohttp.ClientTimeout(total=10)
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                for gateway in gateways:
+                    url = f"{gateway}{ipfs_hash}"
+                    try:
+                        # print(f"Trying: {url}")
+                        async with session.get(url) as response:
+                            if response.status == 200:
+                                content = await response.json()
+                                log.update(content)
+                                return log  # Success
+                            else:
+                                print(f"Failed to fetch: {response.status}")
+                    except Exception as e:
+                        print(f"Error on {url}: {e}")
+
         except Exception as e:
-            print(e)
+            print(f"Unexpected error: {e}")
+        
         return log
+
+    def extract_ipfs_hash(self, uri: str) -> str:
+        ipfs_hash = uri.split("/")
+        for i in range(2):
+            if ipfs_hash[-(i+1)] != "":
+                ipfs_hash = ipfs_hash[-(i+1)]
+                return ipfs_hash
+        return ""
 
     @sync_to_async(thread_sensitive=True)
     def handle_coin_creation(self, signature: str, logs: dict):
@@ -212,4 +234,3 @@ class Command(BaseCommand):
         for num, log in enumerate(logs): # get the function id
             if "Program log: Instruction:" in log:
                 return log.split(": ")[-1], num
-            
