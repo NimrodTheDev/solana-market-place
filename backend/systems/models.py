@@ -727,6 +727,7 @@ class TraderScore(DRCScore): # check extensivily
 
     def _check_flash_pump_and_dump(self):
         recent_trades = self.trader.trades.order_by('-created_at')[:20]
+        lowest_decimal = 0.00000000001
 
         suspicious_count = 0
         for trade in recent_trades:
@@ -740,8 +741,8 @@ class TraderScore(DRCScore): # check extensivily
                 for buy in buy_trades:
                     time_diff = (trade.created_at - buy.created_at).total_seconds() / 3600
                     if time_diff <= 2:
-                        print(trade.sol_amount, max(trade.coin_amount, 0.0001), buy.sol_amount, max(buy.coin_amount, 0.0001), float(trade.sol_amount / max(trade.coin_amount, 0.0001)), float(buy.sol_amount / max(buy.coin_amount, 0.0001)))
-                        price_diff = float(trade.sol_amount / max(trade.coin_amount, 0.0001)) / float(buy.sol_amount / max(buy.coin_amount, 0.0001))
+                        price_diff = (float(trade.sol_amount / max(trade.coin_amount, lowest_decimal))
+                                      / max(float(buy.sol_amount / max(buy.coin_amount, lowest_decimal)), lowest_decimal))
                         if price_diff > 2:
                             suspicious_count += 1
                             break
