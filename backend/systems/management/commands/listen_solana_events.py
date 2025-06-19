@@ -111,7 +111,6 @@ class Command(BaseCommand):
 
     @sync_to_async(thread_sensitive=True)
     def handle_coin_creation(self, signature: str, logs: dict):
-        # creator = None
         creator = self.custom_check(
             lambda: SolanaUser.objects.get(wallet_address=logs["creator"]),
             not_found_exception=SolanaUser.DoesNotExist
@@ -133,6 +132,7 @@ class Command(BaseCommand):
                     discord=attributes.get("discord"),
                     website=attributes.get("website"),
                     twitter=attributes.get("twitter"),
+                    decimals = logs["decimals"],
                 )
                 new_coin.save()
                 print(f"Created new coin with address: {logs['mint_address']}")
@@ -150,11 +150,16 @@ class Command(BaseCommand):
             not_found_exception=SolanaUser.DoesNotExist
         )
 
-        coin = self.custom_check(
+        coin:Coin = self.custom_check(
             lambda: Coin.objects.get(address=logs["mint_address"]),
             not_found_exception=Coin.DoesNotExist
         )
+
+        coin_amount = self.bigint_to_float(logs["coin_amount"], coin.decimals)
+        sol_amount = self.bigint_to_float(logs["sol_amount"], coin.decimals)
         print(logs)
+        print(coin_amount, sol_amount)
+        # create a functin to convert from bigint to float
         try:
             self.ensure_connection()
             if not Trade.objects.filter(transaction_hash=signature).exists() and tradeuser != None and coin != None:
@@ -163,14 +168,20 @@ class Command(BaseCommand):
                     user= tradeuser,
                     coin=coin,
                     trade_type=self.get_transaction_type(logs["transfer_type"]),
-                    coin_amount=logs["coin_amount"],
-                    sol_amount=logs["sol_amount"],
+                    coin_amount=coin_amount,
+                    sol_amount=sol_amount,
+                    # coin_amount=logs["coin_amount"],
+                    # sol_amount=logs["sol_amount"],
                 )
-                print(new_trade.coin_amount, new_trade.sol_amount)
+                print(new_trade.coin_amount)
                 new_trade.save()
                 print(f"Created new trade with transaction_hash: {signature}")
         except Exception as e:
             print(f"Error while saving trade: {e}")
+
+    def bigint_to_float(self, value: int, power:int=9) -> float:
+        result = value / pow(10, power)
+        return result
 
     def custom_check(self, info: callable, not_found_exception: type[Exception]):
         return_value = None
@@ -208,3 +219,4 @@ class Command(BaseCommand):
         for num, log in enumerate(logs): # get the function id
             if "Program log: Instruction:" in log:
                 return log.split(": ")[-1], num
+            
