@@ -142,9 +142,6 @@ class Command(BaseCommand):
     @sync_to_async(thread_sensitive=True)
     def handle_trade(self, signature, logs):
         """Handle coin creation event"""
-        # tradeuser = None
-        # coin = None
-
         tradeuser = self.custom_check(
             lambda: SolanaUser.objects.get(wallet_address=logs["user"]),
             not_found_exception=SolanaUser.DoesNotExist
@@ -158,24 +155,21 @@ class Command(BaseCommand):
         coin_amount = self.bigint_to_float(logs["coin_amount"], coin.decimals)
         sol_amount = self.bigint_to_float(logs["sol_amount"], coin.decimals)
         print(logs)
-        print(coin_amount, sol_amount)
-        # create a functin to convert from bigint to float
-        # try:
-        self.ensure_connection()
-        if not Trade.objects.filter(transaction_hash=signature).exists() and tradeuser != None and coin != None:
-            new_trade = Trade(
-                transaction_hash=signature,
-                user= tradeuser,
-                coin=coin,
-                trade_type=self.get_transaction_type(logs["transfer_type"]),
-                coin_amount=coin_amount,
-                sol_amount=sol_amount,
-            )
-            print(new_trade.coin_amount)
-            new_trade.save()
-            print(f"Created new trade with transaction_hash: {signature}")
-        # except Exception as e:
-        #     print(f"Error while saving trade: {e}")
+        try:
+            self.ensure_connection()
+            if not Trade.objects.filter(transaction_hash=signature).exists() and tradeuser != None and coin != None:
+                new_trade = Trade(
+                    transaction_hash=signature,
+                    user= tradeuser,
+                    coin=coin,
+                    trade_type=self.get_transaction_type(logs["transfer_type"]),
+                    coin_amount=coin_amount,
+                    sol_amount=sol_amount,
+                )
+                new_trade.save()
+                print(f"Created new trade with transaction_hash: {signature}")
+        except Exception as e:
+            print(f"Error while saving trade: {e}")
 
     def bigint_to_float(self, value: int, power:int=9) -> float:
         result = Decimal(value).scaleb(-power).quantize(Decimal(f'0.{"0"*(power-1)}1'))  # for 9 decimals
