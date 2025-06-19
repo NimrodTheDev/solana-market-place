@@ -140,7 +140,7 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
       console.log(resp);
       if (program) {
         const transaction = await program.methods.initVault(
-          new BN(pricePerToken),
+          new BN(pricePerToken * 1000000000),
           new BN(initialSupply)
         ).accounts({
           //@ts-ignore
