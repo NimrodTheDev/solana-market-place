@@ -180,7 +180,8 @@ class Command(BaseCommand):
             print(f"Error while saving trade: {e}")
 
     def bigint_to_float(self, value: int, power:int=9) -> float:
-        result = value / pow(10, power)
+        # result = value / pow(10, power)
+        result = Decimal(value).scaleb(-power).quantize(Decimal('0.000000001'))  # for 9 decimals
         return result
 
     def custom_check(self, info: callable, not_found_exception: type[Exception]):
