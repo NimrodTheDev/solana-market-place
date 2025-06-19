@@ -741,7 +741,7 @@ class TraderScore(DRCScore): # check extensivily
                 for buy in buy_trades:
                     time_diff = (trade.created_at - buy.created_at).total_seconds() / 3600
                     if time_diff <= 2:
-                        price_diff = float(trade.sol_amount / max(trade.coin_amount), 0.0001) / float(buy.sol_amount / max(buy.coin_amount,0.0001))
+                        price_diff = float(trade.sol_amount / max(trade.coin_amount, 0.0001)) / float(buy.sol_amount / max(buy.coin_amount, 0.0001))
                         if price_diff > 2:
                             suspicious_count += 1
                             break
