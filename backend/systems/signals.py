@@ -95,8 +95,7 @@ def update_holdings_and_scores_on_trade(sender, instance, created, **kwargs):
         
         # Update holders count and recalculate scores
         coin_score.update_holders_count()
-        coin_score.recalculate_score()
-        trader_score.recalculate_score()
+        # trader_score.recalculate_score()
         broadcast_trade_created(instance)
 
 @receiver(post_save, sender=Coin)
@@ -122,16 +121,16 @@ def update_on_holdings_delete(sender, instance, **kwargs):
     
     # Update coin score holders count
     try:
-        coin_score = instance.coin.drc_score
+        coin_score:CoinDRCScore = instance.coin.drc_score
         coin_score.update_holders_count()
-        coin_score.recalculate_score()
+        # coin_score.recalculate_score() # change to support ore scaled growth
     except CoinDRCScore.DoesNotExist:
         pass
    
     # Update trader score
     try:
-        trader_score = instance.user.trader_score
-        trader_score.recalculate_score()
+        trader_score:TraderScore = instance.user.trader_score
+        # trader_score.recalculate_score() # change to support ore sclaed growth
     except TraderScore.DoesNotExist:
         pass
 
