@@ -9,7 +9,7 @@ from asgiref.sync import sync_to_async
 import requests
 import aiohttp
 import time
-from django.db import connection
+from django.db import connection, close_old_connections
 
 class Command(BaseCommand):
     help = 'Listen for Solana program events'
@@ -199,9 +199,10 @@ class Command(BaseCommand):
                 return
         return return_value
 
-    def ensure_connection(self):
-        if connection.connection and connection.connection.closed:
-            connection.close()
+    def ensure_connection():
+        close_old_connections()
+        if not connection.is_usable():
+            connection.connect()
 
     def get_transaction_type(self, ttype):
         ttype = str(ttype)
