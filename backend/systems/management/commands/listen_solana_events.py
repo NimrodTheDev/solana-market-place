@@ -42,6 +42,13 @@ class Command(BaseCommand):
                 "decimals": "u8",
             }
         )
+        self.decoders["InitVault"] = TokenEventDecoder(
+            "InitVaultEvent", {
+                "mint_address": "pubkey",
+                "price_per_token": "u64",
+                "initial_supply": "u64",
+            }
+        )
         trade_decoder = TokenEventDecoder(
             "TokenTransferEvent", {
                 "transfer_type": "u8",
@@ -86,6 +93,13 @@ class Command(BaseCommand):
                         if event:
                             await self.handle_trade(signature, event)
                             break
+            if event_type == "InitVault":
+                if event_type in self.decoders:
+                    for log in logs[currect_log:]:
+                        event = self.decoders[event_type].decode(log)
+                        if event:
+                            await self.handle_coin_initalization(signature, event)
+                            break
 
     async def get_metadata(self, log: dict) -> dict:
         try:
@@ -120,7 +134,6 @@ class Command(BaseCommand):
 
         except Exception as e:
             print(f"Unexpected error: {e}")
-        
         return log
 
     def extract_ipfs_hash(self, uri: str) -> str:
@@ -156,6 +169,21 @@ class Command(BaseCommand):
                 )
                 new_coin.save()
                 print(f"Created new coin with address: {logs['mint_address']}")
+        except Exception as e:
+            print(f"Error while saving coin: {e}")
+    
+    @sync_to_async(thread_sensitive=True)
+    def handle_coin_initalization(self, signature: str, logs: dict):
+        coin:Coin = self.custom_check(
+            lambda: Coin.objects.get(address=logs["mint_address"]),
+            not_found_exception=Coin.DoesNotExist
+        )
+        coin.total_supply = self.bigint_to_float(logs["initial_supply"], coin.decimals)
+        coin.price_per_token = logs["price_per_token"]
+        try:
+            self.ensure_connection()
+            coin.save()
+            print(f"Initailized coin with address: {logs['mint_address']}")
         except Exception as e:
             print(f"Error while saving coin: {e}")
 
