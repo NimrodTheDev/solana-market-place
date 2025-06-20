@@ -141,7 +141,7 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
       if (program) {
         const transaction = await program.methods.initVault(
           new BN(pricePerToken),
-          new BN(initialSupply)
+          new BN(initialSupply * 1000000000)
         ).accounts({
           //@ts-ignore
           payer: window.solana.publicKey,
@@ -214,7 +214,7 @@ export const SolanaProvider = ({ children }: SolanaProviderProps) => {
       console.log(resp);
       if (program) {
         const transaction = await program.methods.buyToken(
-          new BN(amount)
+          new BN(amount * 1000000000)
         ).accounts({
           //@ts-ignore
           buyer: window.solana.publicKey,

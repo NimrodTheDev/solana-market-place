@@ -64,7 +64,7 @@ export async function uploadFile(
 
     // Upload the metadata file
     const metadataUpload = await pinata.upload.public.file(metadataFile);
-    const metadataUrl = `https://orange-official-perch-389.mypinata.cloud/ipfs/${metadataUpload.cid}`;
+    const metadataUrl = `https://${gateway}/ipfs/${metadataUpload.cid}`;
 
     return metadataUrl;
   } catch (error) {

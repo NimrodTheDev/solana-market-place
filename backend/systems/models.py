@@ -40,7 +40,6 @@ class SolanaUser(AbstractUser):
     username = None  # Remove username
     email = None  # Remove email
     wallet_address = models.CharField(max_length=44, unique=True, primary_key=True)
-
     display_name = models.CharField(max_length=150, blank=True)
     bio = models.TextField(blank=True)
 
@@ -85,6 +84,7 @@ class Coin(models.Model): # we have to store the ath
     twitter = models.CharField(max_length=255, blank=True, null=True)
     score = models.IntegerField(default=150)
     decimals = models.SmallIntegerField(default= 9)
+    price_per_token = models.IntegerField(default= 25)
 
     current_price = models.DecimalField(max_digits=20, decimal_places=8, default=0)  # Added price field # start calculating
     ath = models.DecimalField(max_digits=20, decimal_places=8, default=0) # will work like coin to store the highest

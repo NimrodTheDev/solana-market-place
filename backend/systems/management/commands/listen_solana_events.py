@@ -9,7 +9,7 @@ from asgiref.sync import sync_to_async
 import requests
 import aiohttp
 import time
-from django.db import connection
+from django.db import connection, close_old_connections
 
 class Command(BaseCommand):
     help = 'Listen for Solana program events'
@@ -40,6 +40,13 @@ class Command(BaseCommand):
                 "mint_address": "pubkey",
                 "creator": "pubkey",
                 "decimals": "u8",
+            }
+        )
+        self.decoders["InitVault"] = TokenEventDecoder(
+            "InitVaultEvent", {
+                "mint_address": "pubkey",
+                "price_per_token": "u64",
+                "initial_supply": "u64",
             }
         )
         trade_decoder = TokenEventDecoder(
@@ -86,29 +93,55 @@ class Command(BaseCommand):
                         if event:
                             await self.handle_trade(signature, event)
                             break
+            if event_type == "InitVault":
+                if event_type in self.decoders:
+                    for log in logs[currect_log:]:
+                        event = self.decoders[event_type].decode(log)
+                        if event:
+                            await self.handle_coin_initalization(signature, event)
+                            break
 
-    async def get_metadata(self, log:dict):
+    async def get_metadata(self, log: dict) -> dict:
         try:
-            ipfuri:str = log["token_uri"]
-            ipfs_hash = ipfuri.split("/")
-            for i in range(2):
-                if ipfs_hash[-(i+1)] != "":
-                    ipfs_hash = ipfs_hash[-(i+1)]
-                    break
-            url = f"https://ipfs.io/ipfs/{ipfs_hash}"
+            ipfuri: str = log.get("token_uri", "")
+            ipfs_hash = self.extract_ipfs_hash(ipfuri)
 
-            response = requests.get(url)
-            print(url)
+            if not ipfs_hash:
+                print(f"Invalid IPFS URI: {ipfuri}")
+                return log
 
-            if response.status_code == 200:
-                content:dict = response.json()  # raw bytes
-                log.update(content)
-            else:
-                print(f"Failed to fetch: {response.status_code}")
+            gateways = [
+                "https://ipfs.io/ipfs/",
+                "https://cloudflare-ipfs.com/ipfs/",
+                "https://gateway.pinata.cloud/ipfs/"
+            ]
+
+            timeout = aiohttp.ClientTimeout(total=10)
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                for gateway in gateways:
+                    url = f"{gateway}{ipfs_hash}"
+                    try:
+                        # print(f"Trying: {url}")
+                        async with session.get(url) as response:
+                            if response.status == 200:
+                                content = await response.json()
+                                log.update(content)
+                                return log  # Success
+                            else:
+                                print(f"Failed to fetch: {response.status}")
+                    except Exception as e:
+                        print(f"Error on {url}: {e}")
+
         except Exception as e:
-            print(e)
+            print(f"Unexpected error: {e}")
         return log
 
+    def extract_ipfs_hash(self, uri: str) -> str:
+        parts = uri.rstrip("/").split("/")
+        if parts:
+            return parts[-1]
+        return ""
+    
     @sync_to_async(thread_sensitive=True)
     def handle_coin_creation(self, signature: str, logs: dict):
         creator = self.custom_check(
@@ -136,6 +169,21 @@ class Command(BaseCommand):
                 )
                 new_coin.save()
                 print(f"Created new coin with address: {logs['mint_address']}")
+        except Exception as e:
+            print(f"Error while saving coin: {e}")
+    
+    @sync_to_async(thread_sensitive=True)
+    def handle_coin_initalization(self, signature: str, logs: dict):
+        coin:Coin = self.custom_check(
+            lambda: Coin.objects.get(address=logs["mint_address"]),
+            not_found_exception=Coin.DoesNotExist
+        )
+        coin.total_supply = self.bigint_to_float(logs["initial_supply"], coin.decimals)
+        coin.price_per_token = logs["price_per_token"]
+        try:
+            self.ensure_connection()
+            coin.save()
+            print(f"Initailized coin with address: {logs['mint_address']}")
         except Exception as e:
             print(f"Error while saving coin: {e}")
 
@@ -193,9 +241,10 @@ class Command(BaseCommand):
                 return
         return return_value
 
-    def ensure_connection(self):
-        if connection.connection and connection.connection.closed:
-            connection.close()
+    def ensure_connection():
+        close_old_connections()
+        if not connection.is_usable():
+            connection.connect()
 
     def get_transaction_type(self, ttype):
         ttype = str(ttype)
@@ -211,4 +260,3 @@ class Command(BaseCommand):
         for num, log in enumerate(logs): # get the function id
             if "Program log: Instruction:" in log:
                 return log.split(": ")[-1], num
-            
