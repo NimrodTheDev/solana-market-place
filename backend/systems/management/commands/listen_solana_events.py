@@ -75,7 +75,7 @@ class Command(BaseCommand):
         # check the type
         signature = getattr(event_data, 'signature', None)
         logs = getattr(event_data, 'logs', [])
-
+        print(logs)
         event_type, currect_log = self.get_function_id(logs)
         if event_type and signature:
             if event_type == "CreateToken":
@@ -241,7 +241,7 @@ class Command(BaseCommand):
                 return
         return return_value
 
-    def ensure_connection():
+    def ensure_connection(self):
         close_old_connections()
         if not connection.is_usable():
             connection.connect()
